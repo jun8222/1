@@ -1,0 +1,3000 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>국가고시 대비 실전 퀴즈</title>
+  <style>
+    :root {
+      --bg-dark: #1e222b;
+      --card-bg: #272c38;
+      --opt-bg: #1f232d;
+      --opt-hover: #2d3342;
+      --border: #3b4252;
+      --text: #e2e8f0;
+      --text-muted: #94a3b8;
+      
+      --correct-border: #22c55e;
+      --correct-text: #4ade80;
+      --wrong-border: #ef4444;
+      --wrong-text: #f87171;
+      --primary: #3b82f6;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 24px 16px;
+    }
+
+    .container {
+      max-width: 820px;
+      margin: 0 auto;
+    }
+
+    /* 첫 화면: 과목 선택 카드 */
+    #selection-screen {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      margin-top: 30px;
+    }
+
+    .select-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 32px 24px;
+      text-align: center;
+    }
+
+    .select-card h2 {
+      font-size: 1.55rem;
+      margin-bottom: 10px;
+      color: #f8fafc;
+    }
+
+    .select-card p {
+      color: var(--text-muted);
+      font-size: 0.98rem;
+      margin-bottom: 28px;
+    }
+
+    .subject-btn-group {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    @media (max-width: 650px) {
+      .subject-btn-group {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .subject-select-btn {
+      padding: 20px 16px;
+      background-color: var(--opt-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: #f8fafc;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.2s ease;
+    }
+
+    .subject-select-btn:hover {
+      background-color: var(--opt-hover);
+      border-color: var(--primary);
+      transform: translateY(-3px);
+    }
+
+    .badge {
+      background: rgba(59, 130, 246, 0.2);
+      color: #60a5fa;
+      font-size: 0.85rem;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-weight: 500;
+    }
+
+    /* 퀴즈 영역 */
+    #quiz-view {
+      display: none;
+    }
+
+    header {
+      background: var(--card-bg);
+      padding: 18px 24px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .back-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 6px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.88rem;
+      transition: all 0.2s;
+    }
+
+    .back-btn:hover {
+      background: var(--opt-hover);
+      color: #fff;
+    }
+
+    header h1 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #f8fafc;
+    }
+
+    .score-bar {
+      display: flex;
+      gap: 16px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #60a5fa;
+    }
+
+    .quiz-card {
+      background: var(--card-bg);
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 24px;
+      border: 1px solid var(--border);
+    }
+
+    .q-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 14px;
+      color: #f8fafc;
+      line-height: 1.5;
+    }
+
+    .q-number {
+      color: #60a5fa;
+      margin-right: 8px;
+    }
+
+    .q-context-box {
+      background: rgba(15, 23, 42, 0.45);
+      padding: 14px 18px;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      color: #cbd5e1;
+      margin-bottom: 18px;
+      white-space: pre-line;
+      border: 1px solid #475569;
+      line-height: 1.7;
+    }
+
+    .options-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .option-card {
+      width: 100%;
+      text-align: left;
+      padding: 16px 20px;
+      background-color: var(--opt-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      cursor: pointer;
+      color: var(--text);
+      transition: all 0.2s ease;
+      display: block;
+    }
+
+    .option-card:hover:not(:disabled) {
+      background-color: var(--opt-hover);
+      border-color: #64748b;
+    }
+
+    .option-card:disabled {
+      cursor: default;
+    }
+
+    .option-header {
+      font-size: 1.02rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .option-inner-exp {
+      display: none;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .status-label {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      margin-bottom: 6px;
+    }
+
+    .status-label.correct {
+      color: var(--correct-text);
+    }
+
+    .status-label.wrong {
+      color: var(--wrong-text);
+    }
+
+    .exp-content {
+      font-size: 0.92rem;
+      color: #cbd5e1;
+      line-height: 1.55;
+    }
+
+    .option-card.user-correct {
+      border: 1.5px solid var(--correct-border) !important;
+      background-color: rgba(34, 197, 94, 0.08);
+    }
+
+    .option-card.user-wrong {
+      border: 1.5px solid var(--wrong-border) !important;
+      background-color: rgba(239, 68, 68, 0.08);
+    }
+
+    .option-card.target-answer {
+      border: 1.5px solid var(--correct-border) !important;
+      background-color: rgba(34, 197, 94, 0.05);
+    }
+
+    .common-feedback {
+      display: none;
+      margin-top: 16px;
+      padding: 16px;
+      border-radius: 10px;
+      background-color: rgba(0, 0, 0, 0.25);
+      border: 1px solid var(--border);
+    }
+
+    .common-title {
+      font-weight: 700;
+      color: #94a3b8;
+      font-size: 0.9rem;
+      margin-bottom: 8px;
+    }
+
+    .common-item {
+      font-size: 0.9rem;
+      color: #cbd5e1;
+      padding-left: 10px;
+      border-left: 3px solid #64748b;
+      margin-bottom: 6px;
+      white-space: pre-line;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    
+    <!-- 과목 선택 화면 -->
+    <div id="selection-screen">
+      <div class="select-card">
+        <h2>국가고시 과목별 실전 퀴즈</h2>
+        <p>풀이하고자 하는 과목을 선택해주세요.</p>
+        <div class="subject-btn-group">
+          <button type="button" class="subject-select-btn" onclick="startSubject('anatomy')">
+            <span>구강해부학</span>
+            <span class="badge">1번 ~ 36번 (36문항)</span>
+          </button>
+          <button type="button" class="subject-select-btn" onclick="startSubject('morphology')">
+            <span>치아형태학</span>
+            <span class="badge">1번 ~ 48번 (48문항)</span>
+          </button>
+          <button type="button" class="subject-select-btn" onclick="startSubject('hygiene')">
+            <span>구강보건학</span>
+            <span class="badge">1번 ~ 36번 (36문항)</span>
+          </button>
+          <button type="button" class="subject-select-btn" onclick="startSubject('materials')">
+            <span>치과재료학</span>
+            <span class="badge">1번 ~ 105번 (105문항)</span>
+          </button>
+          <button type="button" class="subject-select-btn" onclick="startSubject('law')" style="grid-column: span 2;">
+            <span>의료관계법규</span>
+            <span class="badge">1번 ~ 100번 (100문항)</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 퀴즈 풀이 화면 -->
+    <div id="quiz-view">
+      <header>
+        <div class="header-left">
+          <button type="button" class="back-btn" onclick="goHome()">← 과목 선택</button>
+          <h1 id="quiz-header-title">실전 퀴즈</h1>
+        </div>
+        <div class="score-bar">
+          <span>진행도: <span id="progress-count">0</span> / <span id="total-count">0</span></span>
+          <span>정답수: <span id="score-count">0</span>점</span>
+        </div>
+      </header>
+
+      <div id="quiz-container"></div>
+    </div>
+
+  </div>
+
+  <script>
+    // 기존 4개 과목 데이터베이스
+    const quizDatabase = {
+      anatomy: {
+        title: "구강해부학 (1번 ~ 36번)",
+        questions: [
+          {
+            id: 1, question: "이공의 해부학적 위치는?",
+            options: ["상악 견치 상방", "상악 견치 하방", "상악중절치 후방", "하악 2소구치 하방", "상악 2소구치 상방"],
+            answer: 4,
+            optionExplanations: { 4: "이공은 하악골(아래턱뼈) 하악체 외면의 하악 제2소구치 치근 하방에 개구하며, 이신경과 이혈관이 통과합니다." },
+            commonExplanations: ["이공(Mental foramen)은 상악골이 아닌 하악골에 위치합니다."]
+          },
+          {
+            id: 2, question: "접형골에 대한 설명으로 옳은 것은?",
+            options: ["소익의 정원공이 있다", "체, 소가, 대각, 익상돌기 4부분으로 나뉜다", "접형골체의 속은 빈 공간인 터어키안이 있다", "익상돌기의 익돌와에는 내측익돌근이 부착된다", "대익에서는 익돌와, 익돌구, 익돌관을 볼 수 있다"],
+            answer: 4,
+            optionExplanations: {
+              1: "정원공은 소익이 아닌 대익에 존재합니다.",
+              2: "체, 소익, 대익, 익상돌기로 구분됩니다.",
+              3: "터어키안은 뇌하수체 오목이며 속 빈 공간은 접형골동입니다.",
+              4: "익상돌기의 익돌와에는 내측익돌근이 기시/부착합니다.",
+              5: "익돌와, 익돌구, 익돌관은 익상돌기 구조입니다."
+            },
+            commonExplanations: []
+          },
+          {
+            id: 3, question: "혀의 운동을 지배하는 신경은??",
+            options: ["설인신경", "설하신경", "미주신경", "하악신경의 설신경", "안면신경의 고삭신경"],
+            answer: 2,
+            optionExplanations: {
+              1: "설인신경은 혀 후방 1/3 감각/미각을 담당합니다.",
+              2: "제12뇌신경 설하신경이 혀 근육 운동을 전담 지배합니다.",
+              4: "설신경은 혀 전방 2/3 일반감각을 담당합니다.",
+              5: "고삭신경은 혀 전방 2/3 미각을 담당합니다."
+            },
+            commonExplanations: []
+          },
+          {
+            id: 4, question: "구개골(입천장뼈)에 대한 설명 중 옳은 것은?",
+            options: ["상악골의 전방에 위치한다", "후상치조공, 절치공이 있다", "\"L\" 자형이며, 연직판과 수평판이 있다", "나비 모양이며 체, 소익, 대익, 익상돌기 등으로 구분한다", "전두돌기, 협골돌기, 치조돌기, 구개돌기 등 4개의 돌기가 있다"],
+            answer: 3,
+            optionExplanations: { 3: "구개골은 쌍을 이루는 L자형 뼈로, 수평판과 연직판(수직판)으로 구분됩니다." },
+            commonExplanations: []
+          },
+          {
+            id: 5, question: "상순과 하순이 닿아서 이루는 좁은 틈을 무어라 하는가?",
+            options: ["구각", "구열", "이부", "이순구", "비순구"],
+            answer: 2,
+            optionExplanations: { 2: "위입술과 아래입술이 만나 형성하는 구강 입구의 틈새를 구열(Oral fissure)이라 합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 6, question: "하관절강에서 이루어지는 악관절의 기본운동은?",
+            options: ["회전운동", "활주운동", "폐구운동", "측방운동", "후퇴운동"],
+            answer: 1,
+            optionExplanations: { 1: "악관절 하관절강에서는 회전운동(경첩/접번운동)이 일어납니다." },
+            commonExplanations: ["상관절강에서는 활주운동이 일어납니다."]
+          },
+          {
+            id: 7, question: "하악골의 폐구운동과 관계가 있는 근육으로 권골궁에서 기시하여 하악각 근처에서 정지하는 것은?",
+            options: ["교근", "측두근", "악이복근", "외측익돌근", "내측익돌근"],
+            answer: 1,
+            optionExplanations: { 1: "교근은 권골궁에서 기시하여 하악각 외면 교근조면에 정지하는 폐구근입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 8, question: "보조개를 형성하기 위해 작용하는 근육은?",
+            options: ["협근", "소근", "구륜근", "소권골근", "구각거근"],
+            answer: 2,
+            optionExplanations: { 2: "소근(Risorius m.)은 구각을 후외방으로 당겨 보조개를 만듭니다." },
+            commonExplanations: []
+          },
+          {
+            id: 9, question: "안면근에 대한 설명으로 옳은 것은?",
+            options: ["근막이 있다", "하악신경이 지배한다", "얼굴의 표정을 나타낸다", "1개의 근육으로 독립되어 있다", "얼굴의 뼈에서 기시하여 근막에서 정지한다"],
+            answer: 3,
+            optionExplanations: { 3: "안면근은 표정근으로서 얼굴 피부를 움직여 표정을 나타냅니다." },
+            commonExplanations: ["안면신경(VII) 지배를 받으며 고유근막이 거의 없습니다."]
+          },
+          {
+            id: 10, question: "뇌신경인 설인신경이 담당하는 영역으로 옳은 것은?",
+            options: ["혀의 운동", "혀의 전방 2/3의 감각", "혀의 전방 2/3의 미각", "후두개 부위의 미각 및 감각", "혀의 후방 1/3의 미각 및 감각"],
+            answer: 5,
+            optionExplanations: { 5: "제9뇌신경 설인신경은 혀 후방 1/3의 일반감각과 미각을 담당합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 11, question: "절치관을 지나 절치공을 통해 나와 상악 전치부 설측치은과 점막에 분포하는 동맥은?",
+            options: ["하치조동맥", "상행구개동맥", "하행구개동맥", "전강치조동맥", "하행중격동맥"],
+            answer: 3,
+            optionExplanations: { 3: "절치공으로 나오는 혈관은 비구개동맥(하행구개동맥 계통)입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 12, question: "타액의 구개부위가 바르게 연결된 것은?",
+            options: ["설하선-설점막", "구치선-설하소구", "악하선-설하주름", "구치선-구개소와", "이하선-이하선유두"],
+            answer: 5,
+            optionExplanations: { 5: "이하선관은 상악 제2대구치 협측 점막의 이하선유두에 개구합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 13, question: "다음 중 옳지 않은 것은?",
+            options: ["해부학적 자세는 모든 설명의 기본이 되며 방향과 위치의 기준이 된다", "정중시상면은 머리를 한가운데서 좌·우 대칭으로 나눈 절단면이다", "관상면은 머리를 앞, 뒤로 나누는 절단면이다", "시상면은 관상면에 평행되는 모든 절단면이다", "횡단면은 머리를 위, 아래로 나누는 절단면이다"],
+            answer: 4,
+            optionExplanations: { 4: "시상면은 관상면과 수직(직각)을 이룹니다." },
+            commonExplanations: []
+          },
+          {
+            id: 14, question: "뼈의 기능으로 옳지 않은 것은?",
+            options: ["우리 몸의 구조중 가장 단단한 조직이다", "뇌, 심장 중요한 장기를 감싸서 보호한다", "몸의 지주가 되고 움직일 수 있게 한다", "조혈작용을 한다", "유기물을 저장한다"],
+            answer: 1,
+            optionExplanations: { 1: "인체에서 가장 단단한 조직은 법랑질이며 뼈는 무기질을 저장합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 15, question: "다음 얼굴머리뼈 중 상악신경이 지나가는 구멍을 수용하는 것은?",
+            options: ["상악골", "하악골", "측두골", "접형골", "구개골"],
+            answer: 4,
+            optionExplanations: { 4: "접형골 대익의 정원공을 통해 상악신경(V2)이 통과합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 16, question: "상악골에 대한 설명이다. 틀린 것은?",
+            options: ["상악골은 각각의 관절로 연결되어 있다", "4개의 면과 4개의 돌기와 상악동으로 구분된다", "상악골은 15종류의 두개골 중에서 9개의 날개머리뼈와 연결되어 있다", "구강, 비강, 안와의 형성에 관여한다", "권골돌기는 상악동 보호하는 구조이다"],
+            answer: 1,
+            optionExplanations: { 1: "두개골은 악관절을 제외하고 봉합(Suture)으로 연결되어 있습니다." },
+            commonExplanations: []
+          },
+          {
+            id: 17, question: "안면근의 특징이다. 적절치 않은 것은?",
+            options: ["표정근이다", "근육을 싸는 근막이 없다", "안면신경에 의해 지배된다", "근막이 없고 완전히 독립된 근육이다", "기시부는 주로 뼈이다"],
+            answer: 4,
+            optionExplanations: { 4: "안면근 섬유는 서로 교차하여 완전히 독립되어 있지 않습니다." },
+            commonExplanations: []
+          },
+          {
+            id: 18, question: "다음 중 안면신경의 협근지신경 지배를 받지 않는 것은?",
+            options: ["이근", "소근", "비근", "구각거근", "협근"],
+            answer: 1,
+            optionExplanations: { 1: "이근은 안면신경의 하악연지 지배를 받습니다." },
+            commonExplanations: []
+          },
+          {
+            id: 19, question: "얼굴의 비순구를 깊게 하는 근육끼리 옳게 연결된 것은?",
+            contextBox: "ㄱ. 대권골근           ㄴ. 소권골근           ㄷ. 상순거근\nㄹ. 구륜근             ㅁ. 하순하체근",
+            options: ["ㄱ, ㄴ", "ㄴ, ㄷ", "ㄷ, ㄹ", "ㅁ, ㄹ", "ㄷ, ㅁ"],
+            answer: 2,
+            optionExplanations: { 2: "소권골근과 상순거근은 위입술을 당겨 비순구를 깊게 만듭니다." },
+            commonExplanations: []
+          },
+          {
+            id: 20, question: "저작근 중 내측익돌근의 기시부로만 맞게 연결된 것은?",
+            contextBox: "ㄱ. 접형골 대익        ㄴ. 익돌와             ㄷ. 상악결절\nㄹ. 측두하능           ㅁ. 추체돌기           ㅂ. 경상돌기",
+            options: ["ㄱ, ㄴ", "ㄱ, ㄴ, ㄷ", "ㄷ, ㄹ, ㅂ", "ㄴ, ㄷ, ㅁ", "ㄷ, ㅁ, ㅂ"],
+            answer: 4,
+            optionExplanations: { 4: "내측익돌근은 익돌와(ㄴ), 상악결절(ㄷ), 추체돌기(ㅁ)에서 기시합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 21, question: "다음 중 하악의 후퇴운동에 관여하는 근육은?",
+            options: ["전측두근", "중측두근", "교근천부", "교근심부", "악이복근"],
+            answer: 2,
+            optionExplanations: { 2: "중측두근 및 후측두근 섬유가 하악 후퇴를 담당합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 22, question: "설골상근 중 악이복근의 지배신경으로 옳게 연결된 것은?",
+            contextBox: "ㄱ. 안면신경           ㄴ. 상악신경           ㄷ. 하악신경\nㄹ. 설하신경           ㅁ. 부신경",
+            options: ["ㄱ, ㄴ", "ㄴ, ㄷ", "ㄷ, ㄹ", "ㄹ, ㅁ", "ㄱ, ㄷ"],
+            answer: 5,
+            optionExplanations: { 5: "전복은 하악신경(ㄷ), 후복은 안면신경(ㄱ)의 지배를 받습니다." },
+            commonExplanations: []
+          },
+          {
+            id: 23, question: "악관절의 특징이다. 옳지 않은 것은?",
+            options: ["양측성 관절이다", "관절원판이 있다", "활막성관절이다", "치아교합과 밀접한 관련이 있다", "경추신경계통에 지배된다"],
+            answer: 5,
+            optionExplanations: { 5: "악관절은 삼차신경 하악지(이개측두신경 등)의 지배를 받습니다." },
+            commonExplanations: []
+          },
+          {
+            id: 24, question: "하악의 개구운동과 전혀 관련이 없는 것은?",
+            options: ["외측익돌근", "내측익돌근", "악이복근", "악설골근", "이설골근"],
+            answer: 2,
+            optionExplanations: { 2: "내측익돌근은 하악을 거상시키는 대표적 폐구근입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 25, question: "인체를 전,후로 나누는 면은?",
+            options: ["시상면", "정중면", "관상면", "수평면", "횡단면"],
+            answer: 3,
+            optionExplanations: { 3: "관상면(Coronal plane)은 인체를 앞과 뒤로 나눕니다." },
+            commonExplanations: []
+          },
+          {
+            id: 26, question: "골구강을 형성하는 두개골은?",
+            options: ["하악골, 상악골, 구개골", "상악골, 하악골, 설골", "하악골, 상악골, 측두골", "상악골, 하악골, 관골", "상악골, 측두골, 설골"],
+            answer: 1,
+            optionExplanations: { 1: "뼈로 된 골구강은 하악골, 상악골, 구개골 3가지로 구성됩니다." },
+            commonExplanations: []
+          },
+          {
+            id: 27, question: "다음 돌기중 상악골에 속하는 것은?",
+            options: ["안와돌기", "치조돌기", "측두돌기", "추체돌기", "경상돌기"],
+            answer: 2,
+            optionExplanations: { 2: "상악골 돌기는 전두, 권골, 구개, 치조돌기 4개입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 28, question: "하악골과 관절하여 악관절을 이루는 두개골은?",
+            options: ["상악골", "전두골", "접형골", "구개골", "측두골"],
+            answer: 5,
+            optionExplanations: { 5: "하악골 하악두는 측두골의 하악와 및 관절결절과 관절합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 29, question: "주저작근이 아닌 것은?",
+            options: ["교근", "측두근", "악이복근", "내측익돌근", "외측익돌근"],
+            answer: 3,
+            optionExplanations: { 3: "악이복근은 부저작근/설골상근입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 30, question: "교근의 기시부위는?",
+            options: ["익돌근조면", "교근조면", "권골궁", "관절돌기", "측두근막"],
+            answer: 3,
+            optionExplanations: { 3: "교근은 권골궁(광대활)에서 기시합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 31, question: "개구운동 초기에 작용하는 근육은?",
+            options: ["악이복근", "교근", "내측익돌근", "외측익돌근", "측두근"],
+            answer: 4,
+            optionExplanations: { 4: "외측익돌근 하두가 개구 초기를 주도합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 32, question: "악관절의 기본운동으로 짝 지워진 것은?",
+            options: ["접번,상하", "상하,좌우", "상하,전후", "전후,접번", "접번,활주"],
+            answer: 5,
+            optionExplanations: { 5: "악관절 기본 운동 단위는 접번운동(회전)과 활주운동(미끄럼)입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 33, question: "악관절의 구성요소가 아닌 것은?",
+            options: ["하악두", "하악와", "관절낭", "근돌기", "관절원판"],
+            answer: 4,
+            optionExplanations: { 4: "근돌기는 측두근 정지부일 뿐 관절 요소가 아닙니다." },
+            commonExplanations: []
+          },
+          {
+            id: 34, question: "악관절의 설명중 틀리는 사항은?",
+            options: ["양측성관절이다.", "골융합관절이다.", "교합과 밀접한 관계이다.", "중추신경과 관계가 있다.", "활막성 관절이다."],
+            answer: 2,
+            optionExplanations: { 2: "악관절은 가동성 활막성(윤활) 관절입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 35, question: "내설근(내재설근)은?",
+            options: ["이설근", "설골설근", "상종설근", "경돌설골근", "소각설근"],
+            answer: 3,
+            optionExplanations: { 3: "내설근 4가지는 상종설근, 하종설근, 횡설근, 수직설근입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 36, question: "계대(소대)중 운동성이 가장 큰 것은?",
+            options: ["상순계대", "하순계대", "상협계대", "하협계대", "설계대"],
+            answer: 5,
+            optionExplanations: { 5: "혀 밑을 잇는 설계대(혀주름띠)가 운동성이 가장 큽니다." },
+            commonExplanations: []
+          }
+        ]
+      },
+      morphology: {
+        title: "치아형태학 (1번 ~ 48번)",
+        questions: [
+          {
+            id: 1, question: "다음 중 방출(맹출)과정에서 제2유구치와 교대되는 영구치는?",
+            options: ["제1소구치", "제2소구치", "제1대구치", "제2대구치", "견치"],
+            answer: 2,
+            optionExplanations: { 2: "제2소구치는 제2유구치와 교대 맹출하는 계승치입니다." },
+            commonExplanations: ["계승치: 20개 / 가생치: 대구치 12개"]
+          },
+          {
+            id: 2, question: "다음 중 다근치(multiple root)로만 이루어진 것은?",
+            options: ["상악중절치 - 하악중절치 - 상악측절치", "상악견치 - 하악견치 - 하악제1대구치", "상악제1소구치 - 하악제1대구치 - 하악제2대구치", "상악견치 - 상악제1소구치 - 상악제2소구치", "상악제1대구치 - 상악제2대구치 - 상악제3대구치"],
+            answer: 3,
+            optionExplanations: { 3: "상악제1소구치는 2근치이며, 하악 제1·2대구치는 근원심 2근치입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 3, question: "상악제1소구치의 근심변연융선상에 많이 나타나는 결절은?",
+            options: ["절단결절", "가성구치결절", "후구치결절", "가라벨리결절", "개재결절"],
+            answer: 5,
+            optionExplanations: { 5: "상악제1소구치 근심변연융선 상 결절은 개재결절입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 4, question: "다음 중 붕출(맹출)과정에서 제2유구치와 교대되는 영구치는?",
+            options: ["제1소구치", "제2소구치", "제1대구치", "제2대구치", "견치"],
+            answer: 2,
+            optionExplanations: { 2: "제2소구치는 제2유구치와 교대됩니다." },
+            commonExplanations: []
+          },
+          {
+            id: 5, question: "상악에서 중절치와 비교되는 측절치의 특징이 아닌 것은?",
+            options: ["순면의 원심반부가 더 둥글다", "설면에서 맹공을 볼 수가 있다", "접촉부의 위치가 더 높게 있다", "순면의 풍융도가 더 강하다", "치관의 길이가 더 작다"],
+            answer: 3,
+            optionExplanations: { 3: "상악 측절치 접촉부는 중절치보다 더 치경측(낮은 위치)에 있습니다." },
+            commonExplanations: []
+          },
+          {
+            id: 6, question: "하악중절치를 묘사한 내용으로 맞는 것은?",
+            options: ["순면의 근원심반부가 대칭적이다", "인접면에서 절단연은 순설경의 중앙선과 일치한다", "절단쪽에서 보았을때 절단연의 원심부위가 설측으로 치우쳐 있다", "치근의 근심면에서는 구를 볼 수가 있다", "만곡상징과 우각상징이 뚜렷하게 나타난다"],
+            answer: 1,
+            optionExplanations: { 1: "하악중절치는 모든 치아 중 크기가 가장 작고 좌우 대칭성이 완벽합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 7, question: "상악견치를 묘사한 내용으로 맞는 것은?",
+            options: ["하악견치의 첨두보다 더 예리하다", "하악견치보다 치관의 길이는 더 길다", "치관의 외형이 치근의 외형과 곧바르게 연결된다", "인접면에서 보면 첨두는 설쪽에 치우쳐 있다", "치관의 길이보다 근원심경이 더 크다"],
+            answer: 1,
+            optionExplanations: { 1: "상악견치 첨두가 하악견치보다 더 뾰족하고 예리합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 8, question: "하악제1대구치의 협면을 묘사한 것 중 틀리는 것은?",
+            options: ["협측교두들의 높이는 근심에서 원심으로 낮아진다", "협측교두는 설측교두에 비해 예리하다", "근심협연구 말단에 협면소와가 나타난다", "협측교두들중 가장 큰 것은 근심협측교두이다", "치경부위에 융선이 나타난다"],
+            answer: 2,
+            optionExplanations: { 2: "하악 대구치 협측교두는 기능교두로 둔하고 둥글며 설측교두가 예리합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 9, question: "하악제1대구치의 교합면에서 볼 수 있는 삼각융선의 수는?",
+            options: ["1개", "2개", "3개", "4개", "5개"],
+            answer: 4,
+            optionExplanations: { 4: "주요 4개 교두에서 각각 1개씩 총 4개의 삼각융선을 형성합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 10, question: "상악대구치에서 퇴화경향이 가장 뚜렷한 교두는?",
+            options: ["원심교두", "근심협측교두", "원심협측교두", "근심설측교두", "원심설측교두"],
+            answer: 5,
+            optionExplanations: { 5: "상악대구치열에서는 원심설측교두가 가장 퇴화합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 11, question: "상악제2소구치에 대한 특징묘사가 잘 못된 것은?",
+            options: ["협측교두정은 근원심경 중앙부근에 있다", "협측과 설측교두의 협설경 크기 비는 1:1이다", "교합면은 근원심반부가 거의 대칭적이다", "단근치이다", "설측교두의 높이는 협측교두의 1/3정도이다"],
+            answer: 5,
+            optionExplanations: { 5: "상악 제2소구치는 협측과 설측 교두 높이가 거의 비슷합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 12, question: "하악제1대구치의 치근수와 주분지방향은?",
+            options: ["2개, 협측-설측", "3개, 근심협측-원심협측-설측", "3개, 협측-설측", "3개, 근심-원심", "2개, 근심측-원심측"],
+            answer: 5,
+            optionExplanations: { 5: "하악 제1대구치는 근심근과 원심근 2개로 분지합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 13, question: "하악제1대구치와 비교되는 제2대구치의 특징은?",
+            options: ["치관이 전반적으로 더 크다", "원심교두의 발육이 약하다", "협설경이 근원심경보다 크다", "협연구에는 협면소와가 나타난다", "2개의 횡주융선이 있다"],
+            answer: 5,
+            optionExplanations: { 5: "하악 제2대구치는 4교두형으로 2개의 횡주융선과 十자형 주구를 가집니다." },
+            commonExplanations: []
+          },
+          {
+            id: 14, question: "상악구치와 하악구치의 치관을 비교했을 때 뚜렷한 차이점은?",
+            options: ["협면의 외형", "인접면의 외형", "치관의 크기", "치경선의 만곡도", "접촉부의 위치"],
+            answer: 2,
+            optionExplanations: { 2: "상악 구치는 사다리꼴(직립), 하악 구치는 평행사변형(설측 경사)입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 15, question: "다음 유치들중 영구치 상악소구치의 특징이 있는 것은?",
+            options: ["상악유견치", "상악제1유구치", "하악제1유구치", "상악제2유구치", "하악제2유구치"],
+            answer: 2,
+            optionExplanations: { 2: "상악 제1유구치는 영구치 상악 소구치와 치관 형태가 유사합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 16, question: "Carabelli 결절을 볼 수 있는 유치는?",
+            options: ["상악유견치", "상악제1유구치", "하악제1유구치", "상악제2유구치", "하악제2유구치"],
+            answer: 4,
+            optionExplanations: { 4: "상악 제2유구치는 근심설측교두 설면에 카라벨리 결절이 관찰됩니다." },
+            commonExplanations: []
+          },
+          {
+            id: 17, question: "다음 중 계승치가 아닌 것은?",
+            options: ["제1소구치", "제2소구치", "제1대구치", "견치", "측절치"],
+            answer: 3,
+            optionExplanations: { 3: "제1대구치는 유치열 뒤에서 새로 맹출하는 가생치입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 18, question: "절치의 치근을 바르게 설명한 것은?",
+            options: ["편평한 복근치", "분지된 다근치", "원추형의 단근치", "원추형의 복근치", "만곡된 다근치"],
+            answer: 3,
+            optionExplanations: { 3: "절치는 모두 단 1개의 치근을 가진 원추형 단근치입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 19, question: "다음 중 가장 나중에 맹출하는 것은?",
+            options: ["상악중절치", "하악중절치", "상악측절치", "하악측절치", "상악견치"],
+            answer: 5,
+            optionExplanations: { 5: "상악견치는 만 11~12세에 맹출하여 전치 중 가장 늦습니다." },
+            commonExplanations: []
+          },
+          {
+            id: 20, question: "교합의 접촉관계에서 1치아 대 2치아의 관계에서 예외인 것끼리 바르게 연결된 것은?",
+            contextBox: "ㄱ. 상악중절치       ㄴ. 하악중절치       ㄷ. 상악제3대구치\nㄹ. 하악제3대구치     ㅁ. 하악견치",
+            options: ["ㄱ, ㄴ", "ㄴ, ㄷ", "ㄷ, ㄹ", "ㄹ, ㅁ", "ㄱ, ㄷ"],
+            answer: 2,
+            optionExplanations: { 2: "하악중절치(ㄴ)와 상악제3대구치(ㄷ)는 1:1 교합 관계를 형성합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 21, question: "치근막(치주인대)에 관한 설명으로 옳지 않은 것은?",
+            options: ["골막과 비슷한 막이다", "치근을 싸고 있는 백악질과 치조벽 사이에 존재한다", "치조내에 치아를 지지한다", "평균 두께는 약 2mm 정도로 매우 두껍다", "치아에 작용되는 외력에 완충작용을 한다"],
+            answer: 4,
+            optionExplanations: { 4: "치주인대의 평균 두께는 약 0.2mm입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 22, question: "절치에 관한 설명으로 옳지 않은 것은?",
+            options: ["상악중절치가 치관은 가장 길다", "하악중절치가 치근은 가장 길다", "4개의 발달된 엽(lobe)과 4면으로 구성되어 있다", "순면과 설면은 부정장방형이다", "편측이 가장 작은 것은 하악 중절치이다"],
+            answer: 2,
+            optionExplanations: { 2: "치근이 가장 긴 치아는 상악견치입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 23, question: "상악 중절치에 관한 설명으로 옳지 않은 것은?",
+            options: ["설면결절에서 설면와로 향하는 극돌기가 있다", "설면결절이 발달하여 간혹 사절환이 생긴다", "절치중 가장 크다", "근원심경이 순설경보다 크다", "10세에 치근이 완성된다"],
+            answer: 2,
+            optionExplanations: { 2: "사절환(Talon cusp)과 맹공이 빈발하는 치아는 상악 측절치입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 24, question: "다음 중 설면결절(cingulum)이 가장 발달된 치아는?",
+            options: ["상악중절치", "상악견치", "하악중절치", "하악견치", "상악측절치"],
+            answer: 2,
+            optionExplanations: { 2: "상악견치는 설면결절과 설면융선이 가장 크고 강력합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 25, question: "상악견치의 교환(맹출)시기로 맞는 것은?",
+            options: ["7-8세", "8-9세", "9-10세", "10-11세", "11-12세"],
+            answer: 5,
+            optionExplanations: { 5: "상악견치 평균 맹출 연령은 만 11~12세입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 26, question: "하악 중절치에 대한 설명이다. 틀린 것은?",
+            options: ["일반적으로 치근단 부위가 근심으로 경사져 있다", "치경선의 높이는 근심면이 원심면보다 높다", "치근의 원심면에서는 구를 볼 수가 있다", "근원심경이 순설경보다 작다", "절단연은 순설경을 이등분한 선보다 약간 설측에 수평으로 위치한다"],
+            answer: 1,
+            optionExplanations: { 1: "치근상징에 의해 치근단은 원심(distal)으로 경사집니다." },
+            commonExplanations: []
+          },
+          {
+            id: 27, question: "교합면에 횡주융선이 없는 치아는?",
+            options: ["상악제1소구치", "상악제1대구치", "하악제1소구치", "하악제1대구치", "하악제2대구치"],
+            answer: 2,
+            optionExplanations: { 2: "상악 제1대구치는 사주융선(oblique ridge)을 가집니다." },
+            commonExplanations: []
+          },
+          {
+            id: 28, question: "상악제1소구치에 나타나는 결절은?",
+            options: ["Carabelli씨 결절", "설면결절", "개재결절", "후구치결절", "극돌기"],
+            answer: 3,
+            optionExplanations: { 3: "상악 제1소구치 근심변연융선 상 결절은 개재결절입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 29, question: "일반적으로 Carabelli씨 결절이 나타나는 부위는?",
+            options: ["근심협측교두 협면", "원심협측교두 협면", "근심설측교두의 설면", "원심설측교두 설면", "교합면 중앙"],
+            answer: 3,
+            optionExplanations: { 3: "카라벨리 결절은 근심설측교두의 설면에 나타납니다." },
+            commonExplanations: []
+          },
+          {
+            id: 30, question: "하악제2소구치의 교합면 특징 중 틀린 것은?",
+            options: ["협측교두가 설측으로 경사져 있다", "설측교두의 발육이 소구치 중 가장 약하다", "협측반부와 설측반부의 비율이 2:1이다", "교두의 수는 2-3개이다", "횡주융선이 존재한다"],
+            answer: 2,
+            optionExplanations: { 2: "설측교두 발육이 가장 미약한 치아는 하악 제1소구치입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 31, question: "협면 소와(buccal pit)를 볼 수 있는 치아는?",
+            options: ["상악제1소구치", "상악제1대구치", "하악제1소구치", "하악제1대구치", "하악제2소구치"],
+            answer: 4,
+            optionExplanations: { 4: "하악 제1대구치 근심협연구 말단에 협면소와가 형성됩니다." },
+            commonExplanations: []
+          },
+          {
+            id: 32, question: "Embrasure(치간공극)의 결정요소가 아닌 것은?",
+            options: ["교합면의 모양", "인접면 만곡도", "치아 축면 풍융도", "접촉부의 위치와 크기", "변연융선의 위치 및 형태"],
+            answer: 1,
+            optionExplanations: { 1: "접촉부, 변연융선, 축면 풍융도, 인접면 만곡도가 결정요소입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 33, question: "제 1유구치와 교체되는 영구치는?",
+            options: ["견치", "제1소구치", "제2소구치", "제1대구치", "제2대구치"],
+            answer: 2,
+            optionExplanations: { 2: "제1유구치는 제1소구치와 교대됩니다." },
+            commonExplanations: []
+          },
+          {
+            id: 34, question: "상악의 중절치와 측절치를 비교한 내용 중 맞는 것은?",
+            options: ["절단연의 길이는 중절치보다 측절치가 더 길다", "절단결절의 발육은 측절치가 더 좋다", "중절치의 순면풍융도는 측절치보다 더 강하다", "측절치의 치관은 중절치보다 길다", "측절치 설면에서는 맹공, 사절흔 등을 볼 수 있다"],
+            answer: 5,
+            optionExplanations: { 5: "상악 측절치는 설면와가 깊어 맹공, 사절흔이 자주 관찰됩니다." },
+            commonExplanations: []
+          },
+          {
+            id: 35, question: "전치 인접면에서 보았을 때 순면의 최대 풍융부는 어디에 위치해 있는가?",
+            options: ["절단 1/3부위", "중앙 1/3부위", "전장의 치경 1/3부위", "절단 결절 부위", "치경선 직상방 부위"],
+            answer: 3,
+            optionExplanations: { 3: "모든 전치부 순·설면 최대 풍융부는 치경 1/3에 위치합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 36, question: "상악 중절치를 절단측에서 보았을 때 묘사한 것 중 틀리는 내용은?",
+            options: ["근원심경이 순설경보다 더 넓다", "순면은 근심반부가 원심반부보다 더 돌출되어 있다", "설면결절이 약간 근심측으로 치우쳐 있다", "처음 맹출시 절단결절을 볼 수 있다", "절단연은 근심에서 원심으로 치경측을 향해 경사져 있다"],
+            answer: 3,
+            optionExplanations: { 3: "상악 중절치 설면결절은 약간 원심측에 위치합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 37, question: "일반적으로 상악견치의 맹출시기는?",
+            options: ["8-9세", "11-12세", "14-15세", "17-18세", "19-20세"],
+            answer: 2,
+            optionExplanations: { 2: "상악견치는 만 11~12세에 맹출합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 38, question: "상악견치와 하악견치를 비교했을 때 틀리는 내용은?",
+            options: ["치관의 길이는 하악견치가 더 길다", "치근의 길이는 하악견치가 더 길다", "근원심경은 상악견치가 더 크다", "순설경은 상악견치가 더 크다", "치경선의 높이는 상·하악견치 모두가 근심면이 더 높다"],
+            answer: 2,
+            optionExplanations: { 2: "치근 길이는 상악견치가 전 치아 중 가장 깁니다." },
+            commonExplanations: []
+          },
+          {
+            id: 39, question: "상·하악 견치의 좌우측을 구별할 수 있는 특징이 아닌 것은?",
+            options: ["첨두는 근원심경의 중앙에서 약간 근심측에 위치해 있다", "근심절단연이 원심절단연보다 더 길다", "순면의 근심반부가 원심반부에 비해서 근원심폭이 더 좁고 풍융하다", "근심절단우각이 원심절단우각보다 작다", "치근이 원심으로 경사져 있다"],
+            answer: 2,
+            optionExplanations: { 2: "첨두가 근심에 치우쳐 있어 근심절단연이 원심보다 더 짧습니다." },
+            commonExplanations: []
+          },
+          {
+            id: 40, question: "상악 제1소구치의 좌·우측을 구별할 수 있는 특징이 아닌 것은?",
+            options: ["근심변연구를 볼 수 있다", "근심부 치경선의 높이는 원심부치경선의 높이보다 높다", "협측교두의 근심교두융선 길이는 원심교두융선보다 더 길다", "협면에서 근심우각은 원심우각보다 더 작다", "협측에서 보았을 때 근심교합면이 원심교합면보다 길다"],
+            answer: 4,
+            optionExplanations: { 4: "상악 제1소구치는 근심우각이 더 예리하고 원심우각이 더 둥급니다." },
+            commonExplanations: []
+          },
+          {
+            id: 41, question: "치근이 협설 방향으로 분지하는 복근치는?",
+            options: ["하악 제1소구치", "상악견치", "상악 제1소구치", "하악 제1대구치", "상악 제1대구치"],
+            answer: 3,
+            optionExplanations: { 3: "상악 제1소구치는 소구치 중 유일하게 협설 2치근으로 분지합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 42, question: "하악 제1대구치의 협측교두와 설측교두의 높이를 비교하면 어떠한가?",
+            options: ["협측교두가 설측교두보다 더 높다", "설측교두가 협측교두보다 더 높다", "협측과 설측교두의 높이는 동일하다", "원심교두가 가장 높다", "근심협측교두가 가장 높다"],
+            answer: 2,
+            optionExplanations: { 2: "비기능교두인 설측교두가 기능교두인 협측교두보다 더 뾰족하고 높습니다." },
+            commonExplanations: []
+          },
+          {
+            id: 43, question: "하악 제1대구치의 협설면을 묘사한 것 중 틀리는 것은?",
+            options: ["협측교두의 높이는 근심에서 원심으로 점점 낮아진다", "협측교두는 설측교두에 비해서 예리하다", "근심협연구 말단에 협면소와가 나타난다", "3개의 협측교두중 가장 큰 것은 근심협측교두이다", "원심교두는 삼각융선이 존재하지 않는다"],
+            answer: 2,
+            optionExplanations: { 2: "협측교두는 둔하고 둥글며, 설측교두가 예리합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 44, question: "하악제1대구치 교합면에서 볼 수 있는 삼각융선의 수는?",
+            options: ["1개", "2개", "4개", "5개", "6개"],
+            answer: 3,
+            optionExplanations: { 3: "주요 4개 교두에서 각각 1개씩 총 4개의 삼각융선이 형성됩니다." },
+            commonExplanations: []
+          },
+          {
+            id: 45, question: "상악우측 제1대구치에 대한 설명 중 틀리는 내용은?",
+            options: ["FDI System No.는 16이다", "Universal Code No.는 3이다", "Palmer notation은 ㄴ6이다", "Root의 수는 3개이다", "6세구치라고도 한다"],
+            answer: 3,
+            optionExplanations: { 3: "상악 우측 제1대구치의 Palmer 표기는 '┘6'입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 46, question: "하악 제1대구치에서 가장 큰 교두는?",
+            options: ["원심교두", "원심협측교두", "근심협측교두", "근심설측교두", "원심설측교두"],
+            answer: 3,
+            optionExplanations: { 3: "가장 큰 교두는 근심협측교두(MB)입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 47, question: "영구치의 순면이나 협면의 최대 풍융부는 일반적으로 어느 부위인가?",
+            options: ["절단(교합) 1/3부위", "중앙 1/3부위", "치아전장의 치경부1/3부위", "중앙과 치경부 경계선 부위", "절단(교합)과 중앙 경계선 부위"],
+            answer: 3,
+            optionExplanations: { 3: "모든 순면과 협면의 최대 풍융부는 치경 1/3 부위입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 48, question: "상악 제1대구치의 사주융선을 이루는 삼각융선을 바르게 나열한 것은?",
+            options: ["근심설측 삼각융선과 원심협측 삼각융선", "근심협측 삼각융선과 원심설측 삼각융선", "근심협측 삼각융선과 근심설측 삼각융선", "원심협측 삼각융선과 원심설측 삼각융선", "근심설측 삼각융선과 원심교두 삼각융선"],
+            answer: 1,
+            optionExplanations: { 1: "사주융선은 원심협측교두 삼각융선과 근심설측교두 원심융선이 결합하여 형성됩니다." },
+            commonExplanations: []
+          }
+        ]
+      },
+      hygiene: {
+        title: "구강보건학 (1번 ~ 36번)",
+        questions: [
+          {
+            id: 1, question: "집단구강보건관리 과정 중 사업의 평가시 원칙 중 잘못 된 것은?",
+            options: ["명확한 기준 하에서 행해져야 한다", "가능한 객관적이어야 한다", "계속해서 행해져야 한다", "가급적 평이 해야 한다", "평가에 의해서 영향을 받지 않는 사람들에 의해 행해져야 한다"],
+            answer: 5,
+            optionExplanations: { 5: "평가 결과로 영향을 받을 지역 주민과 관계자가 평가 과정에 동참해야 합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 2, question: "다음 중 1차 예방관리에 속하는 것만의 조립은?",
+            contextBox: "ㄱ. 불소도포        ㄴ. 식이조절        ㄷ. 영양관리\nㄹ. 보철치료        ㅁ. 근관치료        ㅂ. 충전치료",
+            options: ["ㄱ, ㄴ, ㄷ", "ㄱ, ㄷ, ㅂ", "ㄴ, ㄷ, ㅁ", "ㄷ, ㄹ, ㅂ", "ㄹ, ㅁ, ㅂ"],
+            answer: 1,
+            optionExplanations: { 1: "불소도포(ㄱ), 식이조절(ㄴ), 영양관리(ㄷ)는 발병 전 1차 예방입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 3, question: "잇솔질의 목적이 아닌 것은?",
+            options: ["구강청결", "치아우식증예방", "심미증진", "치주병예방", "치석제거"],
+            answer: 5,
+            optionExplanations: { 5: "치석은 이미 석회화된 단단한 침착물로 스케일링으로 제거해야 합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 4, question: "공중구강보건학의 특성이 아닌 것은?",
+            options: ["공동책임성", "팀워크 형태", "치료사업을 위주로 한다", "복합적 요인 관리", "건강한 사람까지 대상 포함"],
+            answer: 3,
+            optionExplanations: { 3: "치료보다 비용과 노력이 절감되는 예방사업을 위주로 합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 5, question: "치아우식증의 가장 기본적인 예방법은?",
+            options: ["치면열구전색", "불소의 국소도포", "올바른 잇솔질", "치면세마", "식이조절"],
+            answer: 3,
+            optionExplanations: { 3: "물리적으로 치면세균막을 닦아내는 올바른 칫솔질이 가장 기본적입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 6, question: "세제의 작용이 아닌 것은?",
+            options: ["용해작용", "침투작용", "흡착작용", "부화작용", "분산작용"],
+            answer: 4,
+            optionExplanations: { 4: "부화작용은 세제의 세정 기전과 무관한 용어입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 7, question: "한국구강보건협회가 권장하는 잇솔질 방법은?",
+            options: ["묘원법", "회전법", "바스법", "횡마법", "차터스법"],
+            answer: 2,
+            optionExplanations: { 2: "치면세균막 제거율이 높고 잇몸 손상이 적은 회전법을 권장합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 8, question: "타액분비감소와 관계 없는 것은?",
+            options: ["결핵", "매독", "항히스타민 복용", "영양결핍", "pilocarpine"],
+            answer: 5,
+            optionExplanations: { 5: "pilocarpine은 부교감신경 자극제로 타액 분비를 촉진(증가)시킵니다." },
+            commonExplanations: []
+          },
+          {
+            id: 9, question: "구강의 당분잔류시간과 관계 있는 것은?",
+            options: ["Tes-tape", "Snyder test", "Alban test", "0.1N 유산용액", "Ostwald pipette"],
+            answer: 1,
+            optionExplanations: { 1: "Tes-tape은 포도당 잔류시간 검사 시 테이프 색상 변화로 판정합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 10, question: "Snyder test 란?",
+            options: ["타액점조도 검사", "타액분비율 검사", "타액의 완충능 검사", "구강청결도 판정 검사", "산생성균 대사능력 검사"],
+            answer: 5,
+            optionExplanations: { 5: "Snyder test는 산생성균의 대사 속도를 지시약 변색으로 보는 우식활성검사입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 11, question: "다음 중 치아우식이나 치주질환의 발생증가와 관련이 없는 것은?",
+            options: ["타액분비량 감소", "타액점조도 증가", "타액 pH 하락", "타액완충작용 증가", "이하선 타액량 감소"],
+            answer: 4,
+            optionExplanations: { 4: "타액 완충작용이 증가하면 산을 중화시켜 질환 발생을 억제합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 12, question: "치아우식증 예방법 중 병원체요인 제거법에 해당하는 것은?",
+            options: ["치질내산성 증가법", "치면열구전색법", "불소의 국소도포법", "세균침입로 차단법", "당질분해억제법"],
+            answer: 5,
+            optionExplanations: { 5: "당질분해억제법은 세균의 산 생산 대사를 차단하는 병원체 제거법입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 13, question: "예방치학의 대상으로 옳은 것은?",
+            options: ["대중과 집단", "가정과 개인", "지역사회 주민", "국가와 사회", "취약계층 집단"],
+            answer: 2,
+            optionExplanations: { 2: "예방치학은 개인과 가정을 대상으로 질환을 예방하는 임상 분야입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 14, question: "계속구강건강관리제도를 성공적으로 할 수 있는 방법으로 가장 부적절한 것은?",
+            options: ["미리 약속하는 방법", "건강관리카드 이용법", "전화 이용 환기", "친밀한 인간관계", "환자가 정기진료를 받도록 권유하는 방법"],
+            answer: 5,
+            optionExplanations: { 5: "체계적인 리콜 시스템 없이 단순 구두 권유만 하는 방식은 부적절합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 15, question: "역학의 시간적 특성에서 계절적 변화에 관계하는 질병발생주기는?",
+            options: ["1개월", "3개월", "6개월", "1년", "수년"],
+            answer: 4,
+            optionExplanations: { 4: "계절적 변화는 1년을 주기로 기온·기후에 따라 변동합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 16, question: "치아우식증의 특징 중 부적절한 것은?",
+            options: ["완치가 없고 결손 후유증이 남는다", "문화수준에 비례하는 문화병이다", "산발성 질환이다", "신생율은 연소자에게서 높다", "식생활 문화수준과 정비례한다"],
+            answer: 3,
+            optionExplanations: { 3: "치아우식증은 전 세계 인류에게 널리 퍼진 범발성(pandemic) 질환입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 17, question: "구강내 타액의 역할이 아닌 것은?",
+            options: ["미각작용", "체내수분 균형유지", "연하 작용 보조", "우식발생 억제", "구강청정작용"],
+            answer: 2,
+            optionExplanations: { 2: "전신 수분 균형 유지는 신장 및 내분비계의 기능입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 18, question: "4단계 치아우식증 예방법이다. 맞는 것은?",
+            options: ["불소도포 → 식이조절 → 치면세균막관리 → 치면열구전색", "식이조절 → 불소도포 → 치면열구전색 → 치면세균막관리", "치면열구전색 → 불소도포 → 식이조절 → 치면세균막관리", "치면세균막관리 → 치면열구전색 → 불소도포 → 식이조절", "불소도포 → 치면열구전색 → 식이조절 → 치면세균막관리"],
+            answer: 1,
+            optionExplanations: { 1: "정석 순서는 불소도포 → 식이조절 → 치면세균막관리 → 치면열구전색입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 19, question: "구강암의 역학적특성이다. 부적절한 것은?",
+            options: ["남성에게 빈발한다", "구치부 치은·입술·혀에 호발한다", "교합압의 감소", "도시인에게서 높은 발생률을 보인다", "인체 암 중 약 5%를 차지한다"],
+            answer: 3,
+            optionExplanations: { 3: "교합압의 감소는 구강암 발병 요인과 무관합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 20, question: "온대지방의 적정 불소이온농도는?",
+            options: ["0.2-0.5ppm", "0.5-0.8ppm", "0.8-1.2ppm", "1.5-2.0ppm", "2.0-3.0ppm"],
+            answer: 3,
+            optionExplanations: { 3: "온대지방 수돗물 불소농도화 기준은 0.8~1.2ppm입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 21, question: "치주병의 발생률이 가장 높은 부위는?",
+            options: ["상악 순측", "하악 설측", "하악 순측", "상악 구개측", "상악 협측"],
+            answer: 1,
+            optionExplanations: { 1: "역학 조사상 상악 전치부 순측에서 치주병 발생률이 가장 높습니다." },
+            commonExplanations: []
+          },
+          {
+            id: 22, question: "불소복용법의 종류이다. 부적절한 것은?",
+            options: ["소맥분 불화", "불화칼슘 복용법", "불소시럽 복용", "상수도수 불화", "우유 불화"],
+            answer: 2,
+            optionExplanations: { 2: "불화칼슘(CaF2)은 불용성 물질이어서 전신 복용제로 쓰이지 않습니다." },
+            commonExplanations: []
+          },
+          {
+            id: 23, question: "불소를 과다복용 하였다. 나타나는 증상이 아닌 것은?",
+            options: ["골연화증", "구토", "위장장애", "반상치 발생", "소화불량"],
+            answer: 1,
+            optionExplanations: { 1: "만성 과다 복용 시 뼈가 굳어지는 골경화증이 생기며 골연화증이 아닙니다." },
+            commonExplanations: []
+          },
+          {
+            id: 24, question: "다음 중 아동과 성인 모두에 우식예방효과가 있는 것은?",
+            options: ["불화나트륨", "불화석", "산성불화인산염", "불화아연", "불화마그네슘"],
+            answer: 2,
+            optionExplanations: { 2: "불화석(SnF2)은 아동(8%)과 성인(10%) 모두에게 효과적입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 25, question: "식품과 구강병과의 관계에 관한 것중 틀린 것은?",
+            options: ["고체식품이 액체보다 우식을 호발시킨다", "당질식품은 치주병의 유발과 관계가 없다", "가공식품이 자연식품보다 우식을 호발시킨다", "지질 섭취 시 우식이 억제된다", "식품의 성질과 섭취 횟수가 구강병에 큰 영향을 미친다"],
+            answer: 2,
+            optionExplanations: { 2: "당질은 치태 형성을 자극하여 치주병 유발에도 직접 기여합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 26, question: "4단 치아우식예방법으로만 연결된 것은?",
+            contextBox: "가. 치면세마           나. 잇솔질           다. 치면열구전색\n라. 치석제거           마. 당미식품간식제한 바. 불소도포",
+            options: ["가, 나, 다, 라", "나, 다, 마, 바", "가, 다, 라, 마", "나, 라, 마, 바", "다, 라, 마, 바"],
+            answer: 2,
+            optionExplanations: { 2: "잇솔질(나), 치면열구전색(다), 당미식품간식제한(마), 불소도포(바) 4가지입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 27, question: "다음 타액과 치아우식의 관계 중에서 치아우식의 감소가 예상되는 경우는?",
+            options: ["점조도 증가", "pH 감소", "타액의 암모니아 함량증가", "완충작용 감소", "분비 감소"],
+            answer: 3,
+            optionExplanations: { 3: "암모니아 성분은 산을 중화시켜 우식 발생을 억제합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 28, question: "우식빈도가 가장 높은 치아는?",
+            options: ["상악1소구치", "하악1소구치", "상악1대구치", "하악2대구치", "하악1대구치"],
+            answer: 5,
+            optionExplanations: { 5: "가장 일찍 맹출하고 깊은 소와열구를 갖는 하악 제1대구치가 최고입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 29, question: "치아의 순면만 닦는데 적합한 방법은?",
+            options: ["횡마법", "스틸맨법", "종마법", "회전법", "차터스법"],
+            answer: 3,
+            optionExplanations: { 3: "종마법은 치아 장축 수직 방향으로 전치부 순면을 닦는 데 적합합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 30, question: "연마제가 포함되지 않은 세치제로 옳은 것은?",
+            options: ["크림세치제", "분말세치제", "고형세치제", "액상세치제", "페이스트세치제"],
+            answer: 4,
+            optionExplanations: { 4: "액상세치제는 연마제가 전혀 들어있지 않습니다." },
+            commonExplanations: []
+          },
+          {
+            id: 31, question: "불화석 도포법에 대한 설명중 틀린 것은?",
+            contextBox: "가) 3세부터 매년 2회씩 도포한다.\n나) 아동은 8% 수용액을 사용한다.\n다) 40%의 치아우식 예방효과가 있다.\n라) 6개월간 보관하여 사용할 수 있다.\n마) 성인은 2% 수용액을 사용한다.",
+            options: ["가, 다", "나, 라", "가, 다, 라, 마", "나, 다, 마", "가, 라, 마"],
+            answer: 3,
+            optionExplanations: { 3: "나(아동 8%)만 맞고, 매년 1회, 즉시 제조 사용, 성인 10%, 60~70% 예방효과입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 32, question: "불소의 치아우식예방기전이 아닌 것은?",
+            options: ["치질 내산성 증가", "Ca, P 재침착 촉진", "치수의 반응증대", "효소작용 억제", "불화칼슘막 형성"],
+            answer: 3,
+            optionExplanations: { 3: "불소는 법랑질 표면과 세균에 작용하며 치수 조직 대사를 직접 자극하지 않습니다." },
+            commonExplanations: []
+          },
+          {
+            id: 33, question: "치경부 치아우식증 빈발하는 직업은?",
+            options: ["양잿물 제조공", "도자기공", "제분업자", "시멘트 제조공", "유리 세공업자"],
+            answer: 3,
+            optionExplanations: { 3: "제분업자나 제빵사는 미세 밀가루 당질 분진에 노출되어 치경부 우식이 호발합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 34, question: "치아우식증 발생에 가장 많은 영향을 미치는 요인으로 옳은 것은?",
+            options: ["단백질", "무기질", "함수탄소", "비타민", "지방"],
+            answer: 3,
+            optionExplanations: { 3: "함수탄소(탄수화물)가 세균의 산 생산 원료이므로 가장 큰 영향을 미칩니다." },
+            commonExplanations: []
+          },
+          {
+            id: 35, question: "간식의 횟수와 치아우식활성도는?",
+            options: ["반비례", "정비례", "무관함", "지수함수적 감소", "역상관관계"],
+            answer: 2,
+            optionExplanations: { 2: "당질 간식 섭취 횟수가 증가할수록 구강 내가 산성으로 유지되어 정비례 상승합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 36, question: "충치(dental caries) 원인설 중 가장 유력한 설은?",
+            options: ["단백용해설", "단백킬레이트설", "화학세균설", "자가면역설", "생물학적설"],
+            answer: 3,
+            optionExplanations: { 3: "W.D. Miller의 화학세균설이 가장 널리 공인된 정설입니다." },
+            commonExplanations: []
+          }
+        ]
+      },
+      materials: {
+        title: "치과재료학 (1번 ~ 105번)",
+        questions: [
+          {
+            id: 1, question: "브리넬(Brinell hardness)경도 수는 그 재료의 무엇에 대한 것을 뜻하는가?",
+            options: ["강도", "연신율", "표면의 굳은 정도(표면저항능력)", "부식성", "탄성률"],
+            answer: 3,
+            optionExplanations: { 3: "경도는 표면의 영구 변형(압입)에 대한 저항 능력입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 2, question: "주조용 링 내면에 석면대(asbestos)를 내장하는 가장 주된 이유는?",
+            options: ["매몰재 가열속도 증가", "경화시간 단축", "수화팽창 증가", "매몰재의 팽창을 도모하기 위해", "매몰재 사용량 감소"],
+            answer: 4,
+            optionExplanations: { 4: "금속 링의 구속력을 완충하여 매몰재가 자유롭게 팽창하도록 돕습니다." },
+            commonExplanations: []
+          },
+          {
+            id: 3, question: "가역성 수성교질 인상재의 기본성분은?",
+            options: ["아가-아가(agar-agar)", "알지네이트(alginate)", "붕사(borax)", "황산칼륨", "산화아연"],
+            answer: 1,
+            optionExplanations: { 1: "한천(Agar-agar)은 온도에 따라 졸과 겔로 가역 변화합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 4, question: "도재소부 주조금속관(PFM)을 제작할 때 사용할 수 없는 원소는?",
+            options: ["금(Au)", "동(Cu)", "백금(Pt)", "팔라듐(Pd)", "코발트(Co)"],
+            answer: 2,
+            optionExplanations: { 2: "동(Cu)이나 은(Ag)은 도재 소성 시 표면을 녹색 등으로 변색시킵니다." },
+            commonExplanations: []
+          },
+          {
+            id: 5, question: "석고제품 사용 시 경화시간을 연장(지연)시키고자 한다. 맞는 내용으로 짝지어진 것은?",
+            contextBox: "가. 20℃ 이하의 물로 연화        나. 연화시간을 감소시킨다\n다. 연화횟수를 증가시킨다        라. Borax(붕사)를 첨가한다\n마. K₂SO₄ 첨가",
+            options: ["가, 다", "나, 라", "다, 마", "가, 라", "나, 마"],
+            answer: 2,
+            optionExplanations: { 2: "혼합 시간을 줄이면 결정 핵이 덜 생기고(나), 붕사는 지연제입니다(라)." },
+            commonExplanations: []
+          },
+          {
+            id: 6, question: "치과석고산물(Dental gypsum product)의 경화반응식은 어느 것인가?",
+            options: [
+              "CaSO₄·2H₂O + heat → (CaSO₄)₂·H₂O + 3H₂O",
+              "(CaSO₄)₂·H₂O + H₂O → CaSO₄·2H₂O",
+              "(CaSO₄)₂·H₂O + 3H₂O → 2CaSO₄·2H₂O + heat ↑",
+              "CaSO₄ + 2H₂O → CaSO₄·2H₂O",
+              "CaSO₄·½H₂O + H₂O → CaSO₄·2H₂O + heat ↓"
+            ],
+            answer: 3,
+            optionExplanations: { 3: "반수석고가 물과 결합하여 이수석고로 결정화되면서 열을 방출합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 7, question: "다음 중 인산아연시멘트(Zinc phosphate cement)의 경화시간을 지연시키는데 가장 알맞은 방법은?",
+            options: ["혼합시 찬 유리판(Cool slab)을 사용한다", "더운 유리판을 사용한다", "분말에 물을 첨가한다", "액에 알코올을 첨가한다", "한 번에 많은 양의 분말을 혼합한다"],
+            answer: 1,
+            optionExplanations: { 1: "발열 반응열을 차가운 유리판으로 흡수시켜 경화를 지연시킵니다." },
+            commonExplanations: []
+          },
+          {
+            id: 8, question: "다음 중 치과용 석고 및 매몰재 관련 설명으로 옳지 않은 것은?",
+            options: ["경석고의 혼수비는 보통석고보다 낮다", "치과용 석고분말은 CaSO₄·2H₂O 로 이뤄져 있다", "한천 인상재에는 겔 강도를 위해 붕사가 첨가된다", "석고 경화를 돕는 성분이 한천 인상재에 포함된다", "납형(Wax pattern)은 제작 후 즉시 매몰해야 한다"],
+            answer: 2,
+            optionExplanations: { 2: "치과용 석고 분말은 반수석고(CaSO₄·½H₂O)입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 9, question: "치과용 경석고가 보통석고에 비해 다른 것은 다음 중 어느 것인가?",
+            contextBox: "가. 더 단단하다               나. 혼수 때 더 많은 물이 요구된다\n다. 더 강하고 마모저항이 높다   라. 경화팽창이 크다",
+            options: ["가, 다", "나, 라", "가, 라", "나, 다", "가, 나, 다"],
+            answer: 1,
+            optionExplanations: { 1: "경석고는 입자가 치밀하여 더 단단하고(가), 마모저항성이 높습니다(다)." },
+            commonExplanations: []
+          },
+          {
+            id: 10, question: "Monomer 100g에 넣을 수 있는 polymer의 표준 양은?",
+            options: ["100g", "300g", "500g", "50g", "700g"],
+            answer: 2,
+            optionExplanations: { 2: "표준 무게비가 약 3:1(Polymer:Monomer)이므로 약 300g입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 11, question: "금 합금의 조성 중 강도를 증가시키며, 붉은 색조를 띄게 하며 열처리를 가능하게 하는 성분은?",
+            options: ["금(Au)", "은(Ag)", "동(Cu)", "백금(Pt)", "팔라듐(Pd)"],
+            answer: 3,
+            optionExplanations: { 3: "동(Cu)은 강도를 높이고 붉은색을 띠게 하며 경화열처리를 가능하게 합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 12, question: "크리스토발라이트 매몰재에서 Silica(SiO₂)의 역할만으로 짝지어진 것은?",
+            contextBox: "가. 강도 부여             나. 열팽창 도모\n다. 파괴 방지             라. 내열성 부여",
+            options: ["가, 다", "가, 나", "나, 라", "다, 라", "나, 다"],
+            answer: 3,
+            optionExplanations: { 3: "실리카는 내화재로서 열팽창 도모(나)와 내열성 부여(라)를 담당합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 13, question: "모형의 표면강도를 가장 효과적으로 증가시킬 수 있는 용액은 다음 중 어느 것인가?",
+            options: ["2%의 zinc sulfate 용액", "2% 식염수", "붕사 용액", "묽은 염산", "알코올 수용액"],
+            answer: 1,
+            optionExplanations: { 1: "2% Zinc sulfate 용액 침적 시 표면 경도와 마모 저항성이 향상됩니다." },
+            commonExplanations: []
+          },
+          {
+            id: 14, question: "인레이 왁스(Inlay wax)의 구성성분 중 강도와 표면의 활택에 영향을 미치는 성분은?",
+            options: ["밀납(Bee's wax)", "카나우바왁스(carnauba wax)", "담마라 고무(Gum dammar)", "파라핀 왁스(Paraffin wax)", "합성 왁스"],
+            answer: 2,
+            optionExplanations: { 2: "카나우바 왁스는 왁스의 경도를 높이고 표면 광택 및 매끄러움을 줍니다." },
+            commonExplanations: []
+          },
+          {
+            id: 15, question: "형성된 wax pattern을 변형시키는 요인과 관계 없는 사항은?",
+            options: ["보관온도", "보관방법", "열팽창계수", "주조온도", "내부응력"],
+            answer: 4,
+            optionExplanations: { 4: "주조온도는 금속을 부을 때의 온도로 매몰 전 납형 변형 요인이 아닙니다." },
+            commonExplanations: []
+          },
+          {
+            id: 16, question: "합금의 전성과 내식성을 증가시키고 강도를 감소시키는 열처리는?",
+            options: ["소둔(annealing / 연화열처리)", "냉간가공", "시효경화", "경화열처리", "가공경화"],
+            answer: 1,
+            optionExplanations: { 1: "소둔(연화열처리)은 내부 응력을 풀어 전성과 연성을 높이고 강도를 낮춥니다." },
+            commonExplanations: []
+          },
+          {
+            id: 17, question: "금합금 주조체의 변연부가 불완전하게 형성되고 변연부가 유난히 반짝반짝 빛날 경우 주된 이유는?",
+            options: ["소환 부족", "통기성 부족 (Gases trapped)", "Under-주조온도", "주조압력 과다", "이물질 혼입"],
+            answer: 2,
+            optionExplanations: { 2: "통기성이 부족하여 몰드 내 가스가 금속 유입을 막았기 때문입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 18, question: "기공물의 표면을 연마(polishing)하는 이유로 가장 불합리한 것은?",
+            options: ["음식물 잔사 침착 방지", "변색 및 부식 방지", "화학적 저항성 및 착용감 향상", "심미성 제고", "기공물의 강도를 높임"],
+            answer: 5,
+            optionExplanations: { 5: "연마는 표면 조도를 없앨 뿐 재료 고유의 기계적 강도를 높이지 못합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 19, question: "레진 온성(resin curing) 후 급냉시키지 않고 방냉(bench cooling)을 하는 이유는?",
+            options: ["중합 시간을 줄이기 위함이다", "의치가 꼬이거나 뒤틀림을 방지하기 위함이다", "의치의 색상을 선명하게 하기 위함이다", "기포 발생을 촉진하기 위함이다", "석고 매몰재를 단단하게 하기 위함이다"],
+            answer: 2,
+            optionExplanations: { 2: "급냉 시 열응력으로 의치가 뒤틀리거나 변형되는 것을 방지합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 20, question: "주조 후 얻어진 주조체에 물고기 가시형태의 fin 또는 spine이 생긴 주된 이유는?",
+            options: ["주조압력 부족", "매몰재의 혼수비가 낮을 경우", "주입선이 너무 두꺼울 경우", "금속 용융 부족", "매몰재의 소환속도가 높을 경우 (급가열)"],
+            answer: 5,
+            optionExplanations: { 5: "급가열로 매몰재에 미세 균열이 발생하여 금속이 그 틈으로 유입되었습니다." },
+            commonExplanations: []
+          },
+          {
+            id: 21, question: "치과용 도재의 성분 중 함유량이 가장 많은 것은?",
+            options: ["석영(Quartz)", "고령토(Kaolin)", "장석(Feldspar)", "알루미나(Alumina)", "붕산"],
+            answer: 3,
+            optionExplanations: { 3: "장석(Feldspar)이 약 60~80%로 가장 많이 함유되어 있습니다." },
+            commonExplanations: []
+          },
+          {
+            id: 22, question: "매몰재의 혼수비가 크면 소환시 어떻게 되나?",
+            options: ["팽창률이 커진다", "팽창률이 작아진다", "강도가 증가한다", "소환 시간이 단축된다", "변화가 없다"],
+            answer: 2,
+            optionExplanations: { 2: "혼수비가 커지면 입자 밀도가 낮아져 열팽창률이 작아집니다." },
+            commonExplanations: []
+          },
+          {
+            id: 23, question: "Acrylic resin 중합 시 납의치가 매몰된 플라스크를 바로 끓는 물속에 집어넣었을 때 기포가 생기는 부분은?",
+            options: ["의치의 인공치 주변", "Denture의 가장 두꺼운 부위에", "Denture의 가장 얇은 변연부", "의치상의 표면 전체", "플라스크 벽면 근처"],
+            answer: 2,
+            optionExplanations: { 2: "발열 중합열이 합쳐져 가장 두꺼운 부위 내부 단량체가 비등하기 때문입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 24, question: "20 karat의 금합금 12gm이 있다. 금 이외의 성분은 얼마인가?",
+            options: ["10 gm", "8 gm", "6 gm", "4 gm", "2 gm"],
+            answer: 5,
+            optionExplanations: { 5: "순금 = 12 × (20/24) = 10g이므로, 기타 성분은 2g입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 25, question: "불화수소산(HF)에 가장 침해를 적게 받는 금속은?",
+            options: ["Gold alloy", "Ni-Cr 합금", "Co-Cr 합금", "Titanium", "Stainless steel"],
+            answer: 1,
+            optionExplanations: { 1: "귀금속인 금 합금(Gold alloy)은 불화수소산에 부식되지 않습니다." },
+            commonExplanations: []
+          },
+          {
+            id: 26, question: "가역수성콜로이드인상재(아가)로 채워진 flask를 냉각시킬 때 밑 부분부터 서서히 냉각 시키는 이유?",
+            options: ["경화 시간을 촉진시키기 위해서", "인상재 표면 경도를 높이기 위해서", "아가의 농도를 균일하게 하기 위해서", "온도의 급격한 변화에서 초래되는 변형을 방지하기 위해서", "겔 강도를 최대로 높이기 위해서"],
+            answer: 4,
+            optionExplanations: { 4: "방향성 냉각을 통해 냉각 수축에 따른 치수 변형을 방지합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 27, question: "금합금을 annealing(소둔: 연화열처리)할 때 적절한 재결정 온도는?",
+            options: ["200°F", "400°F", "600°F", "840°F", "1200°F"],
+            answer: 4,
+            optionExplanations: { 4: "약 700℃(1292°F)~840°F 부근에서 재결정 유도 후 급냉합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 28, question: "의치 제작 시에 acrylic resin을 전입할 가장 적당한 시기는?",
+            options: ["Wet stage (젖은 단계)", "String stage (실모양 단계)", "Dough stage (떡상)", "Rubber stage (고무상 단계)", "Hard stage (경화 단계)"],
+            answer: 3,
+            optionExplanations: { 3: "손에 묻지 않고 가소성이 우수한 Dough stage(병상/떡상)에 전입합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 29, question: "금합금의 밀도는 크롬 코발트 합금보다 약 몇 배나 되는가?",
+            options: ["0.5배", "1배", "1.5배", "2배", "3배"],
+            answer: 4,
+            optionExplanations: { 4: "금합금 밀도(15~19 g/cm³)는 Co-Cr(8~9 g/cm³)의 약 2배입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 30, question: "고무인상재를 이용하여 인상채득 시 이상적인 인상재 두께는?",
+            options: ["2~4mm", "5~7mm", "8~10mm", "1mm 이하", "두께 무관"],
+            answer: 1,
+            optionExplanations: { 1: "중합 수축 제어를 위해 개인트레이를 써서 2~4mm 균일 두께를 유지합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 31, question: "Gold inlay용 석고계 매몰재 성분 중 석고의 주된 역할은?",
+            options: ["내화재 역할", "열팽창 증대", "결합제 역할을 한다", "통기성 부여", "환원제 역할"],
+            answer: 3,
+            optionExplanations: { 3: "알파-반수석고는 내화재 입자들을 뭉쳐주는 결합제(Binder) 역할을 합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 32, question: "납착금(Gold solder)은 대개 주조체의 Karat보다 얼마인 것을 쓰는가?",
+            options: ["동일한 Karat", "2Karat 낮은 것을 쓴다", "4Karat 높은 것을 쓴다", "2Karat 높은 것을 쓴다", "6Karat 낮은 것을 쓴다"],
+            answer: 2,
+            optionExplanations: { 2: "모금속을 녹이지 않도록 용융점을 낮추기 위해 2 Karat 낮은 것을 씁니다." },
+            commonExplanations: []
+          },
+          {
+            id: 33, question: "18Karat 금합금의 순도(fineness)는 얼마인가?",
+            options: ["500", "600", "700", "750", "850"],
+            answer: 4,
+            optionExplanations: { 4: "18/24 × 1000 = 750 Fine 입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 34, question: "금합금 주조체에서 국부수축다공성 (Porosity)이 가장 많이 나타나는 부위는?",
+            options: ["주조체와 주입선의 연결부위", "주조체의 얇은 변연부", "주입선의 상단부", "탕구 기저부", "주조체 최상단 표면"],
+            answer: 1,
+            optionExplanations: { 1: "연결 부위가 조기 응고되면 금속 공급이 끊겨 수축 기포가 생깁니다." },
+            commonExplanations: []
+          },
+          {
+            id: 35, question: "석고(Gypsum)계 매몰재를 700℃이상 가열하면 어떤 유해가스가 발생하는가?",
+            options: ["일산화탄소(CO)", "아황산가스(SO₂)", "이산화탄소(CO₂)", "염소가스(Cl₂)", "산소(O₂)"],
+            answer: 2,
+            optionExplanations: { 2: "황산칼슘이 고온 분해되면서 유해한 아황산가스(SO₂)를 방출합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 36, question: "다음 중 물질의 1차 결합에 속하는 것은?",
+            options: ["반데르발스 결합", "수소결합", "이온결합", "분자간 인력", "영구 쌍극자 결합"],
+            answer: 3,
+            optionExplanations: { 3: "1차 결합은 이온결합, 공유결합, 금속결합입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 37, question: "다음 중 비결정질(Amorphous) 고체가 아닌 것은?",
+            options: ["유리(Glass)", "인레이 왁스", "Plaster (석고)", "아가 인상재", "소성용 도재"],
+            answer: 3,
+            optionExplanations: { 3: "석고는 일정한 결정 격자를 갖는 결정질 고체입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 38, question: "가역성 겔(gel)이 아닌 것은?",
+            options: ["젤라틴", "규산(silica)겔", "한천(Agar) 겔", "전분 겔", "펙틴 겔"],
+            answer: 2,
+            optionExplanations: { 2: "규산 겔은 화학 반응으로 형성되는 비가역성 겔입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 39, question: "재료특성 중 비례한계를 넘어선 응력-변형률 곡선부분은?",
+            options: ["탄성지역", "소성지역", "원점 영역", "영구 복원 지역", "훅의 법칙 적용 구간"],
+            answer: 2,
+            optionExplanations: { 2: "비례한계를 넘어서면 영구 변형이 남는 소성지역(Plastic region)입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 40, question: "인장 시험기는 주로 재료의 어떤 특성을 알아보기 위한 것인가?",
+            options: ["강도특성 (인장강도, 연성 등)", "경도특성", "광학적 특성", "열전도율", "용융점"],
+            answer: 1,
+            optionExplanations: { 1: "인장강도, 항복강도, 연성 등 기계적 강도 특성을 측정합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 41, question: "경석고와 초경석고의 일반적인 용도 중 가장 거리가 먼 것은?",
+            options: ["작업 모형 제작", "악안면인상채득재", "치형(Die) 제작", "정밀 주조 모형", "교합기 부착 모형"],
+            answer: 2,
+            optionExplanations: { 2: "경석고는 모형/치형 제작재료이며 직접 인상을 채득하는 재료가 아닙니다." },
+            commonExplanations: []
+          },
+          {
+            id: 42, question: "다음 중 석고의 경화시간을 단축시키지 않는 요인은? (지연 요인)",
+            options: ["경화된 석고 분말 첨가", "연화 속도 증가", "혼수비의 증가", "미량의 식염 첨가", "입자의 미세화"],
+            answer: 3,
+            optionExplanations: { 3: "혼수비(물 양)를 늘리면 입자 농도가 묽어져 경화가 지연됩니다." },
+            commonExplanations: []
+          },
+          {
+            id: 43, question: "ADA spec. No.25에 의거한 석고제품의 표준정조도를 나타내는 cone의 침투깊이는?",
+            options: ["30±2mm", "15±2mm", "45±2mm", "10±2mm", "50±2mm"],
+            answer: 1,
+            optionExplanations: { 1: "원뿔 관통 깊이 표준 기준값은 30±2mm 입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 44, question: "석고의 표면경도에 관한 설명으로 틀린 것은?",
+            options: ["혼수비가 낮을수록 표면경도가 높다", "최종경화 후 여분의 물 증발량이 많으면 표면경도도 높다", "건조 강도는 습윤 강도보다 높다", "연화 시간이 적절해야 경도가 유지된다", "표면 경화제 도포 시 경도가 향상된다"],
+            answer: 2,
+            optionExplanations: { 2: "잉여 자유수 증발량이 많으면 다공성 기공이 남아 표면 경도가 떨어집니다." },
+            commonExplanations: []
+          },
+          {
+            id: 45, question: "무치악 총의치 제작에 사용되는 인상재로 가장 적합한 것은?",
+            options: ["알지네이트 인상재", "한천 인상재", "폴리설파이드", "Impression compound", "부가형 실리콘 퍼티"],
+            answer: 4,
+            optionExplanations: { 4: "인상용 컴파운드는 무치악 예비 인상 및 변연 형성에 적합합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 46, question: "알지네이트의 성분 중 혼합시 작업시간을 제공해 주는 지연제 역할을 하는 것은?",
+            options: ["황산칼슘", "규조토", "알지네이트 칼륨", "sodium phosphate (인산나트륨)", "불화티타늄칼륨"],
+            answer: 4,
+            optionExplanations: { 4: "인산나트륨은 칼슘 이온과 먼저 반응하여 초기 겔화를 지연시킵니다." },
+            commonExplanations: []
+          },
+          {
+            id: 47, question: "Agar(한천) 성분 중 석고의 경화시간을 촉진하고 표면경도를 증가시키는 것은?",
+            options: ["붕사(Borax)", "물", "글리세린", "potassium sulfate (K₂SO₄)", "방부제"],
+            answer: 4,
+            optionExplanations: { 4: "황산칼륨(K₂SO₄)은 석고의 경화를 촉진하고 표면을 매끄럽게 합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 48, question: "Polysulfide 고무인상재의 촉진제(이산화납, 황)와 함께 첨가하는 가소제 성분으로 맞는 것은?",
+            options: ["물", "dibutyl phthalate", "에탄올", "아세톤", "벤젠"],
+            answer: 2,
+            optionExplanations: { 2: "Dibutyl phthalate는 촉진제 파스타의 점도를 유지하는 가소제입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 49, question: "다음 중 가지형(branched polymer) 고분자 구조를 갖는 것은?",
+            options: ["선형 폴리에틸렌", "가교형 아크릴 수지", "망상형 실리콘", "나일론 선재", "천연수지 (가지형 고분자체)"],
+            answer: 5,
+            optionExplanations: { 5: "주 사슬에 곁가지가 붙은 구조체는 천연수지 등에서 관찰됩니다." },
+            commonExplanations: []
+          },
+          {
+            id: 50, question: "중합체의 강도가 증가되는 경우가 아닌 것은?",
+            options: ["분자량이 증가할 때", "가교결합이 형성될 때", "결정화도가 증가할 때", "사슬 간 인력이 증가할 때", "중합체가 Tg(유리전이온도) 이상의 온도에 있다"],
+            answer: 5,
+            optionExplanations: { 5: "Tg 이상에서는 사슬의 유동성 증가로 연화되어 강도가 떨어집니다." },
+            commonExplanations: []
+          },
+          {
+            id: 51, question: "다음 중 분자 사슬 간 반데르발스 결합으로 연결된 고분자 결합 형태는?",
+            options: ["Linear polymer (선형 고분자)", "Cross-linked polymer", "Network polymer", "이온 결합체", "공유 결합 망상체"],
+            answer: 1,
+            optionExplanations: { 1: "선형 고분자는 사슬 간에 약한 반데르발스 결합으로 묶여 열에 취약합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 52, question: "광중합형 의치상 레진의 일반적인 특성으로 잘못된 것은?",
+            options: ["작업 시간이 길고 조작이 편리하다", "가시광선(약 470nm) 영역을 이용한다", "인공치와의 화학적 접착성이 저절로 완벽하다", "혼합 기포 발생이 적다", "전입 과정이 간소하다"],
+            answer: 3,
+            optionExplanations: { 3: "인공치와의 결합을 위해서는 별도의 본딩 표면처리가 필요합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 53, question: "금박(Gold foil) 충전을 위한 소둔(Annealing)의 적절한 열원으로 맞게 연결된 것은?",
+            options: ["전기로", "마이크로웨이브", "Bunsen gas flame (분젠 가스 불꽃)", "알코올 램프 심지 내부", "적외선 램프"],
+            answer: 3,
+            optionExplanations: { 3: "불순물 제거 및 응착성 회복을 위해 분젠 가스 불꽃을 사용합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 54, question: "보통관, 3/4관 및 높은 하중을 받는 전·후방 교의치에 가장 적절한 금합금 분류는?",
+            options: ["제1형 (Type I - Soft)", "제2형 (Type II - Medium)", "제3형 (Type III - Hard)", "제4형 (Type IV - Extra Hard)", "순금"],
+            answer: 3,
+            optionExplanations: { 3: "전장관 및 브릿지 제작에는 Type III (Hard) 금합금이 적합합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 55, question: "주조용 금합금의 특성을 설명한 것이다. 틀린 것은?",
+            options: ["1형에서 4형으로 갈수록 경도가 증가한다", "1형에서 4형으로 갈수록 항복강도가 증가한다", "1형에서 4형으로 갈수록 귀금속 함량이 낮아진다", "신장률(연신율)은 1형-4형으로 갈수록 증가한다", "4형 금합금은 열처리가 가능하다"],
+            answer: 4,
+            optionExplanations: { 4: "강도가 높아질수록 신장률(연성)은 감소합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 56, question: "보통 납착금에 18K라고 표시되었을 때 납착금 내부의 실제 금 함량은?",
+            options: ["75%", "85%", "약 65% (16K 수준)", "50%", "100%"],
+            answer: 3,
+            optionExplanations: { 3: "18K 주조체용 납착금은 융점을 낮추기 위해 실제 금 함량이 약 65%입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 57, question: "치과용 금합금의 경화열처리(Hardening heat treatment) 방법으로 적절치 않은 것은?",
+            options: ["425℃로 가열 후 250℃까지 서냉한다", "원자 규칙격자 배열을 유도한다", "425℃에서 1분간 유지 후 물에 급냉한다", "강도와 경도를 최대화한다", "Au-Cu 화합물을 형성시킨다"],
+            answer: 3,
+            optionExplanations: { 3: "가열 후 급냉하는 것은 금합금을 무르게 만드는 연화열처리입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 58, question: "ADA 규격 No.7 치과용 가공금선재에 관한 설명 중 옳지 않은 것은?",
+            options: ["귀금속 함량 규정이 있다", "클래스프 및 교정용 와이어로 사용된다", "열처리 및 가공 경화 특성을 보인다", "융점이 납착용 금합금보다 높아야 한다", "연화열처리 상태에서 연신율은 최하 30%를 유지해야 한다"],
+            answer: 5,
+            optionExplanations: { 5: "연신율 요구 수치 조건이 잘못 제시되었습니다." },
+            commonExplanations: []
+          },
+          {
+            id: 59, question: "치과용 크롬 합금이 충분한 내식성을 갖기 위해 포함해야 하는 최소 크롬(Cr) 함량은?",
+            options: ["5%", "12~15% 이상", "25%", "35%", "50%"],
+            answer: 2,
+            optionExplanations: { 2: "치밀한 산화크롬 수동태 피막을 위해 최소 12~15% 이상 함유되어야 합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 60, question: "고융점 Cr형 주조용 합금(Co-Cr 등)에 가장 적합한 매몰재는?",
+            options: ["석고계 매몰재", "보통석고", "알지네이트", "규산염결합 매몰재 (Ethyl silicate bonded)", "인산아연 매몰재"],
+            answer: 4,
+            optionExplanations: { 4: "1000℃ 이상 고온 주조에는 규산염계 또는 인산염계 매몰재를 씁니다." },
+            commonExplanations: []
+          },
+          {
+            id: 61, question: "스테인리스강 교정용 선재에 형성된 가공 잔류응력을 제거하는 적절한 열처리 조건은?",
+            options: ["450~500℃에서 1~2분간 가열", "800℃에서 10분간 가열", "100℃ 끓는 물에 침적", "1200℃ 소성로 가열", "서서히 냉각만 시행"],
+            answer: 1,
+            optionExplanations: { 1: "450~500℃에서 단시간 가열하여 가공 잔류응력을 제거합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 62, question: "파라핀 왁스(Paraffin wax)에 대한 설명 중 옳지 않은 것은?",
+            options: ["석유 정제 과정에서 얻어진다", "인레이 왁스의 주성분이다", "열팽창계수가 큰 편이다", "광물성 왁스에 속한다", "식물성왁스의 대표적이라고 할 수 있으며 보통 판상의 결정을 가진다"],
+            answer: 5,
+            optionExplanations: { 5: "파라핀 왁스는 석유에서 추출되는 광물성 왁스입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 63, question: "파라핀 왁스의 융점과 경도를 상승시키는 식물성 왁스끼리 바르게 짝지어진 것은?",
+            options: ["카나우바 왁스 - 칸데릴라 왁스", "밀납 - 파라핀", "담마라 고무 - 바셀린", "오조케라이트 - 밀납", "합성 왁스 - 고래기름"],
+            answer: 1,
+            optionExplanations: { 1: "카나우바 왁스와 칸데릴라 왁스는 융점을 높이고 단단하게 만듭니다." },
+            commonExplanations: []
+          },
+          {
+            id: 64, question: "복잡한 형태의 납원형에 잔류응력이 존재할 때 가열하거나 방치하면 나타나는 현상은?",
+            options: ["강도 증가", "투명도 증가", "납원형에 변형/균열이 생긴다", "수축량 감소", "화학적 안정화"],
+            answer: 3,
+            optionExplanations: { 3: "잔류응력이 풀리면서 치수 변형 및 균열이 발생합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 65, question: "주조용 매몰재의 요구조건으로 잘못된 것은?",
+            options: ["금속의 주조 수축을 보상할 만큼 팽창해야 한다", "주조 압력을 견딜 충분한 강도를 가져야 한다", "몰드 내 가스를 배출할 통기성이 있어야 한다", "매몰재의 강도는 약할수록 좋다", "주조 금속과 화학 반응을 일으키지 않아야 한다"],
+            answer: 4,
+            optionExplanations: { 4: "주조 압력을 견딜 수 있는 충분한 강도가 필수적입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 66, question: "석고결합 매몰재의 안전한 최대 소환 한계 온도는?",
+            options: ["400℃", "500℃", "700℃", "900℃", "1100℃"],
+            answer: 3,
+            optionExplanations: { 3: "700℃ 초과 시 결합재 석고가 분해되므로 한계 온도는 700℃입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 67, question: "ADA 규격 제2호 석고계 매몰재의 알파-반수석고(결합재) 표준 함량은?",
+            options: ["5~10%", "15~20%", "25~35%", "50~60%", "70~80%"],
+            answer: 3,
+            optionExplanations: { 3: "결합재 알파-반수석고는 25~35% 비율로 배합됩니다." },
+            commonExplanations: []
+          },
+          {
+            id: 68, question: "ADA 규격 No.2 치과주조용 매몰재 분류 설명으로 잘못된 것은?",
+            options: ["Type I은 인레이 주조용 열팽창형이다", "Type II는 인레이 주조용 수화팽창형이다", "Type III 매몰재는 partial denture주조용으로 수화팽창용이다", "각 유형별로 요구되는 압축강도 기준이 있다", "매몰재의 주성분은 실리카와 결합재이다"],
+            answer: 3,
+            optionExplanations: { 3: "Type III 매몰재의 규격 분류 설명이 잘못되었습니다." },
+            commonExplanations: []
+          },
+          {
+            id: 69, question: "주조용 매몰재의 팽창에 관한 설명 중 틀린 것은?",
+            options: ["납형매몰 후 초기경화 후에 물속에 담그는 것이 초기 경화시간에 담그는 것보다 팽창량이 더 크다", "수화팽창은 초기 경화 반응 중에 물을 공급해야 극대화된다", "혼수비가 낮을수록 팽창량이 증가한다", "실리카 함량이 많을수록 열팽창이 증가한다", "링 라이너를 사용하면 팽창이 원활해진다"],
+            answer: 1,
+            optionExplanations: { 1: "경화 반응 중에 물에 담가야 수화팽창이 극대화됩니다." },
+            commonExplanations: []
+          },
+          {
+            id: 70, question: "주조과정에서 보상이 요구되는 주된 수축 요인이 아닌 것은?",
+            options: ["용융 금속의 액간 응고 수축", "응고 후 실온까지 냉각 시 금속 열수축", "간접법은 실내온도와는 관계없이 납형제작 시 왁스의 연화온도에 영향을 받는다", "납형의 냉각 수축", "금속 고유의 체적 수축"],
+            answer: 3,
+            optionExplanations: { 3: "주조 수축 보상의 핵심은 왁스 수축과 금속의 응고 및 냉각 수축입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 71, question: "경도를 측정하는 방법 중 원리가 다른 하나는?",
+            options: ["록크웰 경도", "비커스 경도", "쇼어경도 (Shore hardness)", "누프 경도", "브리넬 경도"],
+            answer: 3,
+            optionExplanations: { 3: "쇼어 경도는 반동 높이를 측정하는 반동 경도 시험법입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 72, question: "다음의 기계적 성질 용어 설명 중 틀린 내용은?",
+            options: ["탄성은 외력 제거 시 원래로 돌아가는 성질이다", "전성(malleability)은 인장응력에 파절되지 않는 능력이다", "연성은 인장 하중을 받아 가늘고 길게 늘어나는 성질이다", "인성은 파절에 이르기까지 에너지를 흡수하는 능력이다", "취성은 영구 변형 없이 파절되는 부서짐성이다"],
+            answer: 2,
+            optionExplanations: { 2: "전성(Malleability)은 압축 응력에 얇게 펴지는 성질입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 73, question: "응력과 변형에 대한 설명 중 틀린 내용은?",
+            options: ["내부 저항력을 응력이라 한다", "변형률은 외력에 의한 단위 길이당 변화량이다", "탄성한계 이내에서는 훅의 법칙이 성립한다", "비례한계까지 응력과 변형률은 정비례한다", "물체에 1종의 하중을 가하면 1종의 응력만 생긴다"],
+            answer: 5,
+            optionExplanations: { 5: "외력이 가해지면 내부에는 복합 응력이 동시에 발생합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 74, question: "석고에 대한 설명으로 옳은 것만의 조합은?",
+            contextBox: "가. 보통·경·초경석고의 화학식은 반수석고로 동일하다\n나. 석고 분말은 혼수비가 수복재 중 비교적 높다\n다. 경화 시 발열 반응을 나타낸다\n라. 혼수비가 증가하면 강도는 감소한다",
+            options: ["가, 나", "다, 라", "가, 다, 라", "나, 다, 라", "가, 나, 다, 라"],
+            answer: 5,
+            optionExplanations: { 5: "가, 나, 다, 라 모두 치과용 석고의 올바른 특성입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 75, question: "석고의 경화시간 조절방법으로 바른 것만의 조합은?",
+            contextBox: "가. 연화속도가 빠를수록 촉진된다\n나. 혼수비가 커지면 지연된다\n다. 슬러리 워터를 사용하면 지연된다\n라. 식염을 대량 첨가하면 촉진된다",
+            options: ["가, 나", "다, 라", "가, 다", "나, 라", "가, 라"],
+            answer: 1,
+            optionExplanations: { 1: "연화 속도 증가는 촉진(가), 혼수비 증가는 지연(나)시킵니다." },
+            commonExplanations: []
+          },
+          {
+            id: 76, question: "석고의 경화시간에 영향을 미치는 요인 중 바른 것만의 조합은?",
+            contextBox: "가. 분말 입자가 미세할수록 경화시간이 짧다\n나. 수온이 낮을수록 경화시간이 길어진다\n다. 심하게 혼합할수록 경화시간이 짧아진다\n라. 혼수비가 작을수록 경화시간이 짧아진다",
+            options: ["가, 나", "다, 라", "가, 다, 라", "나, 다, 라", "가, 나, 다, 라"],
+            answer: 5,
+            optionExplanations: { 5: "가, 나, 다, 라 모두 정확한 설명입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 77, question: "경화한 석고의 강도에 대한 설명 중 틀린 것만의 조합은?",
+            contextBox: "가. 경화 후 완전히 건조되면 약해진다\n나. 초기경화 후 반응이 지속되며 점차 강화된다\n다. 혼수비가 낮을수록 최종 강도가 높다\n라. 화학적 촉진제를 과량 추가하면 강도가 대폭 증가한다",
+            options: ["가, 라", "나, 다", "가, 나", "다, 라", "가, 다"],
+            answer: 1,
+            optionExplanations: { 1: "건조되면 2배 이상 강해지고(가-틀림), 화학 촉진제 과량 첨가는 강도를 낮춥니다(라-틀림)." },
+            commonExplanations: []
+          },
+          {
+            id: 78, question: "경화한 석고 표면이 거칠어지는 원인으로 바른 것만의 조합은?",
+            contextBox: "가. 혼수량 과다\n나. 경화 반응 미완결 상태에서 조기 분리\n다. 세척 시 흐르는 물에 과도하게 담금\n라. 알지네이트 인상체 표면 수분의 영향",
+            options: ["가, 나", "다, 라", "가, 다, 라", "나, 다, 라", "가, 나, 다, 라"],
+            answer: 5,
+            optionExplanations: { 5: "가, 나, 다, 라 모두 석고 표면 조도를 거칠게 만듭니다." },
+            commonExplanations: []
+          },
+          {
+            id: 79, question: "치과용 석고의 제조 및 분류에 대해 바른 것만의 조합은?",
+            contextBox: "가. 보통석고는 오토클레이브에서 가압 소성한다\n나. 경석고는 증기압 하에서 가압 소성한다\n다. 화학식은 반수석고(CaSO₄·½H₂O)이다\n라. 입자 구조 차이로 요구 혼수비가 서로 다르다",
+            options: ["가, 다", "나, 다, 라", "가, 나, 다", "다, 라", "가, 라"],
+            answer: 2,
+            optionExplanations: { 2: "경석고는 오토클레이브 가압 소성(나), 화학식(다), 혼수비 차이(라)가 맞습니다." },
+            commonExplanations: []
+          },
+          {
+            id: 80, question: "다음 인상재 분류 조합 중 틀린 것은 어느 것인가?",
+            options: ["알지네이트 - 탄성이 있으며 비가역성이다", "인상용 컴파운드 - 탄성이 없으며 가역성이다", "폴리설파이드 - 탄성이 있으며 비가역성이다", "한천인상재 - 탄성이 없으며 물리적 변화를 이용한다", "산화아연유지놀 - 탄성이 없으며 비가역성이다"],
+            answer: 4,
+            optionExplanations: { 4: "한천(Agar) 인상재는 탄성을 가지는 수성교질 탄성 인상재입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 81, question: "경화 후 공기 중이나 시간 경과에 따른 치수 안정성이 뛰어난 인상재끼리 짝지어진 것은?",
+            contextBox: "가. 알지네이트 인상재       나. 산화아연유지놀(ZOE) 인상재\n다. 부가형 실리콘 인상재     라. 한천(Agar) 인상재",
+            options: ["가, 라", "나, 다", "가, 다", "나, 라", "가, 나, 다"],
+            answer: 2,
+            optionExplanations: { 2: "ZOE(나)와 부가형 실리콘(다)은 치수 안정성이 뛰어납니다." },
+            commonExplanations: []
+          },
+          {
+            id: 82, question: "산화아연유지놀(ZOE) 인상재에 대한 설명으로 옳은 것만의 조합은?",
+            contextBox: "가. 실내 온도가 높을수록 경화가 지연된다\n나. 경화 후 치수 변화가 매우 작다\n다. 무치악 정밀 인상에 주로 사용된다\n라. 가역성 탄성 인상재에 속한다",
+            options: ["가, 라", "나, 다", "가, 나, 다", "나, 라", "다, 라"],
+            answer: 2,
+            optionExplanations: { 2: "치수 변화가 작고(나), 무치악 정밀 인상에 유용합니다(다)." },
+            commonExplanations: []
+          },
+          {
+            id: 83, question: "한천(Agar) 인상재에 대해 바른 것만의 조합은?",
+            contextBox: "가. 친수성이 낮아 미세 부위 재현이 힘들다\n나. 공기 중에 방치하면 이수(Syneresis) 현상으로 수축한다\n다. 붕사를 첨가하여 겔 강도를 높인다\n라. 황산칼륨은 석고의 경화를 지연시킨다",
+            options: ["가, 다", "나, 다", "가, 라", "나, 라", "가, 나, 다"],
+            answer: 2,
+            optionExplanations: { 2: "이수 현상으로 수축하고(나), 붕사로 강도를 높입니다(다)." },
+            commonExplanations: []
+          },
+          {
+            id: 84, question: "고무질 인상재에 대한 설명 중 옳은 것만의 조합은?",
+            contextBox: "가. Polysulfide는 고무질 인상재 중 경화시간이 긴 편이다\n나. 부가형 실리콘은 반응 부산물이 없어 치수안정성이 우수하다\n다. 축합형 실리콘은 반응 부산물이 전혀 없다\n라. 주입용 모형재로 초경석고 사용이 가능하다",
+            options: ["가, 다", "나, 다", "가, 나, 라", "나, 라", "가, 나, 다, 라"],
+            answer: 3,
+            optionExplanations: { 3: "축합형 실리콘은 알코올 부산물이 발생하므로(다-틀림), 가, 나, 라가 맞습니다." },
+            commonExplanations: []
+          },
+          {
+            id: 85, question: "치과용 아크릴 레진에 대해 바른 것만의 조합은?",
+            contextBox: "가. 구강 내에서 화학적으로 매우 불안정하다\n나. 병상(Dough) 단계에서 성형성이 우수하다\n다. 비중이 금속보다 작아 가볍다\n라. 열전도율이 금속보다 크다",
+            options: ["가, 라", "나, 다", "가, 나", "다, 라", "가, 나, 다"],
+            answer: 2,
+            optionExplanations: { 2: "병상 단계에서 성형성이 좋고(나), 금속보다 가볍습니다(다)." },
+            commonExplanations: []
+          },
+          {
+            id: 86, question: "치과용 레진의 특성에 대해 바른 것만의 조합은?",
+            contextBox: "가. 가압중합을 하면 무조건 투명해진다\n나. 상온중합레진은 열수축이 없어 전체 중합수축량이 다소 적다\n다. 아크릴 레진치는 도치에 비해 충격에 쉽게 깨진다\n라. 치관용 레진은 상온중합 레진보다 중합도가 높아 내마모성이 우수하다",
+            options: ["나, 라", "가, 다", "가, 나", "다, 라", "가, 나, 라"],
+            answer: 1,
+            optionExplanations: { 1: "상온중합은 열수축이 적고(나), 치관용 레진은 내마모성이 높습니다(라)." },
+            commonExplanations: []
+          },
+          {
+            id: 87, question: "가열중합 레진의 기포 발생에 대한 설명 중 틀린 것은?",
+            options: ["급격한 가열 시 단량체 비등으로 발생한다", "떡상(Dough) 이전 단계에서 전입 시 수축 기포가 발생한다", "기포는 내부에서만 생기며 레진 표면에는 절대로 생기지 않는다", "중합체 분말이 지나치게 많아도 기포가 발생한다", "플라스크 압력이 부족해도 기포가 발생한다"],
+            answer: 3,
+            optionExplanations: { 3: "가압 부족이나 급가열 시 표면 부위에도 기포가 발생할 수 있습니다." },
+            commonExplanations: []
+          },
+          {
+            id: 88, question: "가열중합 레진상의 변형 방지책으로 옳은 것만의 조합은?",
+            contextBox: "가. 떡상 단계 이전에 조기 전입한다\n나. 연마 시 마찰열을 막기 위해 물을 보충한다\n다. 완성된 의치는 건조를 막기 위해 수중에 보관한다\n라. 중합 완료 직후 플라스크를 냉수에 급냉한다",
+            options: ["가, 라", "나, 다", "가, 나", "다, 라", "가, 나, 다"],
+            answer: 2,
+            optionExplanations: { 2: "연마 시 물을 보충하고(나), 건조 수축 방지를 위해 수중 보관합니다(다)." },
+            commonExplanations: []
+          },
+          {
+            id: 89, question: "아크릴 수지(acrylic resin) 의치상의 장점이 아닌 것만의 조합은?",
+            contextBox: "가. 심미성이 우수하다\n나. 금속보다 기계적 강도가 우수하다\n다. 수리 및 가공이 용이하다\n라. 구강 내 음식의 온도 전달이 우수하다",
+            options: ["가, 다", "나, 라", "가, 나", "다, 라", "나, 다"],
+            answer: 2,
+            optionExplanations: { 2: "기계적 강도가 낮고(나), 열전도율이 떨어집니다(라)." },
+            commonExplanations: []
+          },
+          {
+            id: 90, question: "치과용 도재(Porcelain)의 기계적 성질에 대해 바른 것만의 조합은?",
+            contextBox: "가. 인장응력에 매우 강하다\n나. 압축응력에 매우 강하다\n다. 표면 경도가 높아 내마모성이 크다\n라. 충격력에 강해 잘 깨지지 않는다",
+            options: ["가, 라", "나, 다", "가, 나", "다, 라", "나, 라"],
+            answer: 2,
+            optionExplanations: { 2: "압축 강도가 높고(나), 내마모성이 우수합니다(다)." },
+            commonExplanations: []
+          },
+          {
+            id: 91, question: "치과용 도재(Porcelain)의 주요 구성 성분이 아닌 것은?",
+            options: ["장석(Feldspar)", "석영(Quartz)", "고령토(Kaolin)", "알루미나(Alumina)", "탄소(Carbon)"],
+            answer: 5,
+            optionExplanations: { 5: "탄소는 소성 시 가스를 일으켜 기포를 만드므로 배제됩니다." },
+            commonExplanations: []
+          },
+          {
+            id: 92, question: "600℃에서 Silica 동소체들의 열팽창이 작은 순서로부터 큰 순서로 바르게 짝지어진 것은?",
+            options: [
+              "용융석영 - 트리디마이트 - 석영 - 크리스토발라이트",
+              "크리스토발라이트 - 석영 - 트리디마이트 - 용융석영",
+              "석영 - 용융석영 - 크리스토발라이트 - 트리디마이트",
+              "트리디마이트 - 석영 - 용융석영 - 크리스토발라이트",
+              "용융석영 - 크리스토발라이트 - 석영 - 트리디마이트"
+            ],
+            answer: 1,
+            optionExplanations: { 1: "용융석영 < 트리디마이트 < 석영 < 크리스토발라이트 순입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 93, question: "니켈크롬(Ni-Cr) 합금과 코발트크롬(Co-Cr) 합금의 비교에서 옳은 것만의 조합은?",
+            contextBox: "가. Co-Cr 합금이 Ni-Cr 합금보다 융점이 낮다\n나. Co-Cr 합금이 경도가 더 높다\n다. Co-Cr 합금이 인장강도가 더 높다\n라. Co-Cr 합금이 신장률(연성)이 더 높다",
+            options: ["가, 라", "나, 다", "가, 나", "다, 라", "나, 라"],
+            answer: 2,
+            optionExplanations: { 2: "Co-Cr 합금이 경도가 더 높고(나), 인장강도가 더 높습니다(다)." },
+            commonExplanations: []
+          },
+          {
+            id: 94, question: "왁스의 강인성을 높이며 표면의 매끄러움과 광택을 증대시키는 첨가제 성분은?",
+            options: ["밀납", "carnauba wax", "파라핀 왁스", "바셀린", "스테아린산"],
+            answer: 2,
+            optionExplanations: { 2: "카나우바 왁스는 왁스를 단단하게 하고 표면 광택을 줍니다." },
+            commonExplanations: []
+          },
+          {
+            id: 95, question: "용도에 따른 분류 중 형태용(Pattern) 왁스로만 묶인 것은?",
+            options: [
+              "Inlay wax, Casting wax, Baseplate wax",
+              "Boxing wax, Utility wax, Sticky wax",
+              "Corrective wax, Bite registration wax",
+              "Sticky wax, Inlay wax, Utility wax",
+              "Baseplate wax, Boxing wax, Bite wax"
+            ],
+            answer: 1,
+            optionExplanations: { 1: "인레이, 주조용, 기초상 왁스는 납형 제작용 패턴 왁스입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 96, question: "치과용 왁스에 대한 설명 중 옳지 않은 것은?",
+            options: ["Inlay wax는 치관 수복물 납형에 쓰인다", "Baseplate wax는 의치상 제작에 쓰인다", "Sticky wax는 기공물 고정 및 수리에 쓰인다", "sheet wax는 구강 내 최종 정밀인상에 이용한다", "Boxing wax는 인상체 주위를 둘러 모형을 부을 때 쓰인다"],
+            answer: 4,
+            optionExplanations: { 4: "Sheet wax는 국소의치 납형 릴리프용 패턴 왁스입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 97, question: "주조용 주입선(Sprue)에 대한 설명 중 옳지 않은 것은?",
+            options: ["납형의 가장 두꺼운 부위에 부착한다", "용융 금속의 냉각 수축을 보상하는 저수조 역할을 한다", "주입선의 길이는 너무 길지 않아야 한다", "pattern과 sprue선과의 연결부는 항상 좁게 해준다", "금속 유입 시 와류가 생기지 않도록 완만하게 연결한다"],
+            answer: 4,
+            optionExplanations: { 4: "연결부가 좁으면 조기 응고되므로 완만하고 넓게 연결합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 98, question: "매몰재의 고유 팽창 조절에 관계가 없는 요인은?",
+            options: ["실리카(Silica)의 종류", "매몰재의 혼수비", "주조용 ring의 크기", "소환 온도", "실리카 입자 크기"],
+            answer: 3,
+            optionExplanations: { 3: "링 크기 자체는 매몰재 고유의 물리화학적 팽창률을 바꾸지 않습니다." },
+            commonExplanations: []
+          },
+          {
+            id: 99, question: "매몰재의 혼수비(W/P ratio)가 낮을 경우의 설명으로 옳지 않은 것은?",
+            options: ["경화팽창이 커진다", "수화팽창이 작아진다", "열팽창이 커진다", "매몰재의 강도가 증가한다", "입자 밀도가 높아진다"],
+            answer: 2,
+            optionExplanations: { 2: "혼수비가 낮을수록 입자 반발력으로 수화팽창도 커집니다." },
+            commonExplanations: []
+          },
+          {
+            id: 100, question: "다음 매몰재 팽창에 대한 설명 중 옳지 않은 것은?",
+            options: ["혼수비가 낮을수록 경화팽창이 크다", "혼수비가 높을수록 경화팽창이 크다", "실리카 함량이 많을수록 열팽창이 크다", "수화팽창은 물속에서 경화 시 발생한다", "링 라이너는 팽창을 돕는 역할을 한다"],
+            answer: 2,
+            optionExplanations: { 2: "혼수비가 높으면 입자 밀도가 떨어져 경화팽창이 작아집니다." },
+            commonExplanations: []
+          },
+          {
+            id: 101, question: "치과용 석고계 매몰재의 기본 성분으로 옳게 짝지어진 것은?",
+            options: ["plaster, quartz (석고 및 석영/크리스토발라이트)", "alginate, agar", "resin, monomer", "zinc oxide, eugenol", "porcelain, feldspar"],
+            answer: 1,
+            optionExplanations: { 1: "결합재 반수석고(Plaster)와 내화재 실리카(Quartz)로 구성됩니다." },
+            commonExplanations: []
+          },
+          {
+            id: 102, question: "주조용 링에 Ring liner(완충대)를 설치해 주는 이유가 아닌 것은?",
+            options: ["매몰재의 경화팽창을 허용하기 위해", "매몰재의 열팽창을 원활하게 돕기 위해", "주조 후 링에서 매몰재 분리를 쉽게 하기 위해", "금속 링의 구속력을 완충하기 위해", "매몰재 가열시 내부 가스를 직접 흡수/제거하기 위해"],
+            answer: 5,
+            optionExplanations: { 5: "링 라이너는 팽창 완충재일 뿐 가스를 흡수하는 배출 수단이 아닙니다." },
+            commonExplanations: []
+          },
+          {
+            id: 103, question: "금합금을 주조한 직후 서냉시키지 않고 물에 quenching(급냉)하는 주된 이유는?",
+            options: ["강도 및 경도 극대화", "연성 증가 (연화열처리 효과로 다듬질 용이)", "주조 수축 방지", "산화막 형성 유도", "기포 제거"],
+            answer: 2,
+            optionExplanations: { 2: "연화열처리 효과를 얻어 금합금이 무르고 연해져 연마 가공이 쉬워집니다." },
+            commonExplanations: []
+          },
+          {
+            id: 104, question: "납착 시 사용하는 융제(Flux)의 설명으로 옳지 않은 것은?",
+            options: ["금속 표면의 산화물을 용해 제거한다", "용융 납착재의 흐름성과 젖음성을 향상시킨다", "융제가 용융시 완전히 소각되어 증발해야 한다", "금속 표면을 덮어 추가 산화를 방지한다", "붕사와 붕산 등이 주성분이다"],
+            answer: 3,
+            optionExplanations: { 3: "융제는 녹아서 피막을 유지하여 공기를 차단해야 합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 105, question: "금합금 주조체에서 국부수축다공성(Localized shrinkage porosity)을 발생시키는 가장 큰 원인은?",
+            options: ["매몰재 소환 온도가 너무 높을 때", "합금을 과도하게 가열했을 때", "원심 주조기 회전력이 너무 강할 때", "주입선 길이가 너무 짧을 때", "주입선이 가늘어 용융금속 공급이 불완전할 때"],
+            answer: 5,
+            optionExplanations: { 5: "주입선이 얇으면 먼저 응고되어 수축 금속 보충이 끊기기 때문입니다." },
+            commonExplanations: []
+          }
+        ]
+      },
+      law: {
+        title: "의료관계법규 (1번 ~ 100번)",
+        questions: [
+          /* --- 모의고사 1 (1~20번) --- */
+          {
+            id: 1, question: "의료인 단체인 중앙회를 설립하고자 할 때에 요구되는 사항은?",
+            options: ["시·도지사의 허가", "시·도지사에게 신고", "보건복지가족부장관의 허가", "보건복지가족부장관의 승인", "시장·군수·구청장의 인가"],
+            answer: 3,
+            optionExplanations: { 3: "「의료법」 제28조 제2항에 따라 중앙회 설립 시 보건복지부장관의 허가를 받아야 합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 2, question: "의료기관의 개설특례에 해당하는 경우는?",
+            options: ["지방자치단체의 의료기관개설", "의료인의 의료기관개설", "한국보훈복지공단의 의료기관개설", "조산사의 의료기관 개설", "회사 소유자가 자신의 종업원 등을 위해 부속의료기관 개설"],
+            answer: 5,
+            optionExplanations: { 5: "종업원과 그 가족을 위해 부속 의료기관을 개설하는 것은 「의료법」 제35조에 따른 개설특례입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 3, question: "의료법상 의료유사업자로 조합된 것은?",
+            options: ["침구사, 접골사", "안마사, 침구사", "안경사, 안마사", "조산사, 침구사", "간호사, 안마사"],
+            answer: 1,
+            optionExplanations: { 1: "「의료법」 제81조 제1항에 규정된 의료유사업자는 '접골사'와 '침구사'입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 4, question: "종합병원 중에서 상급종합병원을 지정할 수 있는 요건이 아닌 것은?",
+            options: [
+              "특정 진료과목이나 특정질환 등에 대하여 난이도가 높은 의료행위를 하는 병원일 것",
+              "보건복지가족부령으로 정하는 20개 이상의 진료과목을 갖추고 각 진료과목마다 전속하는 전문의를 둘 것",
+              "전문의가 되려는 자를 수련시키는 기관일 것",
+              "보건복지가족부령으로 정하는 인력·시설·장비 등을 갖출 것",
+              "질병군별 환자구성 비율이 보건복지가족부령으로 정하는 기준에 해당할 것"
+            ],
+            answer: 1,
+            optionExplanations: { 1: "특정 질환/과목에 대해 난이도가 높은 의료행위를 하는 것은 '전문병원'(제3조의5)의 요건입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 5, question: "중앙회가 공제사업을 할 경우에 요구되는 사항은?",
+            options: ["시·도지사의 허가", "시·도지사의 승인", "보건복지가족부장관의 허가", "보건복지가족부장관에게 신고", "시장·군수·구청장에게 신고"],
+            answer: 3,
+            optionExplanations: { 3: "「의료법」 제28조 제5항에 의거 공제사업 추진 시 보건복지부장관의 허가를 받아야 합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 6, question: "보수교육이 면제되는 자는 당해 보수교육 실시 전에 면제대상자임을 증명할 수 있는 서류를 누구에게 제출하여야 하는가?",
+            options: ["대통령", "관할 보건소장", "보건복지가족부장관", "시·도지사", "각 중앙회장"],
+            answer: 5,
+            optionExplanations: { 5: "「의료법 시행규칙」 제20조 제4항에 따라 각 중앙회장에게 면제 증명 서류를 제출합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 7, question: "가정간호를 하는 경우에는 의사 또는 한의사의 진단과 처방에 의하여야 한다. 이 경우 의사 및 한의사의 처방의 유효기간은?",
+            options: ["30일", "60일", "90일", "1년", "2년"],
+            answer: 3,
+            optionExplanations: { 3: "「의료법 시행규칙」 제24조 제2항에 따라 가정간호 처방 유효기간은 처방일부터 90일입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 8, question: "보건복지부 장관은 상급종합병원으로 지정받은 종합병원에 대하여 몇 년마다 평가를 실시하여야 하는가?",
+            options: ["1년", "2년", "3년", "4년", "5년"],
+            answer: 3,
+            optionExplanations: { 3: "「의료법」 제3조의4 제3항에 따라 3년마다 평가를 실시하여 재지정 또는 취소합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 9, question: "의료기사가 아닌 사람은?",
+            options: ["치과기공사", "작업치료사", "의무기록사", "임상병리사", "방사선사"],
+            answer: 3,
+            optionExplanations: { 3: "의무기록사(보건의료정보관리사) 및 안경사는 '의료기사등'에 속하며 의료기사 6종에는 포함되지 않습니다." },
+            commonExplanations: []
+          },
+          {
+            id: 10, question: "의료기사 등에 관한 법률에서 면허자격정지기간은?",
+            options: ["3개월 이내", "6개월 이내", "1년 이내", "1년 6개월 이내", "3년 이내"],
+            answer: 3,
+            optionExplanations: { 3: "「의료기사 등에 관한 법률」 제22조 제1항에 따른 자격정지 처분 상한은 '1년 이내'입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 11, question: "종합병원 개설요건에 해당하는 것으로 옳은 것은?",
+            options: [
+              "입원환자 80명이상을 수용할 수 있는 시설을 갖출 것",
+              "전문의가 있는 진료과목 이외의 진료과목을 운영하는 경우에는 반드시 전문의가 있어야 한다",
+              "신경외과는 종합병원에서 구비할 진료과목이다",
+              "300병상초과의 경우는 반드시 정신과를 진료과목으로 추가해야 한다",
+              "종합병원 개설은 보건복지가족부장관의 허락을 받는다"
+            ],
+            answer: 4,
+            optionExplanations: { 4: "300병상 초과 종합병원은 필수 8개 과목 외에 정신건강의학과(정신과) 및 치과를 포함한 9개 과목을 갖추어야 합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 12, question: "의료기관의 개설자 또는 관리자가 진료에 관한 기록을 5년간 보존하는 것이 아닌 것은?",
+            options: ["환자명부", "조산기록부", "방사선 사진", "간호기록부", "처방전"],
+            answer: 5,
+            optionExplanations: { 5: "처방전의 보존기간은 2년입니다. (진료기록부/수술기록부는 10년, 환자명부/간호/조산/방사선은 5년)." },
+            commonExplanations: []
+          },
+          {
+            id: 13, question: "의료기관을 개설할 수 있는 경우로 옳은 조합은?",
+            contextBox: "가. 지방자치단체          나. 의료기사협회\n다. 민법상 비영리법인      라. 한국조폐공사",
+            options: ["가, 나, 다", "가, 다", "나, 라", "라", "가, 나, 다, 라"],
+            answer: 2,
+            optionExplanations: { 2: "지방자치단체(가)와 비영리법인(다)은 의료기관 개설 주체에 해당합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 14, question: "종합병원, 병원, 치과병원, 한방병원, 요양병원의 개설시 취해야 할 사항은?",
+            options: ["시·도지사의 허가", "시·도지사의 승인", "보건복지가족부장관의 허가", "시장·군수·구청장의 허가", "시장·군수·구청장의 인가"],
+            answer: 4,
+            optionExplanations: { 4: "병원급 의료기관 개설은 관할 시장·군수·구청장의 허가를 받아야 합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 15, question: "의료인이나 의료기관 종사자가 환자 기록 열람/사본 교부를 거부할 수 있는 정당한 예외 경우는?",
+            options: [
+              "급여비용 심사·지급 등을 위하여 국민건강보험공단 또는 건강보험심사평가원에 제공하는 경우",
+              "의료급여 수급권자 확인 등 의료급여 업무를 위하여 시·군·구에 제공하는 경우",
+              "의사, 치과의사 또는 한의사가 환자의 진료를 위하여 불가피하다고 인정한 경우",
+              "형사소송법 또는 민사소송법에 따라 문서제출을 명한 경우",
+              "자동차보험 진료 수가를 청구 받은 보험회사 등이 의료기관에 대하여 진료기록의 열람을 청구한 경우"
+            ],
+            answer: 3,
+            optionExplanations: { 3: "환자의 진료를 위해 불가피하다고 의사가 인정한 경우 열람 요구를 거부할 수 있습니다(제21조 제3항 단서)." },
+            commonExplanations: []
+          },
+          {
+            id: 16, question: "의료기사 등의 품위손상행위의 범위에 대한 설명으로 옳은 조합은?",
+            contextBox: "가. 의료기사 등의 업무범위를 일탈하는 행위\n나. 학문적으로 인정되지 아니하는 방법으로 업무를 하는 행위\n다. 치과의사의 치과기공물 제작의뢰에 의하지 아니하고 치과기공사의 업무를 하는 행위\n라. 타인에게 의료기사 면허 대여 시",
+            options: ["가, 나, 다", "가, 다", "나, 라", "라", "가, 나, 다, 라"],
+            answer: 1,
+            optionExplanations: { 1: "면허 대여(라)는 형사처벌 및 면허취소 대상이며, 시행령상 품위손상행위 범위는 가, 나, 다입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 17, question: "다음 중 3년이하의 징역 또는 1,000만원 이하의 벌금에 해당하지 않는 것은?",
+            options: [
+              "태아의 성감별을 목적으로 진찰을 도와 준 자",
+              "정당한 이유 없이 응급의료를 거부한 응급의료종사자",
+              "업무상 지득한 환자의 비밀을 누설한 의료인",
+              "집단휴업중인 의료기관에 대한 업무개시명령을 위반한 자",
+              "안마사의 자격인정을 받지 않고 영리를 목적으로 안마를 한 자"
+            ],
+            answer: 5,
+            optionExplanations: { 5: "무자격 안마 행위는 「의료법」 제88조에 따라 3년 이하 징역 또는 3천만원 이하 벌금입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 18, question: "다음 중 5년 이하의 징역 또는 2,000만원(현행 5천만원) 이하의 벌금에 해당하지 않는 것은?",
+            options: [
+              "의료인이 아닌 자가 불법으로 의료행위를 한 때",
+              "의료인이 불법으로 면허된 이외의 의료행위를 한 때",
+              "의료인으로서 의료기관을 개설하지 아니하고 의료업을 행한 자",
+              "면허증을 대여한 자",
+              "의료기관을 점거하여 진료를 방해한 자"
+            ],
+            answer: 4,
+            optionExplanations: { 4: "면허증 대여 행위는 제87조의2에 규정되어 소스 시험 기준 5년/2000만원 기본 조항과 구별됩니다." },
+            commonExplanations: []
+          },
+          {
+            id: 19, question: "의료기사가 아닌 자가 의료기사 업무를 행했을 때의 벌칙 규정은?",
+            options: ["1년 이하 징역 또는 300만원 이하 벌금", "1년 이하 징역 또는 200만원 이하 벌금", "3년 이하 징역 또는 1천만원 이하 벌금", "300만원 이하 벌금", "100만원 이하 과태료"],
+            answer: 3,
+            optionExplanations: { 3: "「의료기사 등에 관한 법률」 제30조 제1항 제1호에 따라 3년 이하 징역 또는 1천만원 이하 벌금입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 20, question: "의료기사가 면허증을 대여했을 때 벌칙규정은?",
+            options: ["1년 이하 징역 또는 100만원 이하 벌금", "50만원 이하 벌금", "2년 이하 징역 또는 100만원 이하 벌금", "3년 이하 징역 또는 1천만원 이하 벌금", "100만원 이하 과태료"],
+            answer: 4,
+            optionExplanations: { 4: "「의료기사 등에 관한 법률」 제30조 제1항 제2호에 따라 3년 이하 징역 또는 1천만원 이하 벌금입니다." },
+            commonExplanations: []
+          },
+          /* --- 모의고사 2 (21~40번) --- */
+          {
+            id: 21, question: "다음 중 신생아의 양호지도를 해야 하는 자는?",
+            options: ["의사", "조산사", "간호사", "한의사", "치과의사"],
+            answer: 2,
+            optionExplanations: { 2: "조산사의 임무는 조산과 임산부 및 신생아에 대한 보건과 양호지도입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 22, question: "300병상 이하의 종합병원이 필수적으로 설치 운영해야 할 진료과목은?",
+            options: ["치과", "비뇨기과", "이비인후과", "마취통증의학과", "정신과"],
+            answer: 4,
+            optionExplanations: { 4: "100~300병상 종합병원은 영상의학과, 마취통증의학과, 진단검사의학과/병리과 등이 필수입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 23, question: "간호사의 면허를 가진 자가 조산사의 국가시험에 응시하고자 할 때 필요한 요건은?",
+            options: [
+              "의과대학 졸업 자",
+              "간호대학 조산학과 졸업 자",
+              "간호전문대학원에서 조산사 전공 자",
+              "산부인과 병원에서 3년 이상 근무 자",
+              "보건복지부 장관이 인정하는 의료기관에서 1년간 조산수습과정을 마친 자"
+            ],
+            answer: 5,
+            optionExplanations: { 5: "간호사 면허 소지자로서 보건복지부장관 인정 기관에서 1년간 조산수습과정을 마쳐야 합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 24, question: "출생증명서 또는 사산증명서를 교부할 수 있는 자는?",
+            options: ["약사", "수의사", "간호사", "한의사", "치과의사"],
+            answer: 4,
+            optionExplanations: { 4: "출생·사망·사산증명서는 의사, 한의사 또는 조산사만이 발급할 수 있습니다." },
+            commonExplanations: []
+          },
+          {
+            id: 25, question: "의료기관에서 발생하는 세탁물을 처리하고자 하는 자가 신고해야할 대상은?",
+            options: ["보건소장", "시·도지사", "보건복지부장관", "질병관리본부장", "시장·군수·구청장"],
+            answer: 5,
+            optionExplanations: { 5: "「의료법」 제16조 제1항에 따라 시장·군수·구청장에게 신고합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 26, question: "의료기관이 보건복지부장관에게 의료기관 인정 “조건부인증”을 받은 경우 그 유효기간은?",
+            options: ["1년", "2년", "3년", "4년", "5년"],
+            answer: 1,
+            optionExplanations: { 1: "조건부인증의 유효기간은 1년입니다. (정식 인증은 4년)." },
+            commonExplanations: []
+          },
+          {
+            id: 27, question: "의료기관 개설자가 휴업·폐업을 할 때 진료기록부 등을 직접 보관하고자 하면 누구에게 사전허가를 받아야 하는가?",
+            options: ["도지사", "시장·군수·구청장", "보건소장", "보건복지부장관", "국민건강보험공단의 장"],
+            answer: 3,
+            optionExplanations: { 3: "폐업·휴업 시 진료기록부 직접 보관은 관할 보건소장의 사전 허가를 받아야 합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 28, question: "상급종합병원 인증을 받은 의료기관이 외국인환자 유치에 대한 제한은?",
+            options: ["제한 없음", "병상수의 100분의 5를 초과할 수 없다", "병상수의 100분의 10를 초과할 수 없다", "병상수의 100분의 20를 초과할 수 없다", "진료과목에 따라 다르게 제한을 받는다"],
+            answer: 2,
+            optionExplanations: { 2: "상급종합병원이 유치 가능한 외국인환자 병상 수는 전체 병상의 5%(100분의 5) 이하입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 29, question: "의료법에서 5년 이하 징역이나 2천만원(현행 5천만원) 이하의 벌금에 처해야 할 위반사항은?",
+            options: ["태아의 성감별을 위한 진찰", "면허증을 대여한 경우", "제약업자로부터 사은품을 받은 경우", "영리를 목적으로 환자를 알선한 경우", "품질관리검사에서 부적합으로 판정된 특수의료장비를 사용한 경우"],
+            answer: 2,
+            optionExplanations: { 2: "면허증 대여 행위는 5년 이하 징역 또는 5천만원(구 2천만원) 이하 벌금입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 30, question: "의료법 위반으로 300만원 이하의 과태료를 부과하여야 하는 경우는?",
+            options: ["약국 내에 의료기관을 개설한 경우", "변사체 신고의무를 이행하지 않은 경우", "환자의 기록을 열람가능한 사람 이외의 사람에게 열람하게 한 경우", "세탁물 처리업을 신고하지 않은 자가 세탁물을 처리한 경우", "신고를 하지 아니하고 진단용 방사선 발생장치를 설치 운영한 경우"],
+            answer: 4,
+            optionExplanations: { 4: "미신고 세탁물 처리업 운영은 300만원 이하 과태료 부과 대상입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 31, question: "다음 중 의료기사의 업무에 해당하는 것은?",
+            options: ["콘택트렌즈 제작 및 판매", "안경 제작 및 판매", "진료기록 작성 및 보관", "간호업무 보조", "의화학적 검사"],
+            answer: 5,
+            optionExplanations: { 5: "임상병리사의 고유 업무인 '의화학적 검사'는 의료기사 6종의 업무에 해당합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 32, question: "의료기사등에 관한 법률의 목적은?",
+            options: [
+              "국민의 보건 및 의료향상에 이바지함",
+              "의무기록 및 진료향상에 이바지함",
+              "국민의 보건 및 건강을 증진함",
+              "의료서비스 질의향상과 의화학적 검사 기술 향상에 이바지",
+              "의료기사등의 권익과 국민 건강증진에 이바지"
+            ],
+            answer: 1,
+            optionExplanations: { 1: "법 제1조: 자격·면허 등을 규정하여 국민의 보건 및 의료 향상에 이바지함을 목적으로 합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 33, question: "치과기공소를 개설하고자 하는 경우 행정절차와 행정권자의 조합으로 옳은 것은?",
+            options: ["개설등록 - 구청장", "개설등록 - 시·도지사", "개설허가 - 군수", "개설신고 - 시장", "개설신고 - 시·도지사"],
+            answer: 1,
+            optionExplanations: { 1: "치과기공소는 관할 시장·군수·구청장에게 '개설등록'을 하여야 합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 34, question: "의료기사등이 국가시험에 합격한 후 해당하는 면허증의 교부신청을 하려면 그 신청대상은?",
+            options: ["교육인적자원부 장관", "의료기사등의 단체 장", "보건복지부장관", "국가시험관리기관의 장", "질병관리본부장"],
+            answer: 3,
+            optionExplanations: { 3: "의료기사등의 면허 교부권자는 보건복지부장관입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 35, question: "의료기사등의 국가시험에 부정한 방법으로 응시하거나 부정행위 한 자에 대한 처리방법은?",
+            options: [
+              "합격을 무효로 하고 시험을 중지시키며 이후 2회 응시 불가",
+              "합격을 취소하고 시험을 중지시키며 이후 2회 응시 불가",
+              "합격을 무효로 하고 시험을 중지시키며 이후 2년 응시 불가",
+              "합격을 무효로 하고 시험을 진행 후 무효 처리하며 이후 2년 응시 불가",
+              "합격을 무효로 하고 시험을 중지시키며 이후 3회에 한하여 국가시험 응시 제한"
+            ],
+            answer: 5,
+            optionExplanations: { 5: "수험을 정지시키거나 합격을 무효로 하며 3회의 범위에서 응시를 제한합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 36, question: "보건복지부장관이 치과기공사 면허를 취소할 수 있는 경우는?",
+            options: [
+              "치과기공사의 준수사항을 위반하였을 경우",
+              "치과기공물 제작의뢰서를 보존하지 아니한 경우",
+              "개설등록을 하지 않고 치과기공소를 개설한 경우",
+              "치과기공소 개설자가 될 수 없는 사람에게 고용되어 치과기공사업무를 한 경우",
+              "치과기공물 제작의뢰서에 의하지 않고 치과기공물을 제작한 경우"
+            ],
+            answer: 5,
+            optionExplanations: { 5: "제작의뢰서에 의하지 않고 업무를 행한 경우 면허 취소 처분이 가능합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 37, question: "의료기사등은 대통령령이 정하는 바에 따라 최초로 면허를 받은 후부터 3년마다 그 실태와 취업상황을 누구에게 신고하여야 하는가?",
+            options: ["중앙회의 장", "보건소장", "시·도지사", "보건복지부 장관", "의료기사등의 단체의 장"],
+            answer: 4,
+            optionExplanations: { 4: "3년마다 실태와 취업상황을 보건복지부장관에게 신고하여야 합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 38, question: "치과의사 및 치과기공소 개설자가 치과기공물 제작의뢰서를 각각 몇 년간 보존해야 하는가?",
+            options: ["1년", "2년", "3년", "4년", "5년"],
+            answer: 2,
+            optionExplanations: { 2: "치과기공물 제작의뢰서는 2년간 보존하여야 합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 39, question: "치과기공사가 치과기공 제작의뢰서에 따르지 않고 치과기공물 제작 등의 업무를 하였을 때의 벌칙은?",
+            options: ["300만원 이하의 벌금", "1년 이하의 징역이나 300만원 이하의 벌금", "2년 이하의 징역이나 2천만원 이하의 벌금", "3년 이하의 징역이나 1천만원 이하의 벌금", "5년 이하의 징역이나 2천만원 이하의 벌금"],
+            answer: 1,
+            optionExplanations: { 1: "제작의뢰서 불이행 업무 수행은 300만원 이하의 벌금에 처해집니다." },
+            commonExplanations: []
+          },
+          {
+            id: 40, question: "영리를 목적으로 특정 치과기공소 또는 안경업소에 고객을 알선·유인하였을 때의 벌칙은?",
+            options: ["100만원 이하의 과태료", "300만원 이하의 벌금", "면허취소", "3년 이하의 징역이나 1천만원 이하의 벌금", "5년 이하의 징역이나 2천만원 이하의 벌금"],
+            answer: 4,
+            optionExplanations: { 4: "특정 업소 유인·알선 행위는 3년 이하의 징역 또는 1천만원 이하의 벌금형입니다." },
+            commonExplanations: []
+          },
+          /* --- 모의고사 3 (41~60번) --- */
+          {
+            id: 41, question: "간호사의 보건활동에 관한 법적 근거로서 다음 중 타당하지 않은 것은?",
+            options: [
+              "보건간호사 - 농어촌 등 보건의료를 위한 특별조치법",
+              "모자보건요원으로서의 모자보건활동 - 모자보건법",
+              "모자보건요원으로서의 가족계획활동 - 모자보건법",
+              "결핵관리요원 - 결핵예방법",
+              "양호교사 - 학교보건법"
+            ],
+            answer: 5,
+            optionExplanations: { 5: "보건교사(양호교사)의 직접적 배치 근거는 초·중등교육법 등에 규정됩니다." },
+            commonExplanations: []
+          },
+          {
+            id: 42, question: "의료인이 하는 ( ), ( ), ( ) 등의 의료기술의 시행에 대하여 법에 특별히 규정된 경우를 제외하고는 누구든지 간섭하지 못한다. 차례로 알맞은 것은?",
+            options: ["의료, 치과의료, 한방의료", "예방, 진료, 재활", "진단, 치료, 보건활동", "진료, 조산, 간호", "의료, 조산, 간호"],
+            answer: 5,
+            optionExplanations: { 5: "「의료법」 제12조 제1항 원문: 의료·조산·간호 등 의료기술의 시행." },
+            commonExplanations: []
+          },
+          {
+            id: 43, question: "의료광고의 금지규정에 해당하지 않은 것은?",
+            options: [
+              "평가를 받지 아니한 신 의료기술의 광고",
+              "치료효과를 보장하는 등 소비자를 현혹할 우려가 있는 내용의 광고",
+              "신문, 방송, 잡지 등을 이용하여 하는 광고",
+              "객관적으로 인정되지 아니하거나 근거 없는 내용의 광고",
+              "타 의료기관, 의료인의 기능 또는 진료방법과 비교하는 내용의 광고"
+            ],
+            answer: 3,
+            optionExplanations: { 3: "심의를 거쳐 법정 매체를 이용하는 것 자체는 금지 광고 내용이 아닙니다." },
+            commonExplanations: []
+          },
+          {
+            id: 44, question: "의료인의 보수교육 면제자로 옳은 것만의 조합은?",
+            contextBox: "가. 군복무중인 자          나. 전공의\n다. 대학원 재학생          라. 당해 연도 6월 이상 환자진료 미종사자",
+            options: ["가, 나, 다", "가, 다", "나, 라", "라", "가, 나, 다, 라"],
+            answer: 5,
+            optionExplanations: { 5: "가, 나, 다, 라 모두 보수교육 면제 대상에 해당합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 45, question: "의료인과 그 임무에 관한 내용 중 맞는 것만의 조합은?",
+            contextBox: "가) 의사-진료보건지도           나) 치과의사-치과의료, 구강보건지도\n다) 간호사-임부 해산부 보건지도   라) 한의사-한방의료 한방보건지도",
+            options: ["가, 나, 다", "가, 다", "나, 라", "라", "가, 나, 다, 라"],
+            answer: 3,
+            optionExplanations: { 3: "치과의사(나)와 한의사(라)의 임무가 올바릅니다. (의사는 의료와 보건지도, 조산사가 임부 양호지도)." },
+            commonExplanations: []
+          },
+          {
+            id: 46, question: "의료기관의 법정 종별은 몇 종인가?",
+            options: ["9종", "8종", "7종", "6종", "5종"],
+            answer: 1,
+            optionExplanations: { 1: "의원, 치과의원, 한의원, 조산원, 병원, 치과병원, 한방병원, 요양병원, 정신병원 등 총 9종입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 47, question: "의료인의 자격 요건에 대한 설명이다. 의료인에 해당하는 자만의 조합은?",
+            contextBox: "가) 의학·치의학·한의학사 학위 국가시험 합격자\n나) 전문대학원 석·박사 학위 국가시험 합격자\n다) 외국의 해당 학교 졸업 및 외국 면허 소지 후 국가시험 합격자\n라) 외국의 조산사 면허 소지 후 국가시험 합격자",
+            options: ["가, 나, 다", "가, 다", "나, 라", "라", "가, 나, 다, 라"],
+            answer: 5,
+            optionExplanations: { 5: "가, 나, 다, 라 모두 의료인 면허 취득 요건에 부합합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 48, question: "다음 중 의료인의 면허자격정지사유로 바른 것으로 조합된 것은?",
+            contextBox: "가) 전공의 선발 등 직무 관련 부당 금품 수수\n나) 진단서·증명서 허위 작성·교부\n다) 의료기사에게 업무범위 일탈 지시\n라) 심의 받지 않고 의료광고 수행",
+            options: ["가, 나, 다", "가, 다", "나, 라", "라", "가, 나, 다, 라"],
+            answer: 5,
+            optionExplanations: { 5: "가, 나, 다, 라 모두 1년 이내 면허 자격정지 처분 사유입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 49, question: "의료기관의 개설자 또는 관리자가 5년간 보존해야할 기록이 아닌 것은?",
+            options: ["환자의 명부", "진료기록부", "검사소견기록", "간호기록부", "조산기록부"],
+            answer: 2,
+            optionExplanations: { 2: "진료기록부 및 수술기록부는 10년간 보존하여야 합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 50, question: "각종 병원에 두는 당직의료인의 수에 관한 다음 중 잘못된 것은?",
+            options: [
+              "의사 - 입원환자 200인까지 1인, 200인 초과시 200인마다 1인 추가",
+              "치과의사 - 입원환자 200인까지 1인, 200인 초과시 200인마다 1인추가",
+              "한의사 - 입원환자 200인까지 1인, 200인 초과시 200인마다 1인추가",
+              "간호사 - 입원환자 200인까지 1인, 200인 초과시 200인마다 1인추가",
+              "정신병원·재활병원·결핵병원 당해 병원의 자체기준에 따라 배치"
+            ],
+            answer: 5,
+            optionExplanations: { 5: "당직의료인은 병원 자체기준이 아닌 법정 환자 비율 기준에 따라 의무 배치해야 합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 51, question: "품질관리검사에 부적합하다고 판정받은 특수의료장비를 사용한 때의 벌칙으로 옳은 것은?",
+            options: ["5년 이하 징역 또는 3,000만원 이하 벌금", "5년 이하 징역 또는 2,000만원 이하 벌금", "3년 이하 징역 또는 3,000만원 이하 벌금", "3년 이하 징역 또는 1,000만원 이하 벌금", "1년 이하 징역 또는 300만원 이하 벌금"],
+            answer: 4,
+            optionExplanations: { 4: "「의료법」 제89조에 따라 3년 이하의 징역 또는 1,000만원 이하의 벌금입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 52, question: "의료기사 등의 업무로 다음 중 옳지 않는 것은?",
+            options: [
+              "안경사 - 시력보정용 안경 및 콘텍트 렌즈의 조제 및 판매",
+              "방사선사 - 방사선동위원소를 사용한 검사",
+              "물리치료사 - 물리요법적 치료업무",
+              "작업치료사 - 장애 있는 신체부분의 훈련, 치료",
+              "의무기록사 - 의무에 관한 기록, 정보를 유지, 관리 확인하는 업무"
+            ],
+            answer: 1,
+            optionExplanations: { 1: "콘택트렌즈는 '판매'만 가능하며 '조제(가공)' 대상이 아닙니다." },
+            commonExplanations: []
+          },
+          {
+            id: 53, question: "다음 중 의료기사 등에 관한법률 적용대상이 아닌 것은?",
+            options: ["작업치료사", "물리치료사", "위생사", "의무기록사", "안경사"],
+            answer: 3,
+            optionExplanations: { 3: "위생사는 공중위생관리법 등 별도 법률의 적용을 받습니다." },
+            commonExplanations: []
+          },
+          {
+            id: 54, question: "다음 중 의료기사 등의 면허정지사유로 조합된 것은?",
+            contextBox: "가. 안경업소 개설 부적격자에게 고용되어 업무 수행\n나. 금고이상의 형을 선고받은 때\n다. 제작의뢰서에 의하지 않고 치과기공사 업무 수행\n라. 의료기사가 면허 또는 업무에 관하여 광고행위를 한 때",
+            options: ["가, 나, 다", "가, 다", "나, 라", "라", "가, 나, 다, 라"],
+            answer: 2,
+            optionExplanations: { 2: "가와 다는 자격정지 사유입니다. (나는 면허취소 사유)." },
+            commonExplanations: []
+          },
+          {
+            id: 55, question: "보건복지부장관이 의료기사등의 보수교육을 위탁할 수 있는 자로 옳은 것만의 조합은?",
+            contextBox: "가. 관련 학과 개설 전문대학 이상 학교\n나. 의료기사등의 협회인 중앙회\n다. 관련 연구기관\n라. 지방자치단체 또는 보건기관",
+            options: ["가, 나, 다", "가, 다", "나, 라", "라", "가, 나, 다, 라"],
+            answer: 1,
+            optionExplanations: { 1: "학교(가), 중앙회(나), 연구기관(다)에 위탁 가능합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 56, question: "다음의 기술 중 타당하지 않는 것은?",
+            contextBox: "가. 의료기사가 아니면 명칭을 사용하지 못한다\n나. 의료기사등이 아니면 업무를 행하지 못한다\n다. 의료기사는 의사·치과의사 지도하에 종사한다\n라. 의무기록사는 의사의 지도하에 의무기록을 주된 업무로 한다",
+            options: ["가, 나, 다", "가, 다", "나, 라", "라", "가, 나, 다, 라"],
+            answer: 4,
+            optionExplanations: { 4: "의무기록사(보건의료정보관리사)는 의사의 지도 하에 종사하는 제약을 받지 않습니다." },
+            commonExplanations: []
+          },
+          {
+            id: 57, question: "보건복지가족부장관은 면허증 교부신청을 받을 때에는 그 신청인에게 언제까지 면허증을 교부하여야 하는가?",
+            options: ["7일 이내", "14일 이내", "20일 이내", "30일 이내", "2달 이내"],
+            answer: 2,
+            optionExplanations: { 2: "신청을 받은 날부터 14일 이내에 면허증을 교부하여야 합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 58, question: "다음의 기술 중 의료기사 등의 결격사유로서 타당하지 않은 것은?",
+            options: [
+              "정신질환자(전문의 인정자 제외)",
+              "금치산자, 한정치산자(피성년·피한정후견인)",
+              "파산선고를 받고 복권되지 아니한 자",
+              "마약·대마·향정신성의약품 중독자",
+              "모자보건법을 위반하여 금고이상의 실형을 선고받고 그 집행이 종료되지 아니한 자"
+            ],
+            answer: 5,
+            optionExplanations: { 5: "모자보건법 위반은 의료기사법 결격사유 열거 조항에 포함되지 않습니다." },
+            commonExplanations: []
+          },
+          {
+            id: 59, question: "다음 중 국가시험관리기관의 장의 권한에 속하는 것이 아닌 것은?",
+            contextBox: "가. 국가시험과목의 결정       나. 국가시험 합격자의 결정\n다. 실기시험의 범위           라. 국가시험의 출제방법",
+            options: ["가, 나, 다", "가, 다 (또는 가)", "나, 라", "라", "가, 나, 다, 라"],
+            answer: 2,
+            optionExplanations: { 2: "국가시험과목의 결정(가)은 보건복지부령 입법 사항입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 60, question: "치과기공소에 관한 다음의 기술 중 옳은 것으로 조합된 것은?",
+            contextBox: "가. 개설은 시·도지사에게 신고하여야 한다\n나. 치과기공사는 치과기공소를 개설 할 수 있다\n다. 치과의사는 치과기공소를 개설할 수 없다\n라. 제작의뢰서를 2년간 보존하여야 한다",
+            options: ["가, 나, 다", "가, 다", "나, 라", "라", "가, 나, 다, 라"],
+            answer: 3,
+            optionExplanations: { 3: "치과기공사는 개설 가능하며(나), 제작의뢰서는 2년간 보존합니다(라)." },
+            commonExplanations: ["개설은 시·군·구 등록제이며 치과의사도 개설 가능합니다."]
+          },
+          /* --- 보건법규 1 (61~80번) --- */
+          {
+            id: 61, question: "「의료법」상 의료인이 아닌 것은?",
+            options: ["의사", "약사", "간호사", "조산사", "치과의사"],
+            answer: 2,
+            optionExplanations: { 2: "약사는 「약사법」의 적용을 받는 자로 의료인이 아닙니다." },
+            commonExplanations: []
+          },
+          {
+            id: 62, question: "「의료법」상 병원급 의료기관 중에서 특정 진료과목이나 특정 질환 등에 대하여 난이도가 높은 의료행위를 하는 의료기관은?",
+            options: ["치과병원", "요양병원", "종합병원", "상급종합병원", "전문지정병원(전문병원)"],
+            answer: 5,
+            optionExplanations: { 5: "특정 과목/질환 난이도 높은 의료행위 기관은 전문병원입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 63, question: "「의료법」상 국가시험등의 시행 및 공고 등에서 시험장소는 며칠 전까지 공고할 수 있는가?",
+            options: ["30일", "60일", "90일", "120일", "150일"],
+            answer: 1,
+            optionExplanations: { 1: "시험장소 공고는 시험 실시 30일 전까지 하여야 합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 64, question: "「의료법」상 진단서, 검안서 또는 증명서를 교부할 수 있는 의료인의 조합은?",
+            options: ["의사, 치과의사, 한의사", "의사, 한의사, 조산사", "의사, 한의사, 간호사", "의사, 간호사, 조산사", "한의사, 치과의사, 조산사"],
+            answer: 1,
+            optionExplanations: { 1: "직접 진찰·검안한 의사, 치과의사, 한의사만 교부 가능합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 65, question: "「의료법」상 의료인이나 의료기관 개설자는 진료기록부를 몇 년동안 보존하여야 하는가?",
+            options: ["2년", "3년", "5년", "7년", "10년"],
+            answer: 5,
+            optionExplanations: { 5: "진료기록부 및 수술기록부는 10년간 보존하여야 합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 66, question: "「의료법」상 무면허 의료행위에 해당하는 것은?",
+            options: [
+              "외국 의료원조기관의 의료봉사",
+              "간호학을 전공하는 학교의 학생",
+              "치과대학의 연구를 위하여 의료행위를 하는 자",
+              "수의학과대학의 시범사업을 위하여 의료행위를 하는 자",
+              "외국의 의료인 면허를 가진 자로서 일정 기간 국내에 체류하는 자"
+            ],
+            answer: 4,
+            optionExplanations: { 4: "수의대 시범사업을 이유로 인체에 의료행위를 하는 것은 무면허 의료행위입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 67, question: "「의료법」상 요양병원의 입원 대상이 아닌 것은?",
+            options: ["감염병 환자", "만성 질환자", "노인성 질환자", "노인성 치매환자", "외과적 수술 후 회복기간에 있는 자"],
+            answer: 1,
+            optionExplanations: { 1: "전파 위험이 있는 감염병환자는 요양병원 입원 대상에서 제외됩니다." },
+            commonExplanations: []
+          },
+          {
+            id: 68, question: "「의료법」상 보건복지부장관이 의료인을 1년의 범위에서 면허자격을 정지시킬 수 있는 경우가 아닌 것은?",
+            options: [
+              "일회용 의료기기를 재사용한 경우",
+              "의료인의 품위를 심하게 손상시키는 행위를 한 경우",
+              "진단서·검안서 또는 증명서를 거짓으로 작성하여 내준 경우",
+              "진료기록부등을 거짓으로 작성하거나 고의로 사실과 다르게 추가기재·수정한 경우",
+              "금고 이상의 형의 집행유예를 선고받고 그 유예기간이 지난 후 2년이 지나지 아니한 경우"
+            ],
+            answer: 5,
+            optionExplanations: { 5: "금고 이상 형 선고 집행유예는 결격사유에 해당하여 '면허 취소' 처분을 받습니다." },
+            commonExplanations: []
+          },
+          {
+            id: 69, question: "「의료법」상 면허가 취소된 날부터 1년 이내에 면허를 재교부할 수 있는 경우는?",
+            options: ["면허를 대여한 경우", "면허 조건을 이행하지 아니한 경우", "3회 이상 자격 정지 처분을 받은 경우", "자격 정지 처분 기간 중에 의료행위를 한 경우", "면허를 재교부받은 사람이 태아 성 감별 행위를 한 경우"],
+            answer: 2,
+            optionExplanations: { 2: "면허 조건 미이행 취소의 경우 1년 이내라도 재교부할 수 있습니다." },
+            commonExplanations: []
+          },
+          {
+            id: 70, question: "「의료법」상 의료인이 아닌 자에게 의료행위를 하게 하거나 의료인에게 면허 사항 외의 의료행위를 하게 한 자의 벌칙은?",
+            options: ["7년 이하의 징역 또는 1천만원 이상 7천만원 이하의 벌금", "3년 이상 10년 이하의 징역", "5년 이하의 징역이나 5천만원 이하의 벌금", "3년 이하의 징역이나 3천만원 이하의 벌금", "2년 이하의 징역이나 2천만원 이하의 벌금"],
+            answer: 3,
+            optionExplanations: { 3: "무면허 의료행위를 교사·지시한 자는 5년 이하 징역 또는 5천만원 이하 벌금입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 71, question: "「의료기사등에 관한 법률」상 치과의사의 진료에 필요한 치과기공물의 디자인, 제작, 수리 또는 가공에 관한 업무를 하는 의료기사는?",
+            options: ["방사선사", "임상병리사", "물리치료사", "치과기공사", "치과위생사"],
+            answer: 4,
+            optionExplanations: { 4: "치과기공물의 디자인·제작·수리·가공을 전담하는 직종은 치과기공사입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 72, question: "「의료기사등에 관한 법률」상 국가시험에 합격한 사람은 필요한 서류를 첨부하여 누구에게 면허증 발급을 신청하는가?",
+            options: ["대통령", "국무총리", "보건복지부장관", "시, 도지사", "시장, 군수, 구청장"],
+            answer: 3,
+            optionExplanations: { 3: "면허증 발급 신청 수령권자는 보건복지부장관입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 73, question: "「의료기사등에 관한 법률」상 국가시험의 합격자 결정은 필기시험에서 각 과목 만점의 몇 % 이상과 전 과목 총점의 몇 % 이상을 각각 득점해야 하는가?",
+            options: ["40%, 50%", "50%, 40%", "50%, 50%", "40%, 60%", "60%, 40%"],
+            answer: 4,
+            optionExplanations: { 4: "각 과목 40% 이상(과락 기준), 전 과목 총점 60% 이상입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 74, question: "「의료기사등에 관한 법률」상 국가시험 응시제한 3회에 해당하는 부정행위는?",
+            options: [
+              "대리시험을 치르거나 치르게 하는 행위",
+              "허용되지 아니한 자료를 가지고 있거나 이용하는 행위",
+              "시험 중에 대화, 손동작 또는 소리 등으로 서로 의사소통을 하는 행위",
+              "시험 중에 다른 응시한 사람을 위하여 답안 등을 알려주거나 엿보게 하는 행위",
+              "시험 중에 허용되지 아니한 전자장비, 통신기기, 전자계산기기 등을 사용하여 답안을 전송하거나 작성하는 행위"
+            ],
+            answer: 1,
+            optionExplanations: { 1: "대리시험 행위는 최고 수준인 3회의 응시 제한 처분을 받습니다." },
+            commonExplanations: []
+          },
+          {
+            id: 75, question: "「의료기사등에 관한 법률」상 치과기공소를 개설하려는 자는 누구에게 개설등록을 하여야 하는가?",
+            options: ["대통령", "국무총리", "보건복지부장관", "특별자치시장, 특별자치도지사, 시장, 군수, 구청장", "관할 행정복지센타"],
+            answer: 4,
+            optionExplanations: { 4: "관할 시장·군수·구청장에게 개설등록을 하여야 합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 76, question: "「의료기사등에 관한 법률」상 중앙회의 업무가 아닌 것은?",
+            options: [
+              "의료기사등의 권익 보호",
+              "국내외 관련 기관 등과의 정보 교류",
+              "국내외 관련 단체 등과의 기술 교류",
+              "의료기사등의 업무에 대한 연구개발",
+              "그 밖에 시, 도지사가 필요하다고 인정하는 업무"
+            ],
+            answer: 5,
+            optionExplanations: { 5: "중앙회 감독관청은 보건복지부장관이므로 시·도지사 인정 업무 지문은 속하지 않습니다." },
+            commonExplanations: []
+          },
+          {
+            id: 77, question: "「의료기사등에 관한 법률」상 보수교육은 매년 몇 시간 이상 받아야 하는가?",
+            options: ["1시간", "2시간", "4시간", "6시간", "8시간"],
+            answer: 5,
+            optionExplanations: { 5: "매년 8시간 이상의 보수교육을 의무 이수하여야 합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 78, question: "「의료기사등에 관한 법률」시정명령을 이행하지 아니한 자에게 과태료를 부과, 징수하는 사람은?",
+            options: ["대통령", "국무총리", "보건복지부장관", "특별자치시장, 특별자치도지사, 시장, 군수, 구청장", "관할 보건소장"],
+            answer: 4,
+            optionExplanations: { 4: "등록 관청인 시장·군수·구청장이 과태료를 부과·징수합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 79, question: "「의료기사등에 관한 법률」상 폐업신고를 하지 아니하거나 등록사항의 변경신고를 하지 아니한 사람의 벌칙은?",
+            options: ["3년 이하의 징역 또는 3천만원 이하의 벌금", "1년 이하의 징역 또는 1천만원 이하의 벌금", "500만원 이하의 벌금", "500만원 이하의 과태료", "100만원 이하의 과태료"],
+            answer: 5,
+            optionExplanations: { 5: "폐업 및 변경신고 불이행 시 100만원 이하의 과태료입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 80, question: "「의료기사등에 관한 법률」상 500만원 이하의 과태료를 부과하는 경우는?",
+            options: ["면허 대여를 알선한 자", "시정명령을 이행하지 아니한 자", "업무상 알게 된 비밀을 누설한 자", "2개소 이상의 치과기공소를 개설한 자", "등록을 하지 아니하고 치과기공소를 개설한 자"],
+            answer: 2,
+            optionExplanations: { 2: "행정청의 시정명령을 이행하지 아니한 자에게 500만원 이하 과태료를 부과합니다." },
+            commonExplanations: []
+          },
+          /* --- 보건법규 2 (81~100번) --- */
+          {
+            id: 81, question: "「의료법」상 의료인이 아닌 것은?",
+            options: ["의사", "약사", "간호사", "조산사", "치과의사"],
+            answer: 2,
+            optionExplanations: { 2: "약사는 「약사법」의 적용을 받는 의약품 전문가로 의료인이 아닙니다." },
+            commonExplanations: []
+          },
+          {
+            id: 82, question: "「의료법」상 병원급 의료기관 중에서 특정 진료과목이나 특정 질환 등에 대하여 난이도가 높은 의료행위를 하는 의료기관은?",
+            options: ["치과병원", "요양병원", "종합병원", "상급종합병원", "전문지정병원(전문병원)"],
+            answer: 5,
+            optionExplanations: { 5: "특정 과목/질환에 난이도 높은 의료행위를 하는 기관은 전문병원입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 83, question: "「의료법」상 국가시험등의 시행 및 공고 등에서 시험장소는 며칠 전까지 공고할 수 있는가?",
+            options: ["30일", "60일", "90일", "120일", "150일"],
+            answer: 1,
+            optionExplanations: { 1: "시험장소 공고는 시험 30일 전까지 마쳐야 합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 84, question: "「의료법」상 진단서, 검안서 또는 증명서를 교부할 수 있는 의료인의 조합은?",
+            options: ["의사, 치과의사, 한의사", "의사, 한의사, 조산사", "의사, 한의사, 간호사", "의사, 간호사, 조산사", "한의사, 치과의사, 조산사"],
+            answer: 1,
+            optionExplanations: { 1: "직접 진찰한 의사, 치과의사, 한의사만 진단서 작성·교부 권한이 있습니다." },
+            commonExplanations: []
+          },
+          {
+            id: 85, question: "「의료법」상 의료인이나 의료기관 개설자는 진료기록부를 몇 년동안 보존하여야 하는가?",
+            options: ["2년", "3년", "5년", "7년", "10년"],
+            answer: 5,
+            optionExplanations: { 5: "진료기록부 및 수술기록부의 법정 보존기한은 10년입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 86, question: "「의료법」상 무면허 의료행위에 해당하는 것은?",
+            options: [
+              "외국 의료원조기관의 의료봉사",
+              "간호학을 전공하는 학교의 학생",
+              "치과대학의 연구를 위하여 의료행위를 하는 자",
+              "수의학과대학의 시범사업을 위하여 의료행위를 하는 자",
+              "외국의 의료인 면허를 가진 자로서 일정 기간 국내에 체류하는 자"
+            ],
+            answer: 4,
+            optionExplanations: { 4: "수의대 시범사업 명목의 인체 대상 의료행위는 무면허 의료행위입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 87, question: "「의료법」상 요양병원의 입원 대상이 아닌 것은?",
+            options: ["감염병 환자", "만성 질환자", "노인성 질환자", "노인성 치매환자", "외과적 수술 후 회복기간에 있는 자"],
+            answer: 1,
+            optionExplanations: { 1: "감염병환자는 다른 환자 전파 방지를 위해 요양병원 입원에서 제외됩니다." },
+            commonExplanations: []
+          },
+          {
+            id: 88, question: "「의료법」상 보건복지부장관이 의료인을 1년의 범위에서 면허자격을 정지시킬 수 있는 경우가 아닌 것은?",
+            options: [
+              "일회용 의료기기를 재사용한 경우",
+              "의료인의 품위를 심하게 손상시키는 행위를 한 경우",
+              "진단서·검안서 또는 증명서를 거짓으로 작성하여 내준 경우",
+              "진료기록부등을 거짓으로 작성하거나 고의로 사실과 다르게 추가기재·수정한 경우",
+              "금고 이상의 형의 집행유예를 선고받고 그 유예기간이 지난 후 2년이 지나지 아니한 경우"
+            ],
+            answer: 5,
+            optionExplanations: { 5: "금고 이상 형 선고 집행유예 결격사유는 면허 취소 처분 사유입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 89, question: "「의료법」상 면허가 취소된 날부터 1년 이내에 면허를 재교부할 수 있는 경우는?",
+            options: ["면허를 대여한 경우", "면허 조건을 이행하지 아니한 경우", "3회 이상 자격 정지 처분을 받은 경우", "자격 정지 처분 기간 중에 의료행위를 한 경우", "면허를 재교부받은 사람이 태아 성 감별 행위를 한 경우"],
+            answer: 2,
+            optionExplanations: { 2: "면허 조건 미이행 취소의 경우 1년 이내에 재교부할 수 있습니다." },
+            commonExplanations: []
+          },
+          {
+            id: 90, question: "「의료법」상 의료인이 아닌 자에게 의료행위를 하게 하거나 의료인에게 면허 사항 외의 의료행위를 하게 한 자?",
+            options: ["7년 이하의 징역 또는 1천만원 이상 7천만원 이하의 벌금", "3년 이상 10년 이하의 징역", "5년 이하의 징역이나 5천만원 이하의 벌금", "3년 이하의 징역이나 3천만원 이하의 벌금", "2년 이하의 징역이나 2천만원 이하의 벌금"],
+            answer: 3,
+            optionExplanations: { 3: "무면허 의료행위를 교사한 자는 5년 이하 징역 또는 5천만원 이하 벌금입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 91, question: "「의료기사등에 관한 법률」상 치과의사의 진료에 필요한 치과기공물의 디자인, 제작, 수리 또는 가공에 관한 업무를 하는 의료기사는?",
+            options: ["방사선사", "임상병리사", "물리치료사", "치과기공사", "치과위생사"],
+            answer: 4,
+            optionExplanations: { 4: "치과기공물의 제작·수리·가공을 담당하는 의료기사는 치과기공사입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 92, question: "「의료기사등에 관한 법률」상 국가시험에 합격한 사람은 필요한 서류를 첨부하여 누구에게 면허증 발급을 신청하는가?",
+            options: ["대통령", "국무총리", "보건복지부장관", "시, 도지사", "시장, 군수, 구청장"],
+            answer: 3,
+            optionExplanations: { 3: "면허증 발급은 보건복지부장관에게 신청합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 93, question: "「의료기사등에 관한 법률」상 국가시험의 합격자 결정은 필기시험에서 각 과목 만점의 몇 % 이상과 전 과목 총점의 몇 % 이상을 각각 득점해야 하는가?",
+            options: ["40%, 50%", "50%, 40%", "50%, 50%", "40%, 60%", "60%, 40%"],
+            answer: 4,
+            optionExplanations: { 4: "필기시험 합격선은 각 과목 40% 이상, 전 과목 총점 60% 이상입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 94, question: "「의료기사등에 관한 법률」상 국가시험 응시제한 3회에 해당하는 부정행위는?",
+            options: [
+              "대리시험을 치르거나 치르게 하는 행위",
+              "허용되지 아니한 자료를 가지고 있거나 이용하는 행위",
+              "시험 중에 대화, 손동작 또는 소리 등으로 서로 의사소통을 하는 행위",
+              "시험 중에 다른 응시한 사람을 위하여 답안 등을 알려주거나 엿보게 하는 행위",
+              "시험 중에 허용되지 아니한 전자장비, 통신기기, 전자계산기기 등을 사용하여 답안을 전송하거나 작성하는 행위"
+            ],
+            answer: 1,
+            optionExplanations: { 1: "대리시험 행위는 중대 부정행위로서 3회 응시 제한 처분을 받습니다." },
+            commonExplanations: []
+          },
+          {
+            id: 95, question: "「의료기사등에 관한 법률」상 치과기공소를 개설하려는 자는 누구에게 개설등록을 하여야 하는가?",
+            options: ["대통령", "국무총리", "보건복지부장관", "특별자치시장, 특별자치도지사, 시장, 군수, 구청장", "관할 행정복지센타"],
+            answer: 4,
+            optionExplanations: { 4: "기초지방자치단체장(시장·군수·구청장)에게 등록하여야 합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 96, question: "「의료기사등에 관한 법률」상 중앙회의 업무가 아닌 것은?",
+            options: [
+              "의료기사등의 권익 보호",
+              "국내외 관련 기관 등과의 정보 교류",
+              "국내외 관련 단체 등과의 기술 교류",
+              "의료기사등의 업무에 대한 연구개발",
+              "그 밖에 시, 도지사가 필요하다고 인정하는 업무"
+            ],
+            answer: 5,
+            optionExplanations: { 5: "중앙회의 감독관청은 보건복지부장관입니다." },
+            commonExplanations: []
+          },
+          {
+            id: 97, question: "「의료기사등에 관한 법률」상 보수교육은 매년 몇 시간 이상 받아야 하는가?",
+            options: ["1시간", "2시간", "4시간", "6시간", "8시간"],
+            answer: 5,
+            optionExplanations: { 5: "의료기사등은 매년 8시간 이상의 보수교육을 받아야 합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 98, question: "「의료기사등에 관한 법률」시정명령을 이행하지 아니한 자에게 과태료를 부과, 징수하는 사람은?",
+            options: ["대통령", "국무총리", "보건복지부장관", "특별자치시장, 특별자치도지사, 시장, 군수, 구청장", "관할 보건소장"],
+            answer: 4,
+            optionExplanations: { 4: "개설등록 관청인 시장·군수·구청장이 과태료를 부과·징수합니다." },
+            commonExplanations: []
+          },
+          {
+            id: 99, question: "「의료기사등에 관한 법률」상 폐업신고를 하지 아니하거나 등록사항의 변경신고를 하지 아니한 사람의 벌칙은?",
+            options: ["3년 이하의 징역 또는 3천만원 이하의 벌금", "1년 이하의 징역 또는 1천만원 이하의 벌금", "500만원 이하의 벌금", "500만원 이하의 과태료", "100만원 이하의 과태료"],
+            answer: 5,
+            optionExplanations: { 5: "폐업 및 변경 미신고 시 100만원 이하 과태료 처분을 받습니다." },
+            commonExplanations: []
+          },
+          {
+            id: 100, question: "「의료기사등에 관한 법률」상 500만원 이하의 과태료를 부과하는 경우는?",
+            options: ["면허 대여를 알선한 자", "시정명령을 이행하지 아니한 자", "업무상 알게 된 비밀을 누설한 자", "2개소 이상의 치과기공소를 개설한 자", "등록을 하지 아니하고 치과기공소를 개설한 자"],
+            answer: 2,
+            optionExplanations: { 2: "행정 시정명령을 이행하지 아니한 자에게 500만원 이하 과태료가 부과됩니다." },
+            commonExplanations: []
+          }
+        ]
+      }
+    };
+
+    const labels = ["A", "B", "C", "D", "E"];
+    let currentSubjectKey = "anatomy";
+    let solvedCount = 0;
+    let score = 0;
+
+    function startSubject(subjectKey) {
+      currentSubjectKey = subjectKey;
+      solvedCount = 0;
+      score = 0;
+
+      const subData = quizDatabase[subjectKey];
+      document.getElementById("quiz-header-title").textContent = subData.title;
+      document.getElementById("total-count").textContent = subData.questions.length;
+      document.getElementById("progress-count").textContent = "0";
+      document.getElementById("score-count").textContent = "0";
+
+      document.getElementById("selection-screen").style.display = "none";
+      document.getElementById("quiz-view").style.display = "block";
+
+      renderQuiz(subData.questions);
+      window.scrollTo(0, 0);
+    }
+
+    function goHome() {
+      document.getElementById("quiz-view").style.display = "none";
+      document.getElementById("selection-screen").style.display = "flex";
+      window.scrollTo(0, 0);
+    }
+
+    function renderQuiz(questions) {
+      const container = document.getElementById("quiz-container");
+      container.innerHTML = "";
+
+      questions.forEach((item, qIdx) => {
+        const card = document.createElement("div");
+        card.className = "quiz-card";
+        card.id = `q-${item.id}`;
+
+        let contextHtml = item.contextBox ? `<div class="q-context-box">${item.contextBox}</div>` : "";
+
+        let optionsHtml = item.options.map((opt, optIdx) => {
+          const choiceNum = optIdx + 1;
+          const optExp = item.optionExplanations[choiceNum] || "";
+          const isCorrectChoice = choiceNum === item.answer;
+
+          return `
+            <button type="button" class="option-card" id="btn-${item.id}-${choiceNum}" onclick="checkAnswer(${qIdx}, ${choiceNum})">
+              <div class="option-header">
+                <span style="color: #94a3b8; font-weight: 700;">${labels[optIdx]}.</span>
+                <span>${opt}</span>
+              </div>
+              <div class="option-inner-exp" id="exp-${item.id}-${choiceNum}">
+                <div class="status-label ${isCorrectChoice ? 'correct' : 'wrong'}" id="label-${item.id}-${choiceNum}">
+                  ${isCorrectChoice ? '✓ 정답' : '✕ 오답'}
+                </div>
+                ${optExp ? `<div class="exp-content">${optExp}</div>` : ''}
+              </div>
+            </button>
+          `;
+        }).join("");
+
+        const hasCommon = item.commonExplanations && item.commonExplanations.length > 0;
+        let commonItemsHtml = hasCommon ? item.commonExplanations.map(exp => `
+          <div class="common-item">${exp}</div>
+        `).join("") : "";
+
+        card.innerHTML = `
+          <div class="q-title">
+            <span class="q-number">${item.id}.</span>${item.question}
+          </div>
+          ${contextHtml}
+          <div class="options-list">
+            ${optionsHtml}
+          </div>
+          ${hasCommon ? `
+            <div class="common-feedback" id="common-feedback-${item.id}">
+              <div class="common-title">공통 오답 해설 및 핵심 포인트:</div>
+              ${commonItemsHtml}
+            </div>
+          ` : ""}
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    function checkAnswer(qIdx, selectedChoice) {
+      const questions = quizDatabase[currentSubjectKey].questions;
+      const item = questions[qIdx];
+      const card = document.getElementById(`q-${item.id}`);
+      if (card.classList.contains("answered")) return;
+
+      card.classList.add("answered");
+      solvedCount++;
+
+      const isCorrect = selectedChoice === item.answer;
+      if (isCorrect) score++;
+
+      document.getElementById("progress-count").textContent = solvedCount;
+      document.getElementById("score-count").textContent = score;
+
+      const buttons = card.querySelectorAll(".option-card");
+      buttons.forEach((btn, idx) => {
+        btn.disabled = true;
+        const choiceNum = idx + 1;
+        const innerExp = document.getElementById(`exp-${item.id}-${choiceNum}`);
+        const statusLabel = document.getElementById(`label-${item.id}-${choiceNum}`);
+
+        if (choiceNum === selectedChoice) {
+          if (isCorrect) {
+            btn.classList.add("user-correct");
+            if (statusLabel) statusLabel.style.display = "flex";
+          } else {
+            btn.classList.add("user-wrong");
+            if (statusLabel) statusLabel.style.display = "flex";
+          }
+          if (innerExp) innerExp.style.display = "block";
+        } else if (choiceNum === item.answer) {
+          btn.classList.add("target-answer");
+          if (statusLabel) statusLabel.style.display = "flex";
+          if (innerExp) innerExp.style.display = "block";
+        } else if (item.optionExplanations[choiceNum]) {
+          if (innerExp) innerExp.style.display = "block";
+        }
+      });
+
+      const commonFeedback = document.getElementById(`common-feedback-${item.id}`);
+      if (commonFeedback) {
+        commonFeedback.style.display = "block";
+      }
+    }
+  </script>
+</body>
+</html>
