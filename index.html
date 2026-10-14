@@ -6,11 +6,11 @@
   <title>국가고시 실전 퀴즈</title>
   <style>
     :root {
-      --bg-dark: #1e222b;
-      --card-bg: #272c38;
-      --opt-bg: #1f232d;
-      --opt-hover: #2d3342;
-      --border: #3b4252;
+      --bg-dark: #13161c;
+      --card-bg: #1e222b;
+      --opt-bg: #272c38;
+      --opt-hover: #323847;
+      --border: #333a48;
       --text: #e2e8f0;
       --text-muted: #94a3b8;
       
@@ -18,7 +18,8 @@
       --correct-text: #4ade80;
       --wrong-border: #ef4444;
       --wrong-text: #f87171;
-      --primary: #3b82f6;
+      --primary: #4f46e5;
+      --primary-light: #6366f1;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -29,8 +30,9 @@
       line-height: 1.6;
       padding: 24px 16px;
     }
-    .container { max-width: 820px; margin: 0 auto; }
+    .container { max-width: 760px; margin: 0 auto; }
 
+    /* 과목 선택 화면 */
     #selection-screen {
       display: flex;
       flex-direction: column;
@@ -40,7 +42,7 @@
     .select-card {
       background: var(--card-bg);
       border: 1px solid var(--border);
-      border-radius: 14px;
+      border-radius: 16px;
       padding: 32px 24px;
       text-align: center;
     }
@@ -73,54 +75,68 @@
     }
     .subject-select-btn:hover {
       background-color: var(--opt-hover);
-      border-color: var(--primary);
-      transform: translateY(-3px);
+      border-color: var(--primary-light);
+      transform: translateY(-2px);
     }
     .badge {
-      background: rgba(59, 130, 246, 0.2);
-      color: #60a5fa;
+      background: rgba(99, 102, 241, 0.2);
+      color: #818cf8;
       font-size: 0.85rem;
       padding: 4px 10px;
       border-radius: 6px;
       font-weight: 500;
     }
 
+    /* 퀴즈 풀이 영역 */
     #quiz-view { display: none; }
-    header {
-      background: var(--card-bg);
-      padding: 18px 24px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      margin-bottom: 24px;
+    .quiz-top-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      flex-wrap: wrap;
-      gap: 12px;
+      margin-bottom: 16px;
+      padding: 0 4px;
     }
-    .header-left { display: flex; align-items: center; gap: 12px; }
     .back-btn {
       background: transparent;
       border: 1px solid var(--border);
       color: var(--text-muted);
       padding: 6px 14px;
-      border-radius: 6px;
+      border-radius: 8px;
       cursor: pointer;
       font-size: 0.88rem;
     }
     .back-btn:hover { background: var(--opt-hover); color: #fff; }
-    header h1 { font-size: 1.3rem; font-weight: 700; color: #f8fafc; }
-    .score-bar { display: flex; gap: 16px; font-size: 0.95rem; font-weight: 600; color: #60a5fa; }
+    .q-step-text { font-size: 0.95rem; font-weight: 600; color: #cbd5e1; }
+
+    .progress-track {
+      width: 100%;
+      height: 8px;
+      background-color: #272c38;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #4f46e5, #6366f1);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
 
     .quiz-card {
       background: var(--card-bg);
-      border-radius: 14px;
+      border-radius: 16px;
       padding: 24px;
-      margin-bottom: 24px;
       border: 1px solid var(--border);
+      margin-bottom: 20px;
     }
-    .q-title { font-size: 1.15rem; font-weight: 700; margin-bottom: 14px; color: #f8fafc; line-height: 1.5; }
-    .q-number { color: #60a5fa; margin-right: 8px; }
+    .q-title {
+      font-size: 1.18rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      color: #f8fafc;
+      line-height: 1.5;
+    }
     .q-context-box {
       background: rgba(15, 23, 42, 0.45);
       padding: 14px 18px;
@@ -129,7 +145,7 @@
       color: #cbd5e1;
       margin-bottom: 18px;
       white-space: pre-line;
-      border: 1px solid #475569;
+      border: 1px solid #333a48;
       line-height: 1.7;
     }
 
@@ -201,12 +217,136 @@
       margin-bottom: 6px;
       white-space: pre-line;
     }
+
+    /* 하단 이동 바 */
+    .quiz-bottom-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      margin-top: 20px;
+    }
+    .action-btn {
+      padding: 10px 22px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background-color: var(--card-bg);
+      color: #cbd5e1;
+      transition: all 0.2s ease;
+    }
+    .action-btn:hover { background-color: var(--opt-hover); color: #fff; }
+    .action-btn.primary {
+      background-color: var(--primary);
+      border-color: var(--primary-light);
+      color: #fff;
+    }
+    .action-btn.primary:hover { background-color: var(--primary-light); }
+
+    /* 결과 요약 화면 (NotebookLM 스타일) */
+    #result-view { display: none; }
+    .result-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 32px 28px;
+      margin-bottom: 20px;
+    }
+    .result-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+    .result-header-row h3 { font-size: 1.15rem; color: #94a3b8; font-weight: 500; }
+    .review-top-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      color: #f8fafc;
+      padding: 8px 18px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .review-top-btn:hover { background: rgba(255, 255, 255, 0.12); }
+
+    .score-headline {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: #f8fafc;
+      margin-bottom: 20px;
+    }
+
+    .result-stats-bar {
+      width: 100%;
+      height: 12px;
+      background-color: #2b303d;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+    .result-stats-fill {
+      height: 100%;
+      background: #4f46e5;
+      width: 0%;
+    }
+
+    .stats-legend {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.95rem;
+      margin-bottom: 24px;
+    }
+    .legend-item { display: flex; align-items: center; gap: 8px; font-weight: 500; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .dot.correct { background: #6366f1; }
+    .dot.wrong { background: #ef4444; }
+    .dot.skipped { border: 2px solid #64748b; background: transparent; }
+
+    .skipped-list-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #f8fafc;
+      margin-bottom: 16px;
+    }
+    .missed-question-item {
+      font-size: 0.96rem;
+      color: #cbd5e1;
+      padding: 12px 14px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      line-height: 1.5;
+      background: rgba(0, 0, 0, 0.15);
+      border-left: 3px solid #64748b;
+    }
+    .missed-question-item.wrong-border { border-left-color: var(--wrong-border); }
+
+    /* 하단 다시 풀기 영역 */
+    .retry-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .retry-card span { font-size: 1.15rem; font-weight: 700; color: #f8fafc; }
+    .retry-actions { display: flex; gap: 10px; }
   </style>
 </head>
 <body>
   <div class="container">
     
-    <!-- 과목 선택 화면 -->
+    <!-- 1. 과목 선택 화면 -->
     <div id="selection-screen">
       <div class="select-card">
         <h2>국가고시 과목별 실전 퀴즈</h2>
@@ -236,37 +376,76 @@
       </div>
     </div>
 
-    <!-- 퀴즈 풀이 화면 -->
+    <!-- 2. 퀴즈 풀이 화면 (1문제씩 뷰어) -->
     <div id="quiz-view">
-      <header>
-        <div class="header-left">
-          <button type="button" class="back-btn" onclick="goHome()">← 과목 선택</button>
-          <h1 id="quiz-header-title">실전 퀴즈</h1>
-        </div>
-        <div class="score-bar">
-          <span>진행도: <span id="progress-count">0</span> / <span id="total-count">0</span></span>
-          <span>정답수: <span id="score-count">0</span>점</span>
-        </div>
-      </header>
+      <div class="quiz-top-bar">
+        <button type="button" class="back-btn" onclick="confirmExit()">← 그만두기</button>
+        <div class="q-step-text" id="question-progress-text">1 / 36</div>
+      </div>
 
-      <div id="quiz-container"></div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progress-bar-fill"></div>
+      </div>
+
+      <div id="single-question-container"></div>
+
+      <div class="quiz-bottom-actions">
+        <button type="button" class="action-btn" id="skip-next-btn" onclick="skipOrNextQuestion()">건너뛰기</button>
+      </div>
+    </div>
+
+    <!-- 3. 결과 요약 화면 (NotebookLM 스타일) -->
+    <div id="result-view">
+      <div class="result-card">
+        <div class="result-header-row">
+          <h3>내 점수</h3>
+          <button type="button" class="review-top-btn" onclick="enterReviewMode()">검토</button>
+        </div>
+        <div class="score-headline" id="score-headline-text">0/0 (0%)</div>
+
+        <div class="result-stats-bar">
+          <div class="result-stats-fill" id="result-progress-fill"></div>
+        </div>
+
+        <div class="stats-legend">
+          <div class="legend-item"><div class="dot correct"></div> 정답 (<span id="count-correct">0</span>)</div>
+          <div class="legend-item"><div class="dot wrong"></div> 오답 (<span id="count-wrong">0</span>)</div>
+          <div class="legend-item"><div class="dot skipped"></div> 건너뛴 문제 (<span id="count-skipped">0</span>)</div>
+        </div>
+
+        <div id="missed-questions-section">
+          <div class="skipped-list-title" id="missed-summary-title">틀리거나 건너뛴 문제</div>
+          <div id="missed-questions-list"></div>
+        </div>
+      </div>
+
+      <div class="retry-card">
+        <span>다시 시도해 보세요</span>
+        <div class="retry-actions">
+          <button type="button" class="action-btn" onclick="goHome()">과목 선택</button>
+          <button type="button" class="action-btn primary" onclick="retryEntireQuiz()">↺ 퀴즈 다시 풀기</button>
+        </div>
+      </div>
     </div>
 
   </div>
 
-  <!-- 1. data 폴더의 개별 데이터 스크립트 연결 -->
+  <!-- 데이터 스크립트 연결 -->
   <script src="./data/anatomy.js"></script>
   <script src="./data/morphology.js"></script>
   <script src="./data/hygiene.js"></script>
   <script src="./data/materials.js"></script>
   <script src="./data/law.js"></script>
 
-  <!-- 2. UI 렌더링 및 문제 풀이 제어 스크립트 -->
   <script>
     const labels = ["A", "B", "C", "D", "E"];
     let currentSubjectKey = "anatomy";
-    let solvedCount = 0;
-    let score = 0;
+    let questions = [];
+    let currentIndex = 0;
+
+    // 문제별 상태 기록: { selected: number|null, isCorrect: boolean|null, isSkipped: boolean }
+    let userAnswers = [];
+    let isReviewMode = false;
 
     window.onload = function() {
       if (window.quizDatabase) {
@@ -285,137 +464,266 @@
       }
 
       currentSubjectKey = subjectKey;
-      solvedCount = 0;
-      score = 0;
+      questions = window.quizDatabase[subjectKey].questions;
+      currentIndex = 0;
+      isReviewMode = false;
 
-      const subData = window.quizDatabase[subjectKey];
-      document.getElementById("quiz-header-title").textContent = subData.title;
-      document.getElementById("total-count").textContent = subData.questions.length;
-      document.getElementById("progress-count").textContent = "0";
-      document.getElementById("score-count").textContent = "0";
+      // 풀이 상태 초기화
+      userAnswers = questions.map(() => ({
+        selected: null,
+        isCorrect: null,
+        isSkipped: false
+      }));
 
       document.getElementById("selection-screen").style.display = "none";
+      document.getElementById("result-view").style.display = "none";
       document.getElementById("quiz-view").style.display = "block";
 
-      renderQuiz(subData.questions);
+      renderCurrentQuestion();
       window.scrollTo(0, 0);
+    }
+
+    function confirmExit() {
+      if (isReviewMode) {
+        document.getElementById("quiz-view").style.display = "none";
+        document.getElementById("result-view").style.display = "block";
+        window.scrollTo(0, 0);
+        return;
+      }
+      if (confirm("퀴즈를 중단하고 과목 선택 화면으로 돌아가시겠습니까?")) {
+        goHome();
+      }
     }
 
     function goHome() {
       document.getElementById("quiz-view").style.display = "none";
+      document.getElementById("result-view").style.display = "none";
       document.getElementById("selection-screen").style.display = "flex";
       window.scrollTo(0, 0);
     }
 
-    function renderQuiz(questions) {
-      const container = document.getElementById("quiz-container");
+    function renderCurrentQuestion() {
+      const container = document.getElementById("single-question-container");
       container.innerHTML = "";
 
-      questions.forEach((item, qIdx) => {
-        const card = document.createElement("div");
-        card.className = "quiz-card";
-        card.id = `q-${item.id}`;
+      const item = questions[currentIndex];
+      const answerState = userAnswers[currentIndex];
+      const total = questions.length;
 
-        let contextHtml = item.contextBox ? `<div class="q-context-box">${item.contextBox}</div>` : "";
+      // 상단 진행도 텍스트 & 바
+      document.getElementById("question-progress-text").textContent = `${currentIndex + 1} / ${total}`;
+      const percent = ((currentIndex + 1) / total) * 100;
+      document.getElementById("progress-bar-fill").style.width = `${percent}%`;
 
-        let optionsHtml = item.options.map((opt, optIdx) => {
-          const choiceNum = optIdx + 1;
-          const optExp = (item.optionExplanations && item.optionExplanations[choiceNum]) || "";
-          const isCorrectChoice = choiceNum === item.answer;
+      // 하단 버튼 텍스트
+      const skipBtn = document.getElementById("skip-next-btn");
+      if (answerState.selected !== null || isReviewMode) {
+        skipBtn.textContent = currentIndex === total - 1 ? "결과 보기" : "다음 문제";
+        skipBtn.className = "action-btn primary";
+      } else {
+        skipBtn.textContent = "건너뛰기";
+        skipBtn.className = "action-btn";
+      }
 
-          return `
-            <button type="button" class="option-card" id="btn-${item.id}-${choiceNum}" onclick="checkAnswer(${qIdx}, ${choiceNum})">
-              <div class="option-header">
-                <span style="color: #94a3b8; font-weight: 700;">${labels[optIdx]}.</span>
-                <span>${opt}</span>
-              </div>
-              <div class="option-inner-exp" id="exp-${item.id}-${choiceNum}">
-                <div class="status-label ${isCorrectChoice ? 'correct' : 'wrong'}" id="label-${item.id}-${choiceNum}">
-                  ${isCorrectChoice ? '✓ 정답' : '✕ 오답'}
-                </div>
-                ${optExp ? `<div class="exp-content">${optExp}</div>` : ''}
-              </div>
-            </button>
-          `;
-        }).join("");
+      // 카드 렌더링
+      const card = document.createElement("div");
+      card.className = "quiz-card";
 
-        const hasCommon = item.commonExplanations && item.commonExplanations.length > 0;
-        let commonItemsHtml = hasCommon ? item.commonExplanations.map(exp => `
-          <div class="common-item">${exp}</div>
-        `).join("") : "";
+      let contextHtml = item.contextBox ? `<div class="q-context-box">${item.contextBox}</div>` : "";
 
-        card.innerHTML = `
-          <div class="q-title">
-            <span class="q-number">${item.id}.</span>${item.question}
-          </div>
-          ${contextHtml}
-          <div class="options-list">
-            ${optionsHtml}
-          </div>
-          ${hasCommon ? `
-            <div class="common-feedback" id="common-feedback-${item.id}">
-              <div class="common-title">공통 오답 해설 및 핵심 포인트:</div>
-              ${commonItemsHtml}
+      let optionsHtml = item.options.map((opt, optIdx) => {
+        const choiceNum = optIdx + 1;
+        const optExp = (item.optionExplanations && item.optionExplanations[choiceNum]) || "";
+        const isCorrectChoice = choiceNum === item.answer;
+
+        return `
+          <button type="button" class="option-card" id="btn-choice-${choiceNum}" onclick="handleSelectChoice(${choiceNum})">
+            <div class="option-header">
+              <span style="color: #94a3b8; font-weight: 700;">${labels[optIdx]}.</span>
+              <span>${opt}</span>
             </div>
-          ` : ""}
+            <div class="option-inner-exp" id="exp-choice-${choiceNum}">
+              <div class="status-label ${isCorrectChoice ? 'correct' : 'wrong'}" id="label-choice-${choiceNum}">
+                ${isCorrectChoice ? '✓ 정답' : '✕ 오답'}
+              </div>
+              ${optExp ? `<div class="exp-content">${optExp}</div>` : ''}
+            </div>
+          </button>
         `;
+      }).join("");
 
-        container.appendChild(card);
-      });
+      const hasCommon = item.commonExplanations && item.commonExplanations.length > 0;
+      let commonItemsHtml = hasCommon ? item.commonExplanations.map(exp => `
+        <div class="common-item">${exp}</div>
+      `).join("") : "";
+
+      card.innerHTML = `
+        <div class="q-title">
+          <span class="q-number">${currentIndex + 1}.</span>${item.question}
+        </div>
+        ${contextHtml}
+        <div class="options-list">
+          ${optionsHtml}
+        </div>
+        ${hasCommon ? `
+          <div class="common-feedback" id="current-common-feedback">
+            <div class="common-title">공통 오답 해설 및 핵심 포인트:</div>
+            ${commonItemsHtml}
+          </div>
+        ` : ""}
+      `;
+
+      container.appendChild(card);
+
+      // 이미 답변한 상태라면 해설과 정답 상태 바로 표시 (검토 모드 포함)
+      if (answerState.selected !== null) {
+        showQuestionExplanations(answerState.selected, answerState.isCorrect);
+      }
     }
 
-    function checkAnswer(qIdx, selectedChoice) {
-      const questions = window.quizDatabase[currentSubjectKey].questions;
-      const item = questions[qIdx];
-      const card = document.getElementById(`q-${item.id}`);
-      if (card.classList.contains("answered")) return;
+    function handleSelectChoice(choiceNum) {
+      if (isReviewMode) return; // 검토 모드 시 클릭 방지
+      const answerState = userAnswers[currentIndex];
+      if (answerState.selected !== null) return; // 이미 푼 문제
 
-      card.classList.add("answered");
-      solvedCount++;
+      const item = questions[currentIndex];
+      const isCorrect = choiceNum === item.answer;
 
-      const isCorrect = selectedChoice === item.answer;
-      if (isCorrect) score++;
+      answerState.selected = choiceNum;
+      answerState.isCorrect = isCorrect;
+      answerState.isSkipped = false;
 
-      document.getElementById("progress-count").textContent = solvedCount;
-      document.getElementById("score-count").textContent = score;
+      showQuestionExplanations(choiceNum, isCorrect);
 
-      const buttons = card.querySelectorAll(".option-card");
-      buttons.forEach((btn, idx) => {
-        btn.disabled = true;
-        const choiceNum = idx + 1;
-        const innerExp = document.getElementById(`exp-${item.id}-${choiceNum}`);
-        const statusLabel = document.getElementById(`label-${item.id}-${choiceNum}`);
+      // 하단 버튼을 '다음 문제'로 전환
+      const skipBtn = document.getElementById("skip-next-btn");
+      skipBtn.textContent = currentIndex === questions.length - 1 ? "결과 보기" : "다음 문제";
+      skipBtn.className = "action-btn primary";
+    }
 
-        // 1. 모든 선택지의 개별 해설 박스를 무조건 화면에 펼쳐줍니다.
-        if (innerExp) {
-          innerExp.style.display = "block";
-        }
+    function showQuestionExplanations(selectedChoice, isCorrect) {
+      const item = questions[currentIndex];
 
-        // 2. 사용자가 클릭한 번호 처리 (정답이면 초록, 틀렸으면 빨간 테두리 + '✕ 오답' 표시)
+      item.options.forEach((_, optIdx) => {
+        const choiceNum = optIdx + 1;
+        const btn = document.getElementById(`btn-choice-${choiceNum}`);
+        const innerExp = document.getElementById(`exp-choice-${choiceNum}`);
+        const statusLabel = document.getElementById(`label-choice-${choiceNum}`);
+
+        if (btn) btn.disabled = true;
+        if (innerExp) innerExp.style.display = "block"; // 5개 선택지 해설 일체형 표시
+
         if (choiceNum === selectedChoice) {
           if (isCorrect) {
-            btn.classList.add("user-correct");
+            if (btn) btn.classList.add("user-correct");
             if (statusLabel) statusLabel.style.display = "flex";
           } else {
-            btn.classList.add("user-wrong");
+            if (btn) btn.classList.add("user-wrong");
             if (statusLabel) statusLabel.style.display = "flex";
           }
-        } 
-        // 3. 정답 번호 처리 (초록 테두리 + '✓ 정답' 표시)
-        else if (choiceNum === item.answer) {
-          btn.classList.add("target-answer");
+        } else if (choiceNum === item.answer) {
+          if (btn) btn.classList.add("target-answer");
           if (statusLabel) statusLabel.style.display = "flex";
-        }
-        // 4. 나머지 선택지: 해설 내용은 보이지만 라벨('✕ 오답')은 숨김 유지
-        else {
+        } else {
           if (statusLabel) statusLabel.style.display = "none";
         }
       });
 
-      const commonFeedback = document.getElementById(`common-feedback-${item.id}`);
-      if (commonFeedback) {
-        commonFeedback.style.display = "block";
+      const commonFeedback = document.getElementById("current-common-feedback");
+      if (commonFeedback) commonFeedback.style.display = "block";
+    }
+
+    function skipOrNextQuestion() {
+      const answerState = userAnswers[currentIndex];
+
+      // 선택하지 않고 건너뛰기를 누른 경우
+      if (answerState.selected === null && !isReviewMode) {
+        answerState.isSkipped = true;
       }
+
+      if (currentIndex < questions.length - 1) {
+        currentIndex++;
+        renderCurrentQuestion();
+        window.scrollTo(0, 0);
+      } else {
+        showResultSummary();
+      }
+    }
+
+    // 결과 요약 화면 렌더링
+    function showResultSummary() {
+      document.getElementById("quiz-view").style.display = "none";
+      document.getElementById("result-view").style.display = "block";
+      window.scrollTo(0, 0);
+
+      const total = questions.length;
+      let correctCount = 0;
+      let wrongCount = 0;
+      let skippedCount = 0;
+
+      const missedListContainer = document.getElementById("missed-questions-list");
+      missedListContainer.innerHTML = "";
+
+      userAnswers.forEach((ans, idx) => {
+        const q = questions[idx];
+        if (ans.isCorrect === true) {
+          correctCount++;
+        } else if (ans.isCorrect === false) {
+          wrongCount++;
+          // 틀린 문제 리스트 추가
+          const div = document.createElement("div");
+          div.className = "missed-question-item wrong-border";
+          div.textContent = `${idx + 1}. ${q.question}`;
+          missedListContainer.appendChild(div);
+        } else {
+          skippedCount++;
+          // 건너뛴 문제 리스트 추가
+          const div = document.createElement("div");
+          div.className = "missed-question-item";
+          div.textContent = `${idx + 1}. ${q.question}`;
+          missedListContainer.appendChild(div);
+        }
+      });
+
+      const scorePercent = Math.round((correctCount / total) * 100);
+
+      document.getElementById("score-headline-text").textContent = `${correctCount}/${total} (${scorePercent}%)`;
+      document.getElementById("result-progress-fill").style.width = `${scorePercent}%`;
+
+      document.getElementById("count-correct").textContent = correctCount;
+      document.getElementById("count-wrong").textContent = wrongCount;
+      document.getElementById("count-skipped").textContent = skippedCount;
+
+      const missedSection = document.getElementById("missed-questions-section");
+      const summaryTitle = document.getElementById("missed-summary-title");
+
+      if (wrongCount + skippedCount === 0) {
+        missedSection.style.display = "none";
+      } else {
+        missedSection.style.display = "block";
+        if (skippedCount > 0 && wrongCount === 0) {
+          summaryTitle.textContent = `건너뛴 문제 (${skippedCount}개)`;
+        } else if (wrongCount > 0 && skippedCount === 0) {
+          summaryTitle.textContent = `틀린 문제 (${wrongCount}개)`;
+        } else {
+          summaryTitle.textContent = `오답 및 건너뛴 문제 (${wrongCount + skippedCount}개)`;
+        }
+      }
+    }
+
+    // 검토 모드 진입 (1번부터 다시 뷰어로 확인)
+    function enterReviewMode() {
+      isReviewMode = true;
+      currentIndex = 0;
+      document.getElementById("result-view").style.display = "none";
+      document.getElementById("quiz-view").style.display = "block";
+      renderCurrentQuestion();
+      window.scrollTo(0, 0);
+    }
+
+    // 퀴즈 전체 다시 풀기
+    function retryEntireQuiz() {
+      startSubject(currentSubjectKey);
     }
   </script>
 </body>
