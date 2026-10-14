@@ -168,7 +168,17 @@
     }
     .option-card:disabled { cursor: default; }
 
-    .option-header { font-size: 1.02rem; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+    .option-header { font-size: 1.02rem; font-weight: 600; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .option-title-wrap { display: flex; align-items: center; gap: 8px; }
+    .key-hint {
+      font-size: 0.75rem;
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-muted);
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
     .option-inner-exp {
       display: none;
       margin-top: 10px;
@@ -221,8 +231,8 @@
     /* 하단 이동 바 */
     .quiz-bottom-actions {
       display: flex;
-      justify-content: flex-end;
-      gap: 12px;
+      justify-content: space-between;
+      align-items: center;
       margin-top: 20px;
     }
     .action-btn {
@@ -236,13 +246,17 @@
       color: #cbd5e1;
       transition: all 0.2s ease;
     }
-    .action-btn:hover { background-color: var(--opt-hover); color: #fff; }
+    .action-btn:hover:not(:disabled) { background-color: var(--opt-hover); color: #fff; }
+    .action-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
     .action-btn.primary {
       background-color: var(--primary);
       border-color: var(--primary-light);
       color: #fff;
     }
-    .action-btn.primary:hover { background-color: var(--primary-light); }
+    .action-btn.primary:hover:not(:disabled) { background-color: var(--primary-light); }
 
     /* 결과 요약 화면 (NotebookLM 스타일) */
     #result-view { display: none; }
@@ -390,6 +404,7 @@
       <div id="single-question-container"></div>
 
       <div class="quiz-bottom-actions">
+        <button type="button" class="action-btn" id="prev-btn" onclick="prevQuestion()">← 이전 문제</button>
         <button type="button" class="action-btn" id="skip-next-btn" onclick="skipOrNextQuestion()">건너뛰기</button>
       </div>
     </div>
@@ -457,6 +472,43 @@
       }
     };
 
+    // ==========================================
+    // 키보드 단축키 이벤트 리스너 추가
+    // ==========================================
+    window.addEventListener("keydown", function(e) {
+      // 퀴즈 풀이 화면이 아닐 때는 키보드 동작 비활성화
+      const quizView = document.getElementById("quiz-view");
+      if (!quizView || quizView.style.display !== "block") return;
+
+      // 1. 숫자키 1~5 (일반 숫자키 & 키패드 숫자키) -> 보기 A~E 선택
+      if (['Digit1', 'Numpad1'].includes(e.code)) {
+        e.preventDefault();
+        handleSelectChoice(1);
+      } else if (['Digit2', 'Numpad2'].includes(e.code)) {
+        e.preventDefault();
+        handleSelectChoice(2);
+      } else if (['Digit3', 'Numpad3'].includes(e.code)) {
+        e.preventDefault();
+        handleSelectChoice(3);
+      } else if (['Digit4', 'Numpad4'].includes(e.code)) {
+        e.preventDefault();
+        handleSelectChoice(4);
+      } else if (['Digit5', 'Numpad5'].includes(e.code)) {
+        e.preventDefault();
+        handleSelectChoice(5);
+      }
+      // 2. 오른쪽 방향키 -> 다음 문제 (또는 건너뛰기)
+      else if (e.code === 'ArrowRight') {
+        e.preventDefault();
+        skipOrNextQuestion();
+      }
+      // 3. 왼쪽 방향키 -> 이전 문제
+      else if (e.code === 'ArrowLeft') {
+        e.preventDefault();
+        prevQuestion();
+      }
+    });
+
     function startSubject(subjectKey) {
       if (!window.quizDatabase || !window.quizDatabase[subjectKey]) {
         alert("해당 과목의 데이터 파일을 불러오지 못했습니다. 경로를 확인해주세요.");
@@ -515,13 +567,17 @@
       const percent = ((currentIndex + 1) / total) * 100;
       document.getElementById("progress-bar-fill").style.width = `${percent}%`;
 
-      // 하단 버튼 텍스트
+      // 이전 문제 버튼 상태 (첫 번째 문제이면 비활성화)
+      const prevBtn = document.getElementById("prev-btn");
+      prevBtn.disabled = currentIndex === 0;
+
+      // 다음/건너뛰기 버튼 상태
       const skipBtn = document.getElementById("skip-next-btn");
       if (answerState.selected !== null || isReviewMode) {
-        skipBtn.textContent = currentIndex === total - 1 ? "결과 보기" : "다음 문제";
+        skipBtn.textContent = currentIndex === total - 1 ? "결과 보기" : "다음 문제 →";
         skipBtn.className = "action-btn primary";
       } else {
-        skipBtn.textContent = "건너뛰기";
+        skipBtn.textContent = "건너뛰기 →";
         skipBtn.className = "action-btn";
       }
 
@@ -539,8 +595,11 @@
         return `
           <button type="button" class="option-card" id="btn-choice-${choiceNum}" onclick="handleSelectChoice(${choiceNum})">
             <div class="option-header">
-              <span style="color: #94a3b8; font-weight: 700;">${labels[optIdx]}.</span>
-              <span>${opt}</span>
+              <div class="option-title-wrap">
+                <span style="color: #94a3b8; font-weight: 700;">${labels[optIdx]}.</span>
+                <span>${opt}</span>
+              </div>
+              <span class="key-hint">${choiceNum}</span>
             </div>
             <div class="option-inner-exp" id="exp-choice-${choiceNum}">
               <div class="status-label ${isCorrectChoice ? 'correct' : 'wrong'}" id="label-choice-${choiceNum}">
@@ -575,16 +634,16 @@
 
       container.appendChild(card);
 
-      // 이미 답변한 상태라면 해설과 정답 상태 바로 표시 (검토 모드 포함)
+      // 이미 답변한 상태라면 해설과 정답 상태 바로 표시
       if (answerState.selected !== null) {
         showQuestionExplanations(answerState.selected, answerState.isCorrect);
       }
     }
 
     function handleSelectChoice(choiceNum) {
-      if (isReviewMode) return; // 검토 모드 시 클릭 방지
+      if (isReviewMode) return;
       const answerState = userAnswers[currentIndex];
-      if (answerState.selected !== null) return; // 이미 푼 문제
+      if (answerState.selected !== null) return; // 이미 선택 완료한 경우 변경 불가
 
       const item = questions[currentIndex];
       const isCorrect = choiceNum === item.answer;
@@ -597,7 +656,7 @@
 
       // 하단 버튼을 '다음 문제'로 전환
       const skipBtn = document.getElementById("skip-next-btn");
-      skipBtn.textContent = currentIndex === questions.length - 1 ? "결과 보기" : "다음 문제";
+      skipBtn.textContent = currentIndex === questions.length - 1 ? "결과 보기" : "다음 문제 →";
       skipBtn.className = "action-btn primary";
     }
 
@@ -611,7 +670,7 @@
         const statusLabel = document.getElementById(`label-choice-${choiceNum}`);
 
         if (btn) btn.disabled = true;
-        if (innerExp) innerExp.style.display = "block"; // 5개 선택지 해설 일체형 표시
+        if (innerExp) innerExp.style.display = "block"; // 모든 선택지 해설 표시
 
         if (choiceNum === selectedChoice) {
           if (isCorrect) {
@@ -633,10 +692,20 @@
       if (commonFeedback) commonFeedback.style.display = "block";
     }
 
+    // 이전 문제로 이동
+    function prevQuestion() {
+      if (currentIndex > 0) {
+        currentIndex--;
+        renderCurrentQuestion();
+        window.scrollTo(0, 0);
+      }
+    }
+
+    // 다음 문제로 이동 (또는 건너뛰기)
     function skipOrNextQuestion() {
       const answerState = userAnswers[currentIndex];
 
-      // 선택하지 않고 건너뛰기를 누른 경우
+      // 선택하지 않고 넘어갈 경우 건너뛴 것으로 처리
       if (answerState.selected === null && !isReviewMode) {
         answerState.isSkipped = true;
       }
@@ -650,7 +719,7 @@
       }
     }
 
-    // 결과 요약 화면 렌더링
+    // 결과 요약 화면 (NotebookLM 스타일)
     function showResultSummary() {
       document.getElementById("quiz-view").style.display = "none";
       document.getElementById("result-view").style.display = "block";
@@ -670,14 +739,12 @@
           correctCount++;
         } else if (ans.isCorrect === false) {
           wrongCount++;
-          // 틀린 문제 리스트 추가
           const div = document.createElement("div");
           div.className = "missed-question-item wrong-border";
           div.textContent = `${idx + 1}. ${q.question}`;
           missedListContainer.appendChild(div);
         } else {
           skippedCount++;
-          // 건너뛴 문제 리스트 추가
           const div = document.createElement("div");
           div.className = "missed-question-item";
           div.textContent = `${idx + 1}. ${q.question}`;
@@ -711,7 +778,6 @@
       }
     }
 
-    // 검토 모드 진입 (1번부터 다시 뷰어로 확인)
     function enterReviewMode() {
       isReviewMode = true;
       currentIndex = 0;
@@ -721,7 +787,6 @@
       window.scrollTo(0, 0);
     }
 
-    // 퀴즈 전체 다시 풀기
     function retryEntireQuiz() {
       startSubject(currentSubjectKey);
     }
