@@ -30,58 +30,76 @@
       line-height: 1.6;
       padding: 24px 16px;
     }
-    .container { max-width: 780px; margin: 0 auto; }
+    .container { max-width: 820px; margin: 0 auto; }
+
+    /* 데이터 관리 상단 바 (백업 및 초기화) */
+    .top-data-bar {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .sm-btn {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .sm-btn:hover { background: var(--opt-hover); color: #fff; }
 
     /* 과목 선택 화면 */
     #selection-screen {
       display: flex;
       flex-direction: column;
       gap: 20px;
-      margin-top: 20px;
     }
     .select-card {
       background: var(--card-bg);
       border: 1px solid var(--border);
       border-radius: 16px;
-      padding: 28px 20px;
+      padding: 24px 20px;
     }
     .select-card h2 {
       font-size: 1.55rem;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
       color: #f8fafc;
       text-align: center;
     }
     .select-card p {
       color: var(--text-muted);
-      font-size: 0.96rem;
-      margin-bottom: 20px;
+      font-size: 0.94rem;
+      margin-bottom: 18px;
       text-align: center;
     }
 
-    /* 문제 섞기 옵션 컨트롤 */
     .quiz-options-bar {
       display: flex;
       justify-content: center;
       align-items: center;
       background: rgba(15, 23, 42, 0.4);
       border: 1px solid var(--border);
-      padding: 12px 18px;
-      border-radius: 12px;
-      margin-bottom: 24px;
+      padding: 10px 16px;
+      border-radius: 10px;
+      margin-bottom: 20px;
     }
     .shuffle-label {
       display: flex;
       align-items: center;
-      gap: 10px;
-      font-size: 1rem;
+      gap: 8px;
+      font-size: 0.95rem;
       font-weight: 600;
       color: #cbd5e1;
       cursor: pointer;
       user-select: none;
     }
     .shuffle-label input[type="checkbox"] {
-      width: 19px;
-      height: 19px;
+      width: 18px;
+      height: 18px;
       accent-color: var(--primary-light);
       cursor: pointer;
     }
@@ -90,7 +108,7 @@
       font-size: 1.05rem;
       font-weight: 700;
       color: #818cf8;
-      margin: 18px 0 12px 4px;
+      margin: 18px 0 10px 4px;
       display: flex;
       align-items: center;
       gap: 8px;
@@ -99,48 +117,81 @@
     .subject-list-group {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 12px;
       margin-bottom: 16px;
     }
 
-    .subject-select-btn {
-      padding: 16px 20px;
-      background-color: var(--opt-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      color: #f8fafc;
-      font-size: 1.02rem;
-      font-weight: 600;
-      cursor: pointer;
+    .subject-row-card {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      background-color: var(--opt-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 18px;
+      gap: 12px;
+      flex-wrap: wrap;
       transition: all 0.2s ease;
-      text-align: left;
     }
-    .subject-select-btn:hover {
-      background-color: var(--opt-hover);
-      border-color: var(--primary-light);
-      transform: translateX(3px);
+    .subject-row-card:hover {
+      border-color: #64748b;
     }
-    .subj-left {
+    .subj-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .subj-main-title {
+      font-size: 1.02rem;
+      font-weight: 700;
+      color: #f8fafc;
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 8px;
     }
-    .subj-icon { font-size: 1.25rem; }
-
-    .badge {
-      background: rgba(99, 102, 241, 0.2);
-      color: #818cf8;
+    .subj-user-stats {
       font-size: 0.82rem;
-      padding: 4px 10px;
-      border-radius: 6px;
-      font-weight: 500;
-      white-space: nowrap;
+      color: #94a3b8;
+      display: flex;
+      gap: 14px;
+    }
+    .stat-highlight { color: #38bdf8; font-weight: 600; }
+    .stat-wrong { color: #f87171; font-weight: 600; }
+
+    .subj-btn-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .play-btn {
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background-color: var(--card-bg);
+      color: #cbd5e1;
+      transition: all 0.2s ease;
+    }
+    .play-btn:hover { background: var(--opt-hover); color: #fff; }
+    .play-btn.primary {
+      background: var(--primary);
+      border-color: var(--primary-light);
+      color: #fff;
+    }
+    .play-btn.primary:hover { background: var(--primary-light); }
+    .play-btn.wrong-only {
+      background: rgba(239, 68, 68, 0.15);
+      border-color: rgba(239, 68, 68, 0.4);
+      color: #fca5a5;
+    }
+    .play-btn.wrong-only:hover {
+      background: #ef4444;
+      color: #fff;
     }
 
-    /* 퀴즈 풀이 영역 (1문제씩 뷰어) */
+    /* 퀴즈 풀이 화면 */
     #quiz-view { display: none; }
     .quiz-top-bar {
       display: flex;
@@ -320,7 +371,7 @@
     }
     .action-btn.warning:hover:not(:disabled) { background-color: #ef4444; }
 
-    /* 결과 요약 화면 (NotebookLM 스타일) */
+    /* 결과 요약 화면 */
     #result-view { display: none; }
     .result-card {
       background: var(--card-bg);
@@ -393,7 +444,6 @@
       margin-bottom: 16px;
     }
 
-    /* 틀린 문제 카드 (결과 화면 내 공통 해설 포함) */
     .missed-question-card {
       background: rgba(0, 0, 0, 0.22);
       border: 1px solid var(--border);
@@ -448,11 +498,18 @@
 <body>
   <div class="container">
     
-    <!-- 1. 과목 선택 화면 (11개 전 과목 지원 + 문제 섞기 옵션) -->
+    <!-- 상단 데이터 백업/복구 바 -->
+    <div class="top-data-bar">
+      <button type="button" class="sm-btn" onclick="backupData()">💾 기록 백업</button>
+      <button type="button" class="sm-btn" onclick="restoreDataPrompt()">📂 기록 복구</button>
+      <button type="button" class="sm-btn" style="color:#f87171;" onclick="resetAllData()">기록 초기화</button>
+    </div>
+
+    <!-- 1. 과목 선택 화면 -->
     <div id="selection-screen">
       <div class="select-card">
         <h2>치기공과 국가고시 실전 퀴즈</h2>
-        <p>풀이하고자 하는 과목을 선택해주세요.</p>
+        <p>각 과목별 푼 횟수와 누적 오답이 이 기기에 자동으로 저장됩니다.</p>
 
         <!-- 문제 섞기 토글 옵션 -->
         <div class="quiz-options-bar">
@@ -464,57 +521,11 @@
 
         <!-- 1교시 (5과목) -->
         <div class="period-section-title">📘 제1교시 필기 시험 (5과목)</div>
-        <div class="subject-list-group">
-          <button type="button" class="subject-select-btn" onclick="startSubject('anatomy')">
-            <div class="subj-left"><span class="subj-icon">🦷</span><span>구강해부학 (1교시 1~12)</span></div>
-            <span class="badge" id="badge-anatomy">대기 중</span>
-          </button>
-          <button type="button" class="subject-select-btn" onclick="startSubject('morphology')">
-            <div class="subj-left"><span class="subj-icon">🦷</span><span>치아형태학 (1교시 13~28)</span></div>
-            <span class="badge" id="badge-morphology">대기 중</span>
-          </button>
-          <button type="button" class="subject-select-btn" onclick="startSubject('hygiene')">
-            <div class="subj-left"><span class="subj-icon">🦷</span><span>구강보건학 (1교시 29~40)</span></div>
-            <span class="badge" id="badge-hygiene">대기 중</span>
-          </button>
-          <button type="button" class="subject-select-btn" onclick="startSubject('materials')">
-            <div class="subj-left"><span class="subj-icon">🦷</span><span>치과재료학 (1교시 41~75)</span></div>
-            <span class="badge" id="badge-materials">대기 중</span>
-          </button>
-          <button type="button" class="subject-select-btn" onclick="startSubject('law')">
-            <div class="subj-left"><span class="subj-icon">🦷</span><span>의료관계법규 (1교시 76~95)</span></div>
-            <span class="badge" id="badge-law">대기 중</span>
-          </button>
-        </div>
+        <div class="subject-list-group" id="group-period-1"></div>
 
         <!-- 2교시 (6과목) -->
         <div class="period-section-title">📙 제2교시 필기 시험 (6과목)</div>
-        <div class="subject-list-group">
-          <button type="button" class="subject-select-btn" onclick="startSubject('crown_bridge')">
-            <div class="subj-left"><span class="subj-icon">🦷</span><span>관교 (2교시 1~19)</span></div>
-            <span class="badge" id="badge-crown_bridge">대기 중</span>
-          </button>
-          <button type="button" class="subject-select-btn" onclick="startSubject('porcelain')">
-            <div class="subj-left"><span class="subj-icon">🦷</span><span>도재기공학 (2교시 20~34)</span></div>
-            <span class="badge" id="badge-porcelain">대기 중</span>
-          </button>
-          <button type="button" class="subject-select-btn" onclick="startSubject('complete_denture')">
-            <div class="subj-left"><span class="subj-icon">🦷</span><span>총의치기공학 (2교시 35~58)</span></div>
-            <span class="badge" id="badge-complete_denture">대기 중</span>
-          </button>
-          <button type="button" class="subject-select-btn" onclick="startSubject('partial_denture')">
-            <div class="subj-left"><span class="subj-icon">🦷</span><span>국소의치기공학 (2교시 59~82)</span></div>
-            <span class="badge" id="badge-partial_denture">대기 중</span>
-          </button>
-          <button type="button" class="subject-select-btn" onclick="startSubject('restorative')">
-            <div class="subj-left"><span class="subj-icon">🦷</span><span>충전기공학 (2교시 83~96)</span></div>
-            <span class="badge" id="badge-restorative">대기 중</span>
-          </button>
-          <button type="button" class="subject-select-btn" onclick="startSubject('orthodontics')">
-            <div class="subj-left"><span class="subj-icon">🦷</span><span>교정기공학 (2교시 97~110)</span></div>
-            <span class="badge" id="badge-orthodontics">대기 중</span>
-          </button>
-        </div>
+        <div class="subject-list-group" id="group-period-2"></div>
       </div>
     </div>
 
@@ -537,7 +548,7 @@
       </div>
     </div>
 
-    <!-- 3. 결과 요약 화면 (NotebookLM 스타일 + 오답 핵심요약 + 오답만 다시풀기) -->
+    <!-- 3. 결과 요약 화면 -->
     <div id="result-view">
       <div class="result-card">
         <div class="result-header-row">
@@ -566,7 +577,7 @@
         <span>다시 시도해 보세요</span>
         <div class="retry-actions">
           <button type="button" class="action-btn" onclick="goHome()">과목 선택</button>
-          <button type="button" class="action-btn warning" id="retry-wrong-btn" onclick="retryWrongQuestionsOnly()">✍ 틀린 문제만 다시 풀기</button>
+          <button type="button" class="action-btn warning" id="retry-wrong-btn" onclick="retryWrongQuestionsOnly()">✍ 이번 오답만 다시 풀기</button>
           <button type="button" class="action-btn primary" onclick="retryEntireQuiz()">↺ 퀴즈 전체 다시 풀기</button>
         </div>
       </div>
@@ -589,37 +600,143 @@
 
   <script>
     const labels = ["A", "B", "C", "D", "E"];
-    const allSubjectKeys = [
-      'anatomy', 'morphology', 'hygiene', 'materials', 'law',
-      'crown_bridge', 'porcelain', 'complete_denture', 'partial_denture', 'restorative', 'orthodontics'
+
+    // 11개 과목 메타데이터 정의
+    const subjectMeta = [
+      { key: 'anatomy', name: '구강해부학 (1교시 1~12)', period: 1 },
+      { key: 'morphology', name: '치아형태학 (1교시 13~28)', period: 1 },
+      { key: 'hygiene', name: '구강보건학 (1교시 29~40)', period: 1 },
+      { key: 'materials', name: '치과재료학 (1교시 41~75)', period: 1 },
+      { key: 'law', name: '의료관계법규 (1교시 76~95)', period: 1 },
+      { key: 'crown_bridge', name: '관교 (2교시 1~19)', period: 2 },
+      { key: 'porcelain', name: '도재기공학 (2교시 20~34)', period: 2 },
+      { key: 'complete_denture', name: '총의치기공학 (2교시 35~58)', period: 2 },
+      { key: 'partial_denture', name: '국소의치기공학 (2교시 59~82)', period: 2 },
+      { key: 'restorative', name: '충전기공학 (2교시 83~96)', period: 2 },
+      { key: 'orthodontics', name: '교정기공학 (2교시 97~110)', period: 2 }
     ];
 
+    // 단일 기기 스토리지 구조
+    const STORAGE_KEY = "DENTAL_QUIZ_SINGLE_DEVICE_STATS";
+    let deviceStats = {};
+
     let currentSubjectKey = "anatomy";
+    let isWrongOnlyMode = false;
     let questions = [];
     let currentIndex = 0;
-
     let userAnswers = [];
     let isReviewMode = false;
 
+    function loadStorage() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        try {
+          deviceStats = JSON.parse(saved);
+        } catch(e) {
+          deviceStats = {};
+        }
+      }
+    }
+
+    function saveStorage() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(deviceStats));
+    }
+
     window.onload = function() {
-      updateBadges();
+      loadStorage();
+      renderSubjectList();
     };
 
-    function updateBadges() {
-      if (!window.quizDatabase) return;
-      allSubjectKeys.forEach(key => {
-        const badgeElem = document.getElementById(`badge-${key}`);
-        if (!badgeElem) return;
-        if (window.quizDatabase[key] && window.quizDatabase[key].questions) {
-          badgeElem.textContent = `${window.quizDatabase[key].questions.length}문항`;
-        } else {
-          badgeElem.textContent = "준비 중";
-          badgeElem.style.opacity = "0.6";
-        }
+    // 데이터 백업 (JSON 다운로드)
+    function backupData() {
+      const blob = new Blob([JSON.stringify(deviceStats, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `dental_quiz_record_${new Date().toISOString().slice(0,10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // 데이터 복구 (JSON 업로드)
+    function restoreDataPrompt() {
+      const input = document.createElement("input");
+      input.type = "file";
+      input.accept = ".json";
+      input.onchange = e => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = ev => {
+          try {
+            const data = JSON.parse(ev.target.result);
+            deviceStats = data;
+            saveStorage();
+            renderSubjectList();
+            alert("학습 기록이 성공적으로 복원되었습니다!");
+          } catch(err) {
+            alert("올바른 백업 파일 형식이 아닙니다.");
+          }
+        };
+        reader.readAsText(file);
+      };
+      input.click();
+    }
+
+    // 데이터 초기화
+    function resetAllData() {
+      if (confirm("모든 풀이 횟수와 오답 기록을 초기화하시겠습니까?")) {
+        deviceStats = {};
+        saveStorage();
+        renderSubjectList();
+      }
+    }
+
+    // 11개 과목 렌더링
+    function renderSubjectList() {
+      const p1 = document.getElementById("group-period-1");
+      const p2 = document.getElementById("group-period-2");
+      p1.innerHTML = "";
+      p2.innerHTML = "";
+
+      subjectMeta.forEach(meta => {
+        const targetContainer = meta.period === 1 ? p1 : p2;
+        const qData = window.quizDatabase && window.quizDatabase[meta.key];
+        const isReady = qData && qData.questions && qData.questions.length > 0;
+        const totalCount = isReady ? qData.questions.length : 0;
+
+        const stat = deviceStats[meta.key] || { attempts: 0, lastScore: "-", wrongIds: [] };
+        const wrongCount = stat.wrongIds ? stat.wrongIds.length : 0;
+
+        const row = document.createElement("div");
+        row.className = "subject-row-card";
+
+        row.innerHTML = `
+          <div class="subj-info">
+            <div class="subj-main-title">
+              <span>🦷</span>
+              <span>${meta.name}</span>
+              <span class="badge">${isReady ? `${totalCount}문항` : '준비 중'}</span>
+            </div>
+            <div class="subj-user-stats">
+              <span>풀이: <strong class="stat-highlight">${stat.attempts}회</strong></span>
+              <span>최근 점수: <strong>${stat.lastScore}</strong></span>
+              <span>누적 오답: <strong class="stat-wrong">${wrongCount}문제</strong></span>
+            </div>
+          </div>
+          <div class="subj-btn-actions">
+            ${isReady ? `
+              <button type="button" class="play-btn primary" onclick="startSubject('${meta.key}', false)">전체 풀기</button>
+              ${wrongCount > 0 ? `
+                <button type="button" class="play-btn wrong-only" onclick="startSubject('${meta.key}', true)">누적 오답 풀기 (${wrongCount})</button>
+              ` : ''}
+            ` : `<span style="color:#64748b; font-size:0.85rem;">데이터 준비 중</span>`}
+          </div>
+        `;
+        targetContainer.appendChild(row);
       });
     }
 
-    // 배열 셔플 함수 (Fisher-Yates 알고리즘)
     function shuffleArray(array) {
       const arr = [...array];
       for (let i = arr.length - 1; i > 0; i--) {
@@ -629,7 +746,7 @@
       return arr;
     }
 
-    // 키보드 단축키 리스너
+    // 키보드 단축키
     window.addEventListener("keydown", function(e) {
       const quizView = document.getElementById("quiz-view");
       if (!quizView || quizView.style.display !== "block") return;
@@ -658,28 +775,34 @@
       }
     });
 
-    function startSubject(subjectKey, customQuestions = null) {
-      if (!customQuestions) {
-        if (!window.quizDatabase || !window.quizDatabase[subjectKey] || !window.quizDatabase[subjectKey].questions) {
-          alert("해당 과목의 문제 데이터가 아직 준비되지 않았거나 파일을 불러오지 못했습니다.");
-          return;
-        }
+    // 퀴즈 시작 (전체 풀기 또는 누적 오답 풀기)
+    function startSubject(subjectKey, wrongOnly = false) {
+      const qData = window.quizDatabase && window.quizDatabase[subjectKey];
+      if (!qData || !qData.questions) {
+        alert("해당 과목의 데이터 파일을 불러오지 못했습니다.");
+        return;
       }
 
       currentSubjectKey = subjectKey;
-      let rawQuestions = customQuestions || window.quizDatabase[subjectKey].questions;
+      isWrongOnlyMode = wrongOnly;
+      let targetList = [];
 
-      // 섞기 옵션 체크 여부에 따라 셔플
-      const shouldShuffle = document.getElementById("shuffle-toggle").checked;
-      if (shouldShuffle && !customQuestions) {
-        questions = shuffleArray(rawQuestions);
+      if (wrongOnly) {
+        const wrongIds = (deviceStats[subjectKey] && deviceStats[subjectKey].wrongIds) || [];
+        targetList = qData.questions.filter(q => wrongIds.includes(q.id));
+        if (targetList.length === 0) {
+          alert("누적된 오답이 없습니다!");
+          return;
+        }
       } else {
-        questions = [...rawQuestions];
+        targetList = [...qData.questions];
       }
+
+      const shouldShuffle = document.getElementById("shuffle-toggle").checked;
+      questions = shouldShuffle ? shuffleArray(targetList) : [...targetList];
 
       currentIndex = 0;
       isReviewMode = false;
-
       userAnswers = questions.map(() => ({
         selected: null,
         isCorrect: null,
@@ -710,7 +833,7 @@
       document.getElementById("quiz-view").style.display = "none";
       document.getElementById("result-view").style.display = "none";
       document.getElementById("selection-screen").style.display = "flex";
-      updateBadges();
+      renderSubjectList();
       window.scrollTo(0, 0);
     }
 
@@ -722,7 +845,7 @@
       const answerState = userAnswers[currentIndex];
       const total = questions.length;
 
-      document.getElementById("question-progress-text").textContent = `${currentIndex + 1} / ${total}`;
+      document.getElementById("question-progress-text").textContent = `${currentIndex + 1} / ${total} ${isWrongOnlyMode ? '(누적 오답 풀이)' : ''}`;
       const percent = ((currentIndex + 1) / total) * 100;
       document.getElementById("progress-bar-fill").style.width = `${percent}%`;
 
@@ -866,33 +989,63 @@
         renderCurrentQuestion();
         window.scrollTo(0, 0);
       } else {
-        showResultSummary();
+        finishAndSaveResults();
       }
     }
 
-    // 결과 요약 화면 렌더링
-    function showResultSummary() {
-      document.getElementById("quiz-view").style.display = "none";
-      document.getElementById("result-view").style.display = "block";
-      window.scrollTo(0, 0);
-
+    // 결과 저장 및 누적 업데이트 로직
+    function finishAndSaveResults() {
       const total = questions.length;
       let correctCount = 0;
       let wrongCount = 0;
       let skippedCount = 0;
+
+      const currentWrongIds = [];
+      const currentCorrectIds = [];
+
+      userAnswers.forEach((ans, idx) => {
+        const q = questions[idx];
+        if (ans.isCorrect === true) {
+          correctCount++;
+          currentCorrectIds.push(q.id);
+        } else {
+          if (ans.isCorrect === false) wrongCount++;
+          else skippedCount++;
+          currentWrongIds.push(q.id);
+        }
+      });
+
+      if (!deviceStats[currentSubjectKey]) {
+        deviceStats[currentSubjectKey] = { attempts: 0, lastScore: "-", wrongIds: [] };
+      }
+
+      const subjStat = deviceStats[currentSubjectKey];
+      subjStat.attempts = (subjStat.attempts || 0) + 1;
+      subjStat.lastScore = `${correctCount}/${total}`;
+
+      // 누적 오답 갱신 (맞힌 문제는 오답 서랍에서 자동 졸업 제외)
+      const existingWrongSet = new Set(subjStat.wrongIds || []);
+      currentWrongIds.forEach(id => existingWrongSet.add(id));
+      currentCorrectIds.forEach(id => existingWrongSet.delete(id));
+      subjStat.wrongIds = Array.from(existingWrongSet);
+
+      saveStorage();
+
+      showResultSummary(correctCount, wrongCount, skippedCount, total);
+    }
+
+    // 결과 요약 화면 렌더링
+    function showResultSummary(correctCount, wrongCount, skippedCount, total) {
+      document.getElementById("quiz-view").style.display = "none";
+      document.getElementById("result-view").style.display = "block";
+      window.scrollTo(0, 0);
 
       const missedListContainer = document.getElementById("missed-questions-list");
       missedListContainer.innerHTML = "";
 
       userAnswers.forEach((ans, idx) => {
         const q = questions[idx];
-        if (ans.isCorrect === true) {
-          correctCount++;
-        } else {
-          if (ans.isCorrect === false) wrongCount++;
-          else skippedCount++;
-
-          // 틀리거나 건너뛴 문제 카드 렌더링 (공통 오답 해설 및 핵심 포인트 포함)
+        if (ans.isCorrect !== true) {
           const card = document.createElement("div");
           card.className = ans.isCorrect === false ? "missed-question-card wrong-border" : "missed-question-card";
 
@@ -952,7 +1105,7 @@
       }
     }
 
-    // 틀린 문제만 다시 풀기
+    // 이번 시험에서 틀린 문제만 즉시 다시 풀기
     function retryWrongQuestionsOnly() {
       const wrongQuestions = [];
       userAnswers.forEach((ans, idx) => {
@@ -966,7 +1119,20 @@
         return;
       }
 
-      startSubject(currentSubjectKey, wrongQuestions);
+      isWrongOnlyMode = true;
+      questions = [...wrongQuestions];
+      currentIndex = 0;
+      isReviewMode = false;
+      userAnswers = questions.map(() => ({
+        selected: null,
+        isCorrect: null,
+        isSkipped: false
+      }));
+
+      document.getElementById("result-view").style.display = "none";
+      document.getElementById("quiz-view").style.display = "block";
+      renderCurrentQuestion();
+      window.scrollTo(0, 0);
     }
 
     function enterReviewMode() {
@@ -979,7 +1145,7 @@
     }
 
     function retryEntireQuiz() {
-      startSubject(currentSubjectKey);
+      startSubject(currentSubjectKey, false);
     }
   </script>
 </body>
