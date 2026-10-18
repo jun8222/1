@@ -44,6 +44,7 @@
       align-items: center;
       justify-content: center;
       min-height: 75vh;
+      padding: 20px 0;
     }
     .login-card {
       background: var(--card-bg);
@@ -51,7 +52,7 @@
       border-radius: 20px;
       padding: 36px 28px;
       width: 100%;
-      max-width: 440px;
+      max-width: 480px;
       text-align: center;
       box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4);
     }
@@ -65,14 +66,14 @@
       font-size: 0.95rem;
       margin-bottom: 24px;
     }
+    
+    /* 스크롤 없이 2개씩 쭉 아래로 나열 */
     .user-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: 12px;
       margin-bottom: 24px;
-      max-height: 280px;
-      overflow-y: auto;
-      padding: 4px;
+      padding: 4px 0;
     }
     .user-select-btn {
       background: var(--opt-bg);
@@ -741,14 +742,14 @@
       gap: 16px;
     }
 
-    /* 관리자 폼 스타일 */
+    /* 관리자 폼 스타일: 비밀번호 없이 이름과 초기화 버튼만 배치 */
     .admin-user-row {
       display: grid;
-      grid-template-columns: 80px 1fr 1fr auto;
-      gap: 8px;
+      grid-template-columns: 80px 1fr auto;
+      gap: 12px;
       align-items: center;
       background: rgba(15, 23, 42, 0.5);
-      padding: 10px 14px;
+      padding: 10px 16px;
       border-radius: 10px;
       border: 1px solid var(--border);
     }
@@ -773,6 +774,7 @@
         <h2>치기공과 국가고시 퀴즈</h2>
         <p>학습할 사용자를 선택해주세요.</p>
         
+        <!-- 스크롤 없이 2개씩 쭉 아래로 나열되는 그리드 -->
         <div class="user-grid" id="login-user-grid">
           <div style="grid-column: span 2; color:#94a3b8; font-size:0.9rem; padding:12px;">사용자 계정을 불러오는 중...</div>
         </div>
@@ -922,22 +924,22 @@
     </div>
   </div>
 
-  <!-- 관리자(Admin) 전용 계정 관리 모달 -->
+  <!-- 관리자(Admin) 전용 계정 관리 모달: 비밀번호 필드 없이 이름 수정과 초기화 버튼만 제공 -->
   <div class="modal-overlay" id="admin-modal" onclick="closeAdminModal(event)">
     <div class="modal-content" onclick="event.stopPropagation()">
       <div class="modal-header">
-        <h3>⚙️ 계정 및 비밀번호 관리 (Admin)</h3>
+        <h3>⚙️ 계정 관리 (Admin)</h3>
         <button type="button" class="modal-close-btn" onclick="closeAdminModal()">&times;</button>
       </div>
       <div class="modal-body">
         <div style="font-size:0.88rem; color:#94a3b8; margin-bottom:12px;">
-          사용자 계정명/비밀번호 수정, 초기화(게스트 상태 복구), 새 게스트 추가가 가능합니다.
+          각 계정의 이름을 수정하거나, 비밀번호 분실 시 <strong>[초기화]</strong>를 눌러 원래 게스트 상태(새 등록 대기)로 되돌릴 수 있습니다.
         </div>
         <div id="admin-user-list-form" style="display:flex; flex-direction:column; gap:10px;"></div>
         
         <div style="display:flex; gap:10px; margin-top:16px;">
           <button type="button" class="sm-btn" style="padding:10px; flex:1; border-color:#818cf8; color:#818cf8; font-weight:700;" onclick="adminAddNewGuest()">➕ 새 게스트 추가</button>
-          <button type="button" class="login-submit-btn" style="flex:1;" onclick="saveAdminChanges()">전체 저장 및 DB 동기화</button>
+          <button type="button" class="login-submit-btn" style="flex:1;" onclick="saveAdminChanges()">계정명 변경 저장</button>
         </div>
       </div>
     </div>
@@ -1096,6 +1098,7 @@
       renderLoginUserButtons();
     }
 
+    // 로그인 화면의 사용자 버튼 동적 렌더링 (2열로 아래로 쭉 나열)
     function renderLoginUserButtons() {
       const grid = document.getElementById("login-user-grid");
       grid.innerHTML = "";
@@ -1123,13 +1126,11 @@
       const targetUser = dbUsers.find(u => u.id === uid);
       if (!targetUser) return;
 
-      // 아직 계정 설정이 안 된 게스트인 경우 -> 계정명 & 새 비번 설정 팝업
       if (!targetUser.isConfigured && uid !== "user_1") {
         openGuestSetupModal(uid);
         return;
       }
 
-      // 이미 등록된 사용자인 경우 -> 비밀번호 입력 영역 노출
       selectUserForLogin(uid);
     }
 
@@ -1226,7 +1227,7 @@
       setupTargetUid = null;
     }
 
-    // 게스트 등록 저장 -> 즉시 학습 진입 대신 사용자 선택 화면으로 복귀
+    // 등록 후 바로 학습 화면으로 가지 않고 사용자 선택 화면으로 복귀하여 비밀번호 입력 유도
     async function saveGuestSetup() {
       if (!setupTargetUid) return;
       const nameVal = document.getElementById("setup-name-input").value.trim();
@@ -1260,13 +1261,13 @@
       renderLoginUserButtons();
       closeGuestSetupModal();
 
-      alert(`'${nameVal}' 계정 등록이 완료되었습니다.\n사용자 목록에서 '${nameVal}' 버튼을 누르고 비밀번호를 입력해주세요.`);
+      alert(`'${nameVal}' 계정 등록이 완료되었습니다.\n목록에서 본인 이름 버튼을 클릭한 뒤 비밀번호를 입력해주세요.`);
       
       // 등록된 버튼을 자동으로 선택하고 비밀번호 입력창으로 포커스
       selectUserForLogin(setupTargetUid);
     }
 
-    // --- 관리자(Admin) 전용 모달 로직 ---
+    // --- 관리자(Admin) 전용 모달 로직: 비밀번호 없이 이름 수정과 초기화 버튼만 제공 ---
     function openAdminModal() {
       if (currentUserId !== "user_1") {
         alert("관리자 권한이 없습니다.");
@@ -1292,12 +1293,7 @@
             ${u.id === "user_1" ? "👑 준영" : `계정 ${idx+1}`}
           </div>
           <div>
-            <label style="font-size:0.75rem; color:#94a3b8; display:block; margin-bottom:2px;">계정명</label>
-            <input type="text" id="admin-name-${u.id}" class="admin-input" value="${u.name}" style="width:100%;">
-          </div>
-          <div>
-            <label style="font-size:0.75rem; color:#94a3b8; display:block; margin-bottom:2px;">비밀번호 (PIN)</label>
-            <input type="text" id="admin-pin-${u.id}" class="admin-input" value="${u.pin}" style="width:100%;">
+            <input type="text" id="admin-name-${u.id}" class="admin-input" value="${u.name}" style="width:100%;" placeholder="계정명">
           </div>
           <div>
             ${resetBtnHtml}
@@ -1324,7 +1320,7 @@
       const defaultName = (idx >= 2 && idx <= 27) ? `게스트${guestLetters[idx - 2]}` : `게스트${idx}`;
       const defaultPin = `${idx - 1}${idx - 1}${idx - 1}${idx - 1}`;
 
-      if (confirm(`'${targetUser.name}' 계정을 초기 상태 [${defaultName}] (기본 PIN: ${defaultPin})으로 되돌리고 통계를 초기화하시겠습니까?`)) {
+      if (confirm(`'${targetUser.name}' 계정을 초기 상태 [${defaultName}] (기본 PIN: ${defaultPin})으로 되돌리고 풀이 기록을 초기화하시겠습니까?`)) {
         targetUser.name = defaultName;
         targetUser.pin = defaultPin;
         targetUser.isConfigured = false;
@@ -1391,23 +1387,23 @@
       alert(`새 사용자 [${defaultName}] 계정이 추가되었습니다! (초기 PIN: ${defaultPin})`);
     }
 
+    // 관리자가 계정명 변경 사항 일괄 저장
     async function saveAdminChanges() {
       if (currentUserId !== "user_1") return;
 
       const updatedUsers = [];
       for (const u of dbUsers) {
         const nameVal = document.getElementById(`admin-name-${u.id}`).value.trim();
-        const pinVal = document.getElementById(`admin-pin-${u.id}`).value.trim();
 
-        if (!nameVal || !pinVal) {
-          alert("계정명과 비밀번호는 빈 칸으로 둘 수 없습니다.");
+        if (!nameVal) {
+          alert("계정명은 빈 칸으로 둘 수 없습니다.");
           return;
         }
 
         updatedUsers.push({
           id: u.id,
           name: nameVal,
-          pin: pinVal,
+          pin: u.pin, // 기존 비밀번호 유지
           role: u.role,
           isConfigured: (nameVal.startsWith("게스트") ? false : true)
         });
@@ -1418,7 +1414,7 @@
           const batch = db.batch();
           updatedUsers.forEach(u => {
             const docRef = db.collection("users").doc(u.id);
-            batch.update(docRef, { name: u.name, pin: u.pin, isConfigured: u.isConfigured });
+            batch.update(docRef, { name: u.name, isConfigured: u.isConfigured });
           });
           await batch.commit();
         } catch(e) {
@@ -1438,7 +1434,7 @@
       }
       renderLoginUserButtons();
 
-      alert("모든 사용자 정보가 DB에 성공적으로 저장되었습니다!");
+      alert("모든 계정명이 DB에 성공적으로 저장되었습니다!");
       closeAdminModal();
     }
 
@@ -2066,7 +2062,7 @@
           }
 
           card.innerHTML = `
-            <div class="missed-header">${idx + 1}. ${q.question}</div>
+            <div class="missed-header">${idx + 1}. [원문제 ${q.id}번] ${q.question}</div>
             <div class="missed-details">
               <div><strong style="color:${ans.isCorrect === false ? '#f87171' : '#94a3b8'};">내 선택:</strong> ${userChoiceText}</div>
               <div style="margin-top:3px;"><strong style="color:#4ade80;">정답:</strong> ${correctLetter}. ${correctOptObj.text}</div>
