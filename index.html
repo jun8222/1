@@ -3,7 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>치기공과 국가고시 실전 퀴즈</title>
+  <title>치기공과 국가고시 실전 퀴즈 (Cloud Sync)</title>
+  
+  <!-- Firebase SDK (v9 호환 모드) -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
   <style>
     :root {
       --bg-dark: #13161c;
@@ -32,25 +37,55 @@
     }
     .container { max-width: 840px; margin: 0 auto; }
 
-    /* 상단 데이터 관리 바 */
-    .top-data-bar {
+    /* 상단 사용자 선택 및 클라우드 상태 바 */
+    .user-nav-bar {
       display: flex;
-      justify-content: flex-end;
+      justify-content: space-between;
       align-items: center;
-      gap: 8px;
-      margin-bottom: 16px;
-    }
-    .sm-btn {
       background: var(--card-bg);
       border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 18px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .user-select-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .user-pill {
+      background: var(--opt-bg);
+      border: 1px solid var(--border);
       color: var(--text-muted);
-      padding: 5px 12px;
-      border-radius: 6px;
-      font-size: 0.82rem;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      font-weight: 600;
       cursor: pointer;
       transition: all 0.2s;
     }
-    .sm-btn:hover { background: var(--opt-hover); color: #fff; }
+    .user-pill:hover { background: var(--opt-hover); color: #fff; }
+    .user-pill.active {
+      background: var(--primary);
+      border-color: var(--primary-light);
+      color: #fff;
+    }
+    .sync-status {
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #94a3b8;
+    }
+    .sync-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #4ade80;
+    }
 
     /* 과목 선택 화면 */
     #selection-screen {
@@ -207,7 +242,7 @@
     }
     .history-toggle-btn:hover { background: var(--opt-hover); color: #fff; }
 
-    /* 회차별 히스토리 드롭다운 영역 */
+    /* 회차별 히스토리 */
     .history-dropdown {
       display: none;
       margin-top: 14px;
@@ -234,6 +269,17 @@
     .hist-score { font-weight: 600; color: #38bdf8; }
     .hist-wrong-txt { color: #f87171; font-weight: 600; }
     .hist-actions { display: flex; gap: 6px; align-items: center; }
+
+    .sm-btn {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+    .sm-btn:hover { background: var(--opt-hover); color: #fff; }
 
     /* 퀴즈 풀이 화면 */
     #quiz-view { display: none; }
@@ -538,7 +584,7 @@
     .retry-card span { font-size: 1.15rem; font-weight: 700; color: #f8fafc; }
     .retry-actions { display: flex; gap: 10px; flex-wrap: wrap; }
 
-    /* 핵심 포인트 모아보기 모달 팝업 */
+    /* 모달 팝업 */
     .modal-overlay {
       display: none;
       position: fixed;
@@ -590,18 +636,23 @@
 <body>
   <div class="container">
     
-    <!-- 상단 데이터 관리 바 -->
-    <div class="top-data-bar">
-      <button type="button" class="sm-btn" onclick="backupData()">💾 회차 기록 백업</button>
-      <button type="button" class="sm-btn" onclick="restoreDataPrompt()">📂 회차 기록 복구</button>
-      <button type="button" class="sm-btn" style="color:#f87171;" onclick="resetAllData()">기록 초기화</button>
+    <!-- 상단 4인 사용자 선택 및 동기화 상태 바 -->
+    <div class="user-nav-bar">
+      <div class="user-select-group">
+        <span style="font-size:0.9rem; font-weight:700; color:#cbd5e1;">👤 사용자:</span>
+        <div id="user-pills-container" style="display:flex; gap:6px; flex-wrap:wrap;"></div>
+      </div>
+      <div class="sync-status">
+        <div class="sync-dot" id="sync-dot-indicator"></div>
+        <span id="sync-status-text">Cloud 동기화 준비</span>
+      </div>
     </div>
 
     <!-- 1. 과목 선택 화면 -->
     <div id="selection-screen">
       <div class="select-card">
         <h2>치기공과 국가고시 실전 퀴즈</h2>
-        <p>각 과목별 푼 회차별 오답 기록과 누적 통계가 이 기기에 저장됩니다.</p>
+        <p><span id="current-user-title" style="color:#818cf8; font-weight:700;">사용자</span>님의 기록이 클라우드 DB에 실시간 저장됩니다.</p>
 
         <!-- 무작위 섞기 토글 옵션 바 -->
         <div class="quiz-options-bar">
@@ -706,6 +757,44 @@
   <script src="./data/orthodontics.js"></script>
 
   <script>
+    // ==========================================
+    // 1. Firebase 연동 설정 (본인의 키로 교체)
+    // ==========================================
+    const firebaseConfig = {
+      apiKey: "AIzaSyDcRoix908f6kAPVVqsdYGuRDovKURmKH4",
+      authDomain: "bist-quiz.firebaseapp.com",
+      projectId: "bist-quiz",
+      storageBucket: "bist-quiz.firebasestorage.app",
+      messagingSenderId: "601613690714",
+      appId: "1:601613690714:web:bd9e950e427a1d6e19f563",
+      measurementId: "G-17S43LEKP9"
+    };
+
+    let db = null;
+    let isCloudEnabled = false;
+
+    // Firebase 초기화 시도
+    try {
+      if (firebaseConfig.apiKey && !firebaseConfig.apiKey.includes("YOUR_API_KEY")) {
+        firebase.initializeApp(firebaseConfig);
+        db = firebase.firestore();
+        isCloudEnabled = true;
+      }
+    } catch(err) {
+      console.warn("Firebase 연동 오류. 로컬 모드로 작동합니다.", err);
+    }
+
+    // 4명 사용자 프로필 정의
+    const USERS = [
+      { id: "user_1", name: "준영" },
+      { id: "user_2", name: "스터디원A" },
+      { id: "user_3", name: "스터디원B" },
+      { id: "user_4", name: "스터디원C" }
+    ];
+
+    let currentUserId = localStorage.getItem("DENTAL_CURRENT_USER") || "user_1";
+    let currentUserStats = {}; // 현재 선택된 사용자의 11개 과목 통계
+
     const labels = ["A", "B", "C", "D", "E"];
 
     // 11개 과목 메타데이터 정의
@@ -723,9 +812,6 @@
       { key: 'orthodontics', name: '교정기공학 (2교시 97~110)', period: 2 }
     ];
 
-    const STORAGE_KEY = "DENTAL_QUIZ_HISTORY_STATS_V2";
-    let deviceStats = {};
-
     let currentSubjectKey = "anatomy";
     let isWrongOnlyMode = false;
     let customQuestionIds = null;
@@ -734,69 +820,85 @@
     let userAnswers = [];
     let isReviewMode = false;
 
-    function loadStorage() {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
+    // 사용자 데이터 로드 (DB 우선 ➔ 로컬 백업)
+    async function loadUserData(uid) {
+      currentUserId = uid;
+      localStorage.setItem("DENTAL_CURRENT_USER", uid);
+      updateSyncStatus("데이터 동기화 중...", "#fbbf24");
+
+      if (isCloudEnabled && db) {
         try {
-          deviceStats = JSON.parse(saved);
+          const doc = await db.collection("quiz_users").doc(uid).get();
+          if (doc.exists) {
+            currentUserStats = doc.data().stats || {};
+          } else {
+            currentUserStats = {};
+          }
+          localStorage.setItem(`LOCAL_STATS_${uid}`, JSON.stringify(currentUserStats));
+          updateSyncStatus("Cloud 동기화 완료", "#4ade80");
         } catch(e) {
-          deviceStats = {};
+          console.error("클라우드 읽기 실패, 로컬 대체", e);
+          fallbackToLocal(uid);
+        }
+      } else {
+        fallbackToLocal(uid);
+      }
+
+      renderUserPills();
+      renderSubjectList();
+    }
+
+    function fallbackToLocal(uid) {
+      const local = localStorage.getItem(`LOCAL_STATS_${uid}`);
+      currentUserStats = local ? JSON.parse(local) : {};
+      updateSyncStatus(isCloudEnabled ? "오프라인 모드" : "로컬 모드 (DB 키 설정 필요)", "#94a3b8");
+    }
+
+    async function saveUserData() {
+      localStorage.setItem(`LOCAL_STATS_${currentUserId}`, JSON.stringify(currentUserStats));
+
+      if (isCloudEnabled && db) {
+        updateSyncStatus("저장 중...", "#fbbf24");
+        try {
+          await db.collection("quiz_users").doc(currentUserId).set({
+            name: USERS.find(u => u.id === currentUserId).name,
+            stats: currentUserStats,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          }, { merge: true });
+          updateSyncStatus("Cloud 동기화 완료", "#4ade80");
+        } catch(e) {
+          console.error("클라우드 저장 실패", e);
+          updateSyncStatus("클라우드 동기화 실패 (로컬 보관)", "#f87171");
         }
       }
     }
 
-    function saveStorage() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(deviceStats));
+    function updateSyncStatus(text, color) {
+      document.getElementById("sync-status-text").textContent = text;
+      document.getElementById("sync-dot-indicator").style.background = color;
     }
 
     window.onload = function() {
-      loadStorage();
-      renderSubjectList();
+      loadUserData(currentUserId);
     };
 
-    function backupData() {
-      const blob = new Blob([JSON.stringify(deviceStats, null, 2)], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `dental_quiz_history_backup_${new Date().toISOString().slice(0,10)}.json`;
-      a.click();
-      URL.revokeObjectURL(url);
+    function renderUserPills() {
+      const container = document.getElementById("user-pills-container");
+      container.innerHTML = "";
+
+      USERS.forEach(u => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = `user-pill ${u.id === currentUserId ? 'active' : ''}`;
+        btn.textContent = u.name;
+        btn.onclick = () => loadUserData(u.id);
+        container.appendChild(btn);
+      });
+
+      const curUserObj = USERS.find(u => u.id === currentUserId);
+      document.getElementById("current-user-title").textContent = curUserObj ? curUserObj.name : "사용자";
     }
 
-    function restoreDataPrompt() {
-      const input = document.createElement("input");
-      input.type = "file";
-      input.accept = ".json";
-      input.onchange = e => {
-        const file = e.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = ev => {
-          try {
-            const data = JSON.parse(ev.target.result);
-            deviceStats = data;
-            saveStorage();
-            renderSubjectList();
-            alert("회차별 학습 기록이 성공적으로 복원되었습니다!");
-          } catch(err) {
-            alert("올바른 백업 파일 형식이 아닙니다.");
-          }
-        };
-        reader.readAsText(file);
-      };
-      input.click();
-    }
-
-    function resetAllData() {
-      if (confirm("모든 푼 회차 기록과 누적 오답 데이터를 완전히 초기화하시겠습니까?")) {
-        deviceStats = {};
-        saveStorage();
-        renderSubjectList();
-      }
-    }
-
-    // 과목 카드 렌더링 (회차 히스토리 드롭다운 및 핵심포인트 모아보기 버튼 포함)
     function renderSubjectList() {
       const p1 = document.getElementById("group-period-1");
       const p2 = document.getElementById("group-period-2");
@@ -809,14 +911,13 @@
         const isReady = qData && qData.questions && qData.questions.length > 0;
         const totalCount = isReady ? qData.questions.length : 0;
 
-        const stat = deviceStats[meta.key] || { attempts: 0, lastScore: "-", cumulativeWrongIds: [], history: [] };
+        const stat = currentUserStats[meta.key] || { attempts: 0, lastScore: "-", cumulativeWrongIds: [], history: [] };
         const wrongCount = stat.cumulativeWrongIds ? stat.cumulativeWrongIds.length : 0;
         const historyList = stat.history || [];
 
         const row = document.createElement("div");
         row.className = "subject-row-card";
 
-        // 회차별 목록 HTML
         let histHtml = "";
         if (historyList.length > 0) {
           histHtml = historyList.map(h => `
@@ -878,7 +979,6 @@
       box.style.display = box.style.display === "block" ? "none" : "block";
     }
 
-    // 특정 회차의 오답 핵심포인트 모아보기 모달 열기
     function openHistoryKeyPointsModal(subjectKey, attemptNum, wrongIds) {
       const qData = window.quizDatabase && window.quizDatabase[subjectKey];
       if (!qData || !qData.questions) return;
@@ -908,36 +1008,20 @@
           `;
         }
 
-        // 오답 선택지 해설 요약
-        let optExpsHtml = "";
-        if (q.optionExplanations) {
-          const optKeys = Object.keys(q.optionExplanations);
-          if (optKeys.length > 0) {
-            optExpsHtml = `
-              <div style="margin-top:10px; font-size:0.85rem; color:#94a3b8;">
-                <div style="font-weight:700; margin-bottom:4px; color:#cbd5e1;">선택지별 해설 요약:</div>
-                ${optKeys.map(k => `<div><strong>${labels[k-1]}번:</strong> ${q.optionExplanations[k]}</div>`).join("")}
-              </div>
-            `;
-          }
-        }
-
         card.innerHTML = `
           <div class="missed-header">${idx + 1}. [원문제 ${q.id}번] ${q.question}</div>
           <div class="missed-details">
             <div><strong style="color:#4ade80;">정답:</strong> ${labels[q.answer - 1]}. ${correctAnswerText}</div>
           </div>
           ${commonHtml}
-          ${optExpsHtml}
         `;
         listContainer.appendChild(card);
       });
 
-      const modal = document.getElementById("history-modal");
-      modal.style.display = "flex";
+      document.getElementById("history-modal").style.display = "flex";
     }
 
-    function closeHistoryModal(e) {
+    function closeHistoryModal() {
       document.getElementById("history-modal").style.display = "none";
     }
 
@@ -950,7 +1034,6 @@
       return arr;
     }
 
-    // 키보드 단축키
     window.addEventListener("keydown", function(e) {
       const modal = document.getElementById("history-modal");
       if (modal && modal.style.display === "flex") {
@@ -985,7 +1068,6 @@
       }
     });
 
-    // 퀴즈 시작 (전체 풀기, 누적 오답 풀기, 특정 회차 오답 풀기 모두 대응)
     function startSubject(subjectKey, wrongOnly = false, specificIds = null) {
       const qData = window.quizDatabase && window.quizDatabase[subjectKey];
       if (!qData || !qData.questions) {
@@ -999,14 +1081,11 @@
       let targetList = [];
 
       if (specificIds) {
-        // 특정 회차의 오답 문제들만 필터링
         targetList = qData.questions.filter(q => specificIds.includes(q.id));
       } else if (wrongOnly) {
-        // 전체 누적 오답 문제 필터링
-        const wrongIds = (deviceStats[subjectKey] && deviceStats[subjectKey].cumulativeWrongIds) || [];
+        const wrongIds = (currentUserStats[subjectKey] && currentUserStats[subjectKey].cumulativeWrongIds) || [];
         targetList = qData.questions.filter(q => wrongIds.includes(q.id));
       } else {
-        // 과목 전체 문제
         targetList = [...qData.questions];
       }
 
@@ -1018,10 +1097,8 @@
       const shouldShuffleQ = document.getElementById("shuffle-q-toggle").checked;
       const shouldShuffleOpt = document.getElementById("shuffle-opt-toggle").checked;
 
-      // 1. 문제 순서 결정
       let baseQuestions = shouldShuffleQ ? shuffleArray(targetList) : [...targetList];
 
-      // 2. 각 문제의 선택지 셔플 처리
       questions = baseQuestions.map(q => {
         let optObjects = q.options.map((optText, idx) => ({
           text: optText,
@@ -1231,8 +1308,8 @@
       }
     }
 
-    // 회차별 히스토리 누적 및 저장 로직
-    function finishAndSaveResults() {
+    // 결과 저장 및 클라우드 동기화
+    async function finishAndSaveResults() {
       const total = questions.length;
       let correctCount = 0;
       let wrongCount = 0;
@@ -1253,8 +1330,8 @@
         }
       });
 
-      if (!deviceStats[currentSubjectKey]) {
-        deviceStats[currentSubjectKey] = {
+      if (!currentUserStats[currentSubjectKey]) {
+        currentUserStats[currentSubjectKey] = {
           attempts: 0,
           lastScore: "-",
           cumulativeWrongIds: [],
@@ -1262,17 +1339,17 @@
         };
       }
 
-      const subjStat = deviceStats[currentSubjectKey];
+      const subjStat = currentUserStats[currentSubjectKey];
       subjStat.attempts = (subjStat.attempts || 0) + 1;
       subjStat.lastScore = `${correctCount}/${total}`;
 
-      // 전체 누적 오답 갱신 (맞힌 문제는 자동 졸업 제외)
+      // 누적 오답 갱신 (맞힌 문제는 자동 졸업 제외)
       const existingWrongSet = new Set(subjStat.cumulativeWrongIds || []);
       currentWrongIds.forEach(id => existingWrongSet.add(id));
       currentCorrectIds.forEach(id => existingWrongSet.delete(id));
       subjStat.cumulativeWrongIds = Array.from(existingWrongSet);
 
-      // 이번 회차 시도 기록 히스토리에 추가
+      // 회차 히스토리 저장
       if (!subjStat.history) subjStat.history = [];
       const now = new Date();
       const dateStr = `${now.getMonth()+1}/${now.getDate()} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
@@ -1286,7 +1363,8 @@
         wrongIds: [...currentWrongIds]
       });
 
-      saveStorage();
+      // 클라우드 및 로컬 저장
+      await saveUserData();
 
       showResultSummary(correctCount, wrongCount, skippedCount, total);
     }
