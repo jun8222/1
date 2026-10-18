@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>치기공과 국가고시 실전 퀴즈 (Cloud Sync)</title>
+  <title>치기공과 국가고시 실전 퀴즈</title>
   
   <!-- Firebase SDK (v9 호환 모드) -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -37,7 +37,105 @@
     }
     .container { max-width: 840px; margin: 0 auto; }
 
-    /* 상단 사용자 선택 및 클라우드 상태 바 */
+    /* 0. 로그인 및 사용자 선택 화면 */
+    #login-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 75vh;
+    }
+    .login-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 36px 28px;
+      width: 100%;
+      max-width: 440px;
+      text-align: center;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4);
+    }
+    .login-card h2 {
+      font-size: 1.6rem;
+      margin-bottom: 8px;
+      color: #f8fafc;
+    }
+    .login-card p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-bottom: 24px;
+    }
+    .user-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .user-select-btn {
+      background: var(--opt-bg);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 12px;
+      color: #e2e8f0;
+      font-size: 1.05rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .user-select-btn:hover {
+      background: var(--opt-hover);
+      border-color: #64748b;
+    }
+    .user-select-btn.selected {
+      background: rgba(79, 70, 229, 0.15);
+      border-color: var(--primary-light);
+      color: #818cf8;
+    }
+
+    .pw-input-section {
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 10px;
+    }
+    .pw-input-field {
+      width: 100%;
+      padding: 14px;
+      background: var(--opt-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: #fff;
+      font-size: 1.1rem;
+      text-align: center;
+      letter-spacing: 4px;
+      outline: none;
+    }
+    .pw-input-field:focus { border-color: var(--primary-light); }
+    .login-submit-btn {
+      width: 100%;
+      padding: 14px;
+      background: var(--primary);
+      border: 1px solid var(--primary-light);
+      border-radius: 10px;
+      color: #fff;
+      font-size: 1.05rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .login-submit-btn:hover { background: var(--primary-light); }
+    .pw-error-text {
+      color: var(--wrong-text);
+      font-size: 0.88rem;
+      display: none;
+      font-weight: 600;
+    }
+
+    /* 상단 네비게이션 바 */
     .user-nav-bar {
       display: flex;
       justify-content: space-between;
@@ -50,28 +148,13 @@
       flex-wrap: wrap;
       gap: 12px;
     }
-    .user-select-group {
+    .user-profile-badge {
       display: flex;
       align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-    .user-pill {
-      background: var(--opt-bg);
-      border: 1px solid var(--border);
-      color: var(--text-muted);
-      padding: 6px 14px;
-      border-radius: 20px;
-      font-size: 0.9rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .user-pill:hover { background: var(--opt-hover); color: #fff; }
-    .user-pill.active {
-      background: var(--primary);
-      border-color: var(--primary-light);
-      color: #fff;
+      gap: 10px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #f8fafc;
     }
     .sync-status {
       font-size: 0.8rem;
@@ -87,9 +170,9 @@
       background: #4ade80;
     }
 
-    /* 과목 선택 화면 */
+    /* 1. 과목 선택 화면 */
     #selection-screen {
-      display: flex;
+      display: none;
       flex-direction: column;
       gap: 20px;
     }
@@ -188,6 +271,15 @@
       align-items: center;
       gap: 8px;
     }
+    .badge {
+      background: rgba(99, 102, 241, 0.2);
+      color: #818cf8;
+      font-size: 0.82rem;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
     .subj-user-stats {
       font-size: 0.82rem;
       color: #94a3b8;
@@ -242,7 +334,7 @@
     }
     .history-toggle-btn:hover { background: var(--opt-hover); color: #fff; }
 
-    /* 회차별 히스토리 */
+    /* 회차별 히스토리 드롭다운 영역 */
     .history-dropdown {
       display: none;
       margin-top: 14px;
@@ -281,7 +373,7 @@
     }
     .sm-btn:hover { background: var(--opt-hover); color: #fff; }
 
-    /* 퀴즈 풀이 화면 */
+    /* 2. 퀴즈 풀이 화면 */
     #quiz-view { display: none; }
     .quiz-top-bar {
       display: flex;
@@ -461,7 +553,7 @@
     }
     .action-btn.warning:hover:not(:disabled) { background-color: #ef4444; }
 
-    /* 결과 요약 화면 */
+    /* 3. 결과 요약 화면 */
     #result-view { display: none; }
     .result-card {
       background: var(--card-bg);
@@ -636,23 +728,43 @@
 <body>
   <div class="container">
     
-    <!-- 상단 4인 사용자 선택 및 동기화 상태 바 -->
-    <div class="user-nav-bar">
-      <div class="user-select-group">
-        <span style="font-size:0.9rem; font-weight:700; color:#cbd5e1;">👤 사용자:</span>
-        <div id="user-pills-container" style="display:flex; gap:6px; flex-wrap:wrap;"></div>
+    <!-- 0. 사용자 선택 및 비밀번호 입력 화면 (첫 화면) -->
+    <div id="login-screen">
+      <div class="login-card">
+        <h2>치기공과 국가고시 퀴즈</h2>
+        <p>학습할 사용자를 선택해주세요.</p>
+        
+        <div class="user-grid" id="login-user-grid">
+          <!-- DB에서 불러온 사용자 목록이 동적으로 채워집니다 -->
+          <div style="grid-column: span 2; color:#94a3b8; font-size:0.9rem; padding:12px;">사용자 계정을 불러오는 중...</div>
+        </div>
+
+        <div class="pw-input-section" id="pw-input-area">
+          <input type="password" id="user-password-input" class="pw-input-field" placeholder="비밀번호 입력" onkeydown="handlePwKeydown(event)">
+          <div class="pw-error-text" id="pw-error-msg">비밀번호가 올바르지 않습니다.</div>
+          <button type="button" class="login-submit-btn" onclick="attemptLogin()">로그인 및 시작</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 상단 로그인 상태 및 과목 이동 바 -->
+    <div class="user-nav-bar" id="logged-nav-bar" style="display:none;">
+      <div class="user-profile-badge">
+        <span style="font-size:1.1rem;">👤</span>
+        <span id="active-user-name">준영</span>
+        <button type="button" class="sm-btn" onclick="logoutToUserSelect()">사용자 변경</button>
       </div>
       <div class="sync-status">
         <div class="sync-dot" id="sync-dot-indicator"></div>
-        <span id="sync-status-text">Cloud 동기화 준비</span>
+        <span id="sync-status-text">Cloud 동기화 완료</span>
       </div>
     </div>
 
     <!-- 1. 과목 선택 화면 -->
     <div id="selection-screen">
       <div class="select-card">
-        <h2>치기공과 국가고시 실전 퀴즈</h2>
-        <p><span id="current-user-title" style="color:#818cf8; font-weight:700;">사용자</span>님의 기록이 클라우드 DB에 실시간 저장됩니다.</p>
+        <h2>과목 선택</h2>
+        <p><span id="current-user-title" style="color:#818cf8; font-weight:700;">준영</span>님의 풀이 회차 및 오답 기록이 실시간 동기화됩니다.</p>
 
         <!-- 무작위 섞기 토글 옵션 바 -->
         <div class="quiz-options-bar">
@@ -758,7 +870,7 @@
 
   <script>
     // ==========================================
-    // 1. Firebase 연동 설정 (본인의 키로 교체)
+    // 1. Firebase 연동 설정
     // ==========================================
     const firebaseConfig = {
       apiKey: "AIzaSyDcRoix908f6kAPVVqsdYGuRDovKURmKH4",
@@ -773,7 +885,6 @@
     let db = null;
     let isCloudEnabled = false;
 
-    // Firebase 초기화 시도
     try {
       if (firebaseConfig.apiKey && !firebaseConfig.apiKey.includes("YOUR_API_KEY")) {
         firebase.initializeApp(firebaseConfig);
@@ -784,16 +895,18 @@
       console.warn("Firebase 연동 오류. 로컬 모드로 작동합니다.", err);
     }
 
-    // 4명 사용자 프로필 정의
-    const USERS = [
-      { id: "user_1", name: "준영" },
-      { id: "user_2", name: "스터디원A" },
-      { id: "user_3", name: "스터디원B" },
-      { id: "user_4", name: "스터디원C" }
+    // 기본 4인 사용자 정보 (DB에 최초 등록할 때 사용)
+    const DEFAULT_ACCOUNTS = [
+      { id: "user_1", name: "준영", pin: "132" },
+      { id: "user_2", name: "게스트A", pin: "1111" },
+      { id: "user_3", name: "게스트B", pin: "2222" },
+      { id: "user_4", name: "게스트C", pin: "3333" }
     ];
 
-    let currentUserId = localStorage.getItem("DENTAL_CURRENT_USER") || "user_1";
-    let currentUserStats = {}; // 현재 선택된 사용자의 11개 과목 통계
+    let dbUsers = [];
+    let pendingLoginUserId = null;
+    let currentUserId = null;
+    let currentUserStats = {};
 
     const labels = ["A", "B", "C", "D", "E"];
 
@@ -820,15 +933,134 @@
     let userAnswers = [];
     let isReviewMode = false;
 
-    // 사용자 데이터 로드 (DB 우선 ➔ 로컬 백업)
-    async function loadUserData(uid) {
+    // --- DB에서 사용자 계정 및 비밀번호 로드 & 초기 세팅 ---
+    async function initUsersFromDB() {
+      if (isCloudEnabled && db) {
+        try {
+          const snapshot = await db.collection("users").get();
+          if (snapshot.empty) {
+            // DB에 계정이 없으면 기본 4개 계정 자동 생성
+            const batch = db.batch();
+            DEFAULT_ACCOUNTS.forEach(acc => {
+              const docRef = db.collection("users").doc(acc.id);
+              batch.set(docRef, { name: acc.name, pin: acc.pin, stats: {} });
+            });
+            await batch.commit();
+            dbUsers = [...DEFAULT_ACCOUNTS];
+          } else {
+            dbUsers = [];
+            snapshot.forEach(doc => {
+              const data = doc.data();
+              dbUsers.push({ id: doc.id, name: data.name, pin: data.pin });
+            });
+          }
+          localStorage.setItem("CACHED_DB_USERS", JSON.stringify(dbUsers));
+        } catch(e) {
+          console.error("DB 사용자 로드 실패, 캐시 사용:", e);
+          const cached = localStorage.getItem("CACHED_DB_USERS");
+          dbUsers = cached ? JSON.parse(cached) : [...DEFAULT_ACCOUNTS];
+        }
+      } else {
+        const cached = localStorage.getItem("CACHED_DB_USERS");
+        dbUsers = cached ? JSON.parse(cached) : [...DEFAULT_ACCOUNTS];
+      }
+
+      renderLoginUserButtons();
+    }
+
+    // 로그인 화면의 사용자 버튼 동적 렌더링
+    function renderLoginUserButtons() {
+      const grid = document.getElementById("login-user-grid");
+      grid.innerHTML = "";
+
+      dbUsers.forEach(u => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "user-select-btn";
+        btn.id = `btn-user-${u.id}`;
+        btn.onclick = () => selectUserForLogin(u.id);
+
+        const icon = u.name === "준영" ? "🧑‍💻" : "👤";
+        btn.innerHTML = `<span style="font-size:1.4rem;">${icon}</span><span>${u.name}</span>`;
+        grid.appendChild(btn);
+      });
+    }
+
+    function selectUserForLogin(uid) {
+      pendingLoginUserId = uid;
+      document.querySelectorAll('.user-select-btn').forEach(btn => {
+        btn.classList.toggle('selected', btn.id === `btn-user-${uid}`);
+      });
+
+      const pwArea = document.getElementById("pw-input-area");
+      pwArea.style.display = "flex";
+      const pwInput = document.getElementById("user-password-input");
+      pwInput.value = "";
+      document.getElementById("pw-error-msg").style.display = "none";
+      pwInput.focus();
+    }
+
+    function handlePwKeydown(e) {
+      if (e.key === "Enter") {
+        attemptLogin();
+      }
+    }
+
+    // 로그인 검증 (DB에서 불러온 pin과 대조)
+    function attemptLogin() {
+      if (!pendingLoginUserId) return;
+      const targetUser = dbUsers.find(u => u.id === pendingLoginUserId);
+      const inputPw = document.getElementById("user-password-input").value.trim();
+
+      if (targetUser && inputPw === targetUser.pin) {
+        document.getElementById("pw-error-msg").style.display = "none";
+        loginSuccess(targetUser.id);
+      } else {
+        document.getElementById("pw-error-msg").style.display = "block";
+        document.getElementById("user-password-input").value = "";
+        document.getElementById("user-password-input").focus();
+      }
+    }
+
+    async function loginSuccess(uid) {
       currentUserId = uid;
-      localStorage.setItem("DENTAL_CURRENT_USER", uid);
-      updateSyncStatus("데이터 동기화 중...", "#fbbf24");
+      sessionStorage.setItem("DENTAL_LOGGED_USER", uid);
+      
+      document.getElementById("login-screen").style.display = "none";
+      document.getElementById("logged-nav-bar").style.display = "flex";
+      document.getElementById("selection-screen").style.display = "flex";
+
+      const curUser = dbUsers.find(u => u.id === uid);
+      const uName = curUser ? curUser.name : "사용자";
+      document.getElementById("active-user-name").textContent = uName;
+      document.getElementById("current-user-title").textContent = uName;
+
+      await loadUserData(uid);
+    }
+
+    function logoutToUserSelect() {
+      sessionStorage.removeItem("DENTAL_LOGGED_USER");
+      currentUserId = null;
+      pendingLoginUserId = null;
+
+      document.getElementById("user-password-input").value = "";
+      document.getElementById("pw-input-area").style.display = "none";
+      document.querySelectorAll('.user-select-btn').forEach(btn => btn.classList.remove('selected'));
+
+      document.getElementById("quiz-view").style.display = "none";
+      document.getElementById("result-view").style.display = "none";
+      document.getElementById("selection-screen").style.display = "none";
+      document.getElementById("logged-nav-bar").style.display = "none";
+      document.getElementById("login-screen").style.display = "flex";
+    }
+
+    // --- 통계 및 오답 데이터 동기화 ---
+    async function loadUserData(uid) {
+      updateSyncStatus("Cloud 동기화 중...", "#fbbf24");
 
       if (isCloudEnabled && db) {
         try {
-          const doc = await db.collection("quiz_users").doc(uid).get();
+          const doc = await db.collection("users").doc(uid).get();
           if (doc.exists) {
             currentUserStats = doc.data().stats || {};
           } else {
@@ -837,21 +1069,19 @@
           localStorage.setItem(`LOCAL_STATS_${uid}`, JSON.stringify(currentUserStats));
           updateSyncStatus("Cloud 동기화 완료", "#4ade80");
         } catch(e) {
-          console.error("클라우드 읽기 실패, 로컬 대체", e);
           fallbackToLocal(uid);
         }
       } else {
         fallbackToLocal(uid);
       }
 
-      renderUserPills();
       renderSubjectList();
     }
 
     function fallbackToLocal(uid) {
       const local = localStorage.getItem(`LOCAL_STATS_${uid}`);
       currentUserStats = local ? JSON.parse(local) : {};
-      updateSyncStatus(isCloudEnabled ? "오프라인 모드" : "로컬 모드 (DB 키 설정 필요)", "#94a3b8");
+      updateSyncStatus(isCloudEnabled ? "오프라인 모드" : "로컬 모드", "#94a3b8");
     }
 
     async function saveUserData() {
@@ -860,15 +1090,13 @@
       if (isCloudEnabled && db) {
         updateSyncStatus("저장 중...", "#fbbf24");
         try {
-          await db.collection("quiz_users").doc(currentUserId).set({
-            name: USERS.find(u => u.id === currentUserId).name,
+          await db.collection("users").doc(currentUserId).set({
             stats: currentUserStats,
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
           }, { merge: true });
           updateSyncStatus("Cloud 동기화 완료", "#4ade80");
         } catch(e) {
-          console.error("클라우드 저장 실패", e);
-          updateSyncStatus("클라우드 동기화 실패 (로컬 보관)", "#f87171");
+          updateSyncStatus("클라우드 저장 실패 (로컬 보관)", "#f87171");
         }
       }
     }
@@ -878,26 +1106,13 @@
       document.getElementById("sync-dot-indicator").style.background = color;
     }
 
-    window.onload = function() {
-      loadUserData(currentUserId);
+    window.onload = async function() {
+      await initUsersFromDB();
+      const savedUser = sessionStorage.getItem("DENTAL_LOGGED_USER");
+      if (savedUser) {
+        loginSuccess(savedUser);
+      }
     };
-
-    function renderUserPills() {
-      const container = document.getElementById("user-pills-container");
-      container.innerHTML = "";
-
-      USERS.forEach(u => {
-        const btn = document.createElement("button");
-        btn.type = "button";
-        btn.className = `user-pill ${u.id === currentUserId ? 'active' : ''}`;
-        btn.textContent = u.name;
-        btn.onclick = () => loadUserData(u.id);
-        container.appendChild(btn);
-      });
-
-      const curUserObj = USERS.find(u => u.id === currentUserId);
-      document.getElementById("current-user-title").textContent = curUserObj ? curUserObj.name : "사용자";
-    }
 
     function renderSubjectList() {
       const p1 = document.getElementById("group-period-1");
@@ -1363,7 +1578,6 @@
         wrongIds: [...currentWrongIds]
       });
 
-      // 클라우드 및 로컬 저장
       await saveUserData();
 
       showResultSummary(correctCount, wrongCount, skippedCount, total);
