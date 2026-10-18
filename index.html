@@ -70,6 +70,9 @@
       grid-template-columns: repeat(2, 1fr);
       gap: 12px;
       margin-bottom: 24px;
+      max-height: 280px;
+      overflow-y: auto;
+      padding: 4px;
     }
     .user-select-btn {
       background: var(--opt-bg);
@@ -94,6 +97,13 @@
       background: rgba(79, 70, 229, 0.15);
       border-color: var(--primary-light);
       color: #818cf8;
+    }
+    .user-badge-tag {
+      font-size: 0.72rem;
+      color: #94a3b8;
+      background: rgba(255, 255, 255, 0.06);
+      padding: 2px 6px;
+      border-radius: 4px;
     }
 
     .pw-input-section {
@@ -780,7 +790,7 @@
       <div class="user-profile-badge">
         <span style="font-size:1.1rem;">👤</span>
         <span id="active-user-name">준영</span>
-        <button type="button" class="sm-btn" onclick="openSelfPwModal()">PW 변경</button>
+        <button type="button" class="sm-btn" onclick="openSelfPwModal()">이름/PW 변경</button>
         <button type="button" class="sm-btn admin-badge-btn" id="admin-panel-btn" style="display:none;" onclick="openAdminModal()">⚙️ 계정 관리 (Admin)</button>
         <button type="button" class="sm-btn" onclick="logoutToUserSelect()">사용자 변경</button>
       </div>
@@ -885,6 +895,33 @@
     </div>
   </div>
 
+  <!-- 첫 접속 게스트 계정 등록 모달 (계정명 & 새 비번 설정) -->
+  <div class="modal-overlay" id="guest-setup-modal" onclick="closeGuestSetupModal(event)">
+    <div class="modal-content" style="max-width:420px;" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3 id="setup-modal-title">새 사용자 등록</h3>
+        <button type="button" class="modal-close-btn" onclick="closeGuestSetupModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div style="font-size:0.88rem; color:#94a3b8; margin-bottom:12px;">
+          처음 접속하셨습니다. 화면에 표시될 <strong>본인의 계정명</strong>과 사용할 <strong>비밀번호</strong>를 등록해주세요.
+        </div>
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          <div>
+            <label style="font-size:0.85rem; color:#94a3b8; display:block; margin-bottom:4px;">사용할 계정명 (이름/별명)</label>
+            <input type="text" id="setup-name-input" class="admin-input" style="width:100%;" placeholder="예: 철수, 민지 등">
+          </div>
+          <div>
+            <label style="font-size:0.85rem; color:#94a3b8; display:block; margin-bottom:4px;">새 비밀번호 (PIN)</label>
+            <input type="password" id="setup-pin-input" class="admin-input" style="width:100%;" placeholder="비밀번호 설정">
+          </div>
+          <div id="setup-error-msg" style="font-size:0.85rem; color:#f87171; display:none;"></div>
+          <button type="button" class="login-submit-btn" style="margin-top:8px;" onclick="saveGuestSetup()">등록 완료 및 로그인</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- 관리자(Admin) 전용 계정 관리 모달 -->
   <div class="modal-overlay" id="admin-modal" onclick="closeAdminModal(event)">
     <div class="modal-content" onclick="event.stopPropagation()">
@@ -894,33 +931,41 @@
       </div>
       <div class="modal-body">
         <div style="font-size:0.88rem; color:#94a3b8; margin-bottom:12px;">
-          각 사용자의 계정명과 비밀번호(PIN)를 수정할 수 있습니다. 저장 시 DB에 즉시 적용됩니다.
+          각 사용자의 계정명과 비밀번호(PIN)를 수정하거나 새 게스트(D, E, F...)를 추가할 수 있습니다.
         </div>
         <div id="admin-user-list-form" style="display:flex; flex-direction:column; gap:10px;"></div>
-        <button type="button" class="login-submit-btn" style="margin-top:16px;" onclick="saveAdminChanges()">전체 저장 및 DB 동기화</button>
+        
+        <div style="display:flex; gap:10px; margin-top:16px;">
+          <button type="button" class="sm-btn" style="padding:10px; flex:1; border-color:#818cf8; color:#818cf8; font-weight:700;" onclick="adminAddNewGuest()">➕ 새 게스트 추가 (D, E, F...)</button>
+          <button type="button" class="login-submit-btn" style="flex:1;" onclick="saveAdminChanges()">전체 저장 및 DB 동기화</button>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- 본인 비밀번호 변경 모달 (게스트/준영 공용) -->
+  <!-- 본인 정보 변경 모달 (계정명 및 PW 변경) -->
   <div class="modal-overlay" id="self-pw-modal" onclick="closeSelfPwModal(event)">
     <div class="modal-content" style="max-width:400px;" onclick="event.stopPropagation()">
       <div class="modal-header">
-        <h3>비밀번호 변경</h3>
+        <h3>내 정보 변경</h3>
         <button type="button" class="modal-close-btn" onclick="closeSelfPwModal()">&times;</button>
       </div>
       <div class="modal-body">
         <div style="display:flex; flex-direction:column; gap:12px;">
           <div>
+            <label style="font-size:0.85rem; color:#94a3b8; display:block; margin-bottom:4px;">계정명 (이름)</label>
+            <input type="text" id="self-new-name" class="admin-input" style="width:100%;">
+          </div>
+          <div>
             <label style="font-size:0.85rem; color:#94a3b8; display:block; margin-bottom:4px;">현재 비밀번호</label>
             <input type="password" id="self-old-pw" class="admin-input" style="width:100%;">
           </div>
           <div>
-            <label style="font-size:0.85rem; color:#94a3b8; display:block; margin-bottom:4px;">새 비밀번호</label>
-            <input type="password" id="self-new-pw" class="admin-input" style="width:100%;">
+            <label style="font-size:0.85rem; color:#94a3b8; display:block; margin-bottom:4px;">새 비밀번호 (미변경 시 빈칸)</label>
+            <input type="password" id="self-new-pw" class="admin-input" style="width:100%;" placeholder="새 비밀번호">
           </div>
           <div id="self-pw-msg" style="font-size:0.85rem; color:#f87171; display:none;"></div>
-          <button type="button" class="login-submit-btn" style="margin-top:8px;" onclick="saveSelfPassword()">변경 저장</button>
+          <button type="button" class="login-submit-btn" style="margin-top:8px;" onclick="saveSelfProfile()">변경 저장</button>
         </div>
       </div>
     </div>
@@ -944,13 +989,13 @@
     // 1. Firebase 연동 설정
     // ==========================================
     const firebaseConfig = {
-      apiKey: "AIzaSyDcRoix908f6kAPVVqsdYGuRDovKURmKH4",
-      authDomain: "bist-quiz.firebaseapp.com",
-      projectId: "bist-quiz",
-      storageBucket: "bist-quiz.firebasestorage.app",
-      messagingSenderId: "601613690714",
-      appId: "1:601613690714:web:bd9e950e427a1d6e19f563",
-      measurementId: "G-17S43LEKP9"
+      apiKey: "AIzaSyDcRoix908f6kAPVVqsdYGuRDovKURmKH4",
+      authDomain: "bist-quiz.firebaseapp.com",
+      projectId: "bist-quiz",
+      storageBucket: "bist-quiz.firebasestorage.app",
+      messagingSenderId: "601613690714",
+      appId: "1:601613690714:web:bd9e950e427a1d6e19f563",
+      measurementId: "G-17S43LEKP9"
     };
 
     let db = null;
@@ -966,12 +1011,12 @@
       console.warn("Firebase 연동 오류. 로컬 모드로 작동합니다.", err);
     }
 
-    // 기본 4인 계정 세팅 (준영 계정 id는 'user_1'로 고정)
+    // 기본 4인 초기 계정 (준영: 132, 게스트A: 1111, B: 2222, C: 3333)
     const DEFAULT_ACCOUNTS = [
-      { id: "user_1", name: "준영", pin: "132", role: "admin" },
-      { id: "user_2", name: "게스트A", pin: "1111", role: "user" },
-      { id: "user_3", name: "게스트B", pin: "2222", role: "user" },
-      { id: "user_4", name: "게스트C", pin: "3333", role: "user" }
+      { id: "user_1", name: "준영", pin: "132", role: "admin", isConfigured: true },
+      { id: "user_2", name: "게스트A", pin: "1111", role: "user", isConfigured: false },
+      { id: "user_3", name: "게스트B", pin: "2222", role: "user", isConfigured: false },
+      { id: "user_4", name: "게스트C", pin: "3333", role: "user", isConfigured: false }
     ];
 
     let dbUsers = [];
@@ -1004,7 +1049,7 @@
     let userAnswers = [];
     let isReviewMode = false;
 
-    // --- DB에서 사용자 계정 및 비밀번호 로드 & 초기 세팅 ---
+    // --- DB에서 사용자 계정 로드 & 초기 세팅 ---
     async function initUsersFromDB() {
       if (isCloudEnabled && db) {
         try {
@@ -1013,7 +1058,13 @@
             const batch = db.batch();
             DEFAULT_ACCOUNTS.forEach(acc => {
               const docRef = db.collection("users").doc(acc.id);
-              batch.set(docRef, { name: acc.name, pin: acc.pin, role: acc.role, stats: {} });
+              batch.set(docRef, {
+                name: acc.name,
+                pin: acc.pin,
+                role: acc.role,
+                isConfigured: acc.isConfigured || false,
+                stats: {}
+              });
             });
             await batch.commit();
             dbUsers = [...DEFAULT_ACCOUNTS];
@@ -1025,10 +1076,10 @@
                 id: doc.id,
                 name: data.name,
                 pin: data.pin,
-                role: doc.id === "user_1" ? "admin" : (data.role || "user")
+                role: doc.id === "user_1" ? "admin" : (data.role || "user"),
+                isConfigured: data.isConfigured !== undefined ? data.isConfigured : (doc.id === "user_1")
               });
             });
-            // id 기준 순서 정렬
             dbUsers.sort((a, b) => a.id.localeCompare(b.id));
           }
           localStorage.setItem("CACHED_DB_USERS", JSON.stringify(dbUsers));
@@ -1055,12 +1106,33 @@
         btn.type = "button";
         btn.className = "user-select-btn";
         btn.id = `btn-user-${u.id}`;
-        btn.onclick = () => selectUserForLogin(u.id);
+        btn.onclick = () => handleUserCardClick(u.id);
 
         const icon = u.id === "user_1" ? "👑" : "👤";
-        btn.innerHTML = `<span style="font-size:1.4rem;">${icon}</span><span>${u.name}</span>`;
+        const tagText = u.isConfigured ? "" : `<span class="user-badge-tag">미등록 게스트</span>`;
+
+        btn.innerHTML = `
+          <span style="font-size:1.4rem;">${icon}</span>
+          <span>${u.name}</span>
+          ${tagText}
+        `;
         grid.appendChild(btn);
       });
+    }
+
+    // 사용자가 버튼을 눌렀을 때
+    function handleUserCardClick(uid) {
+      const targetUser = dbUsers.find(u => u.id === uid);
+      if (!targetUser) return;
+
+      // 아직 계정 설정이 안 된 게스트인 경우 -> 계정명 & 새 비번 설정 팝업 띄움
+      if (!targetUser.isConfigured && uid !== "user_1") {
+        openGuestSetupModal(uid);
+        return;
+      }
+
+      // 이미 등록된 사용자인 경우 -> 비밀번호 입력창 오픈
+      selectUserForLogin(uid);
     }
 
     function selectUserForLogin(uid) {
@@ -1112,7 +1184,7 @@
       document.getElementById("active-user-name").textContent = uName;
       document.getElementById("current-user-title").textContent = uName;
 
-      // 관리자(user_1)일 경우에만 관리자 메뉴 버튼 표시
+      // 준영(user_1)만 관리자 버튼 표시
       const adminBtn = document.getElementById("admin-panel-btn");
       if (uid === "user_1") {
         adminBtn.style.display = "inline-block";
@@ -1139,6 +1211,63 @@
       document.getElementById("login-screen").style.display = "flex";
     }
 
+    // --- 게스트 셀프 등록 모달 (계정명 & 새 비번 설정) ---
+    let setupTargetUid = null;
+    function openGuestSetupModal(uid) {
+      setupTargetUid = uid;
+      const targetUser = dbUsers.find(u => u.id === uid);
+
+      document.getElementById("setup-modal-title").textContent = `${targetUser.name} 사용자 등록`;
+      document.getElementById("setup-name-input").value = "";
+      document.getElementById("setup-pin-input").value = "";
+      document.getElementById("setup-error-msg").style.display = "none";
+      document.getElementById("guest-setup-modal").style.display = "flex";
+      document.getElementById("setup-name-input").focus();
+    }
+
+    function closeGuestSetupModal(e) {
+      document.getElementById("guest-setup-modal").style.display = "none";
+      setupTargetUid = null;
+    }
+
+    async function saveGuestSetup() {
+      if (!setupTargetUid) return;
+      const nameVal = document.getElementById("setup-name-input").value.trim();
+      const pinVal = document.getElementById("setup-pin-input").value.trim();
+      const errMsg = document.getElementById("setup-error-msg");
+
+      if (!nameVal || !pinVal) {
+        errMsg.textContent = "계정명과 비밀번호를 모두 입력해주세요.";
+        errMsg.style.display = "block";
+        return;
+      }
+
+      const targetUser = dbUsers.find(u => u.id === setupTargetUid);
+      targetUser.name = nameVal;
+      targetUser.pin = pinVal;
+      targetUser.isConfigured = true;
+
+      // DB 갱신
+      if (isCloudEnabled && db) {
+        try {
+          await db.collection("users").doc(setupTargetUid).update({
+            name: nameVal,
+            pin: pinVal,
+            isConfigured: true
+          });
+        } catch(e) {
+          console.error("게스트 등록 실패:", e);
+        }
+      }
+
+      localStorage.setItem("CACHED_DB_USERS", JSON.stringify(dbUsers));
+      renderLoginUserButtons();
+      closeGuestSetupModal();
+
+      alert(`'${nameVal}'님으로 등록되었습니다. 바로 학습을 시작합니다!`);
+      loginSuccess(setupTargetUid);
+    }
+
     // --- 관리자(Admin) 전용 모달 로직 ---
     function openAdminModal() {
       if (currentUserId !== "user_1") {
@@ -1153,8 +1282,8 @@
         const row = document.createElement("div");
         row.className = "admin-user-row";
         row.innerHTML = `
-          <div style="font-weight:700; color:#818cf8; font-size:0.9rem;">
-            ${u.id === "user_1" ? "👑 관리자" : `사용자 ${idx+1}`}
+          <div style="font-weight:700; color:#818cf8; font-size:0.85rem;">
+            ${u.id === "user_1" ? "👑 준영" : `계정 ${idx+1}`}
           </div>
           <div>
             <label style="font-size:0.75rem; color:#94a3b8; display:block; margin-bottom:2px;">계정명</label>
@@ -1175,6 +1304,47 @@
       document.getElementById("admin-modal").style.display = "none";
     }
 
+    // 관리자가 새 게스트 추가 (게스트D, E, F...)
+    async function adminAddNewGuest() {
+      if (currentUserId !== "user_1") return;
+
+      const guestLetters = "DEFGHIJKLMNOPQRSTUVWXYZ";
+      const existingCount = dbUsers.length;
+      const letterIndex = Math.max(0, existingCount - 1); // user_1 제외 인덱스
+      const nextLetter = letterIndex < guestLetters.length ? guestLetters[letterIndex - 3] : `${existingCount}`;
+      const defaultName = `게스트${nextLetter}`;
+      const newId = `user_${existingCount + 1}`;
+      const defaultPin = `${existingCount + 1}${existingCount + 1}${existingCount + 1}${existingCount + 1}`;
+
+      const newAccount = {
+        id: newId,
+        name: defaultName,
+        pin: defaultPin,
+        role: "user",
+        isConfigured: false
+      };
+
+      if (isCloudEnabled && db) {
+        try {
+          await db.collection("users").doc(newId).set({
+            name: defaultName,
+            pin: defaultPin,
+            role: "user",
+            isConfigured: false,
+            stats: {}
+          });
+        } catch(e) {
+          console.error("새 게스트 DB 추가 실패", e);
+        }
+      }
+
+      dbUsers.push(newAccount);
+      localStorage.setItem("CACHED_DB_USERS", JSON.stringify(dbUsers));
+      renderLoginUserButtons();
+      openAdminModal(); // 모달 폼 새로고침
+      alert(`새 사용자 [${defaultName}] 계정이 추가되었습니다! (초기 PIN: ${defaultPin})`);
+    }
+
     async function saveAdminChanges() {
       if (currentUserId !== "user_1") return;
 
@@ -1192,22 +1362,22 @@
           id: u.id,
           name: nameVal,
           pin: pinVal,
-          role: u.role
+          role: u.role,
+          isConfigured: (nameVal.startsWith("게스트") ? false : true)
         });
       }
 
-      // Firestore DB에 배치 업데이트
       if (isCloudEnabled && db) {
         try {
           const batch = db.batch();
           updatedUsers.forEach(u => {
             const docRef = db.collection("users").doc(u.id);
-            batch.update(docRef, { name: u.name, pin: u.pin });
+            batch.update(docRef, { name: u.name, pin: u.pin, isConfigured: u.isConfigured });
           });
           await batch.commit();
         } catch(e) {
           console.error("관리자 DB 저장 실패:", e);
-          alert("DB 저장 중 오류가 발생했습니다. 권한을 확인해주세요.");
+          alert("DB 저장 중 오류가 발생했습니다.");
           return;
         }
       }
@@ -1215,7 +1385,6 @@
       dbUsers = updatedUsers;
       localStorage.setItem("CACHED_DB_USERS", JSON.stringify(dbUsers));
 
-      // 화면 즉시 반영
       const curUser = dbUsers.find(u => u.id === currentUserId);
       if (curUser) {
         document.getElementById("active-user-name").textContent = curUser.name;
@@ -1227,8 +1396,10 @@
       closeAdminModal();
     }
 
-    // --- 본인 비밀번호 변경 모달 ---
+    // --- 본인 정보(이름 및 PW) 변경 모달 ---
     function openSelfPwModal() {
+      const curUser = dbUsers.find(u => u.id === currentUserId);
+      document.getElementById("self-new-name").value = curUser.name;
       document.getElementById("self-old-pw").value = "";
       document.getElementById("self-new-pw").value = "";
       document.getElementById("self-pw-msg").style.display = "none";
@@ -1239,8 +1410,9 @@
       document.getElementById("self-pw-modal").style.display = "none";
     }
 
-    async function saveSelfPassword() {
+    async function saveSelfProfile() {
       const curUser = dbUsers.find(u => u.id === currentUserId);
+      const newName = document.getElementById("self-new-name").value.trim();
       const oldVal = document.getElementById("self-old-pw").value.trim();
       const newVal = document.getElementById("self-new-pw").value.trim();
       const msg = document.getElementById("self-pw-msg");
@@ -1250,24 +1422,34 @@
         msg.style.display = "block";
         return;
       }
-      if (!newVal) {
-        msg.textContent = "새 비밀번호를 입력해주세요.";
+      if (!newName) {
+        msg.textContent = "계정명을 입력해주세요.";
         msg.style.display = "block";
         return;
       }
 
-      curUser.pin = newVal;
+      curUser.name = newName;
+      if (newVal) {
+        curUser.pin = newVal;
+      }
+      curUser.isConfigured = true;
 
       if (isCloudEnabled && db) {
         try {
-          await db.collection("users").doc(curUser.id).update({ pin: newVal });
+          const updateData = { name: newName, isConfigured: true };
+          if (newVal) updateData.pin = newVal;
+          await db.collection("users").doc(curUser.id).update(updateData);
         } catch(e) {
-          console.error("비밀번호 갱신 실패", e);
+          console.error("프로필 갱신 실패", e);
         }
       }
 
       localStorage.setItem("CACHED_DB_USERS", JSON.stringify(dbUsers));
-      alert("비밀번호가 성공적으로 변경되었습니다!");
+      document.getElementById("active-user-name").textContent = curUser.name;
+      document.getElementById("current-user-title").textContent = curUser.name;
+      renderLoginUserButtons();
+
+      alert("내 정보가 성공적으로 변경되었습니다!");
       closeSelfPwModal();
     }
 
@@ -1470,11 +1652,13 @@
       const modal = document.getElementById("history-modal");
       const adminModal = document.getElementById("admin-modal");
       const selfModal = document.getElementById("self-pw-modal");
+      const setupModal = document.getElementById("guest-setup-modal");
 
       if (e.key === "Escape") {
         if (modal && modal.style.display === "flex") closeHistoryModal();
         if (adminModal && adminModal.style.display === "flex") closeAdminModal();
         if (selfModal && selfModal.style.display === "flex") closeSelfPwModal();
+        if (setupModal && setupModal.style.display === "flex") closeGuestSetupModal();
         return;
       }
 
