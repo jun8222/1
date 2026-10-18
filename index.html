@@ -916,7 +916,7 @@
             <input type="password" id="setup-pin-input" class="admin-input" style="width:100%;" placeholder="비밀번호 설정">
           </div>
           <div id="setup-error-msg" style="font-size:0.85rem; color:#f87171; display:none;"></div>
-          <button type="button" class="login-submit-btn" style="margin-top:8px;" onclick="saveGuestSetup()">등록 완료 및 로그인</button>
+          <button type="button" class="login-submit-btn" style="margin-top:8px;" onclick="saveGuestSetup()">등록 완료</button>
         </div>
       </div>
     </div>
@@ -1123,11 +1123,13 @@
       const targetUser = dbUsers.find(u => u.id === uid);
       if (!targetUser) return;
 
+      // 아직 계정 설정이 안 된 게스트인 경우 -> 계정명 & 새 비번 설정 팝업
       if (!targetUser.isConfigured && uid !== "user_1") {
         openGuestSetupModal(uid);
         return;
       }
 
+      // 이미 등록된 사용자인 경우 -> 비밀번호 입력 영역 노출
       selectUserForLogin(uid);
     }
 
@@ -1224,6 +1226,7 @@
       setupTargetUid = null;
     }
 
+    // 게스트 등록 저장 -> 즉시 학습 진입 대신 사용자 선택 화면으로 복귀
     async function saveGuestSetup() {
       if (!setupTargetUid) return;
       const nameVal = document.getElementById("setup-name-input").value.trim();
@@ -1257,8 +1260,10 @@
       renderLoginUserButtons();
       closeGuestSetupModal();
 
-      alert(`'${nameVal}'님으로 등록되었습니다. 바로 학습을 시작합니다!`);
-      loginSuccess(setupTargetUid);
+      alert(`'${nameVal}' 계정 등록이 완료되었습니다.\n사용자 목록에서 '${nameVal}' 버튼을 누르고 비밀번호를 입력해주세요.`);
+      
+      // 등록된 버튼을 자동으로 선택하고 비밀번호 입력창으로 포커스
+      selectUserForLogin(setupTargetUid);
     }
 
     // --- 관리자(Admin) 전용 모달 로직 ---
@@ -1351,7 +1356,7 @@
       if (currentUserId !== "user_1") return;
 
       const guestLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-      const nextIndex = dbUsers.length + 1; // user_1이 1이므로
+      const nextIndex = dbUsers.length + 1;
       const letterChar = (nextIndex - 2 < guestLetters.length) ? guestLetters[nextIndex - 2] : `${nextIndex}`;
       const defaultName = `게스트${letterChar}`;
       const newId = `user_${nextIndex}`;
