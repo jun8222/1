@@ -741,14 +741,14 @@
       gap: 16px;
     }
 
-    /* 관리자 전용 계정 관리 폼 스타일 */
+    /* 관리자 폼 스타일 */
     .admin-user-row {
       display: grid;
-      grid-template-columns: 80px 1fr 1fr;
-      gap: 10px;
+      grid-template-columns: 80px 1fr 1fr auto;
+      gap: 8px;
       align-items: center;
       background: rgba(15, 23, 42, 0.5);
-      padding: 12px 16px;
+      padding: 10px 14px;
       border-radius: 10px;
       border: 1px solid var(--border);
     }
@@ -767,7 +767,7 @@
 <body>
   <div class="container">
     
-    <!-- 0. 사용자 선택 및 비밀번호 입력 화면 (첫 화면) -->
+    <!-- 0. 사용자 선택 및 비밀번호 입력 화면 -->
     <div id="login-screen">
       <div class="login-card">
         <h2>치기공과 국가고시 퀴즈</h2>
@@ -796,7 +796,7 @@
       </div>
       <div class="sync-status">
         <div class="sync-dot" id="sync-dot-indicator"></div>
-        <span id="sync-status-text">Cloud 동기화 완료</span>
+        <span id="sync-status-text">Cloud 동기화 준비</span>
       </div>
     </div>
 
@@ -828,7 +828,7 @@
       </div>
     </div>
 
-    <!-- 2. 퀴즈 풀이 화면 (1문제씩 뷰어) -->
+    <!-- 2. 퀴즈 풀이 화면 -->
     <div id="quiz-view">
       <div class="quiz-top-bar">
         <button type="button" class="back-btn" onclick="confirmExit()">← 그만두기</button>
@@ -895,7 +895,7 @@
     </div>
   </div>
 
-  <!-- 첫 접속 게스트 계정 등록 모달 (계정명 & 새 비번 설정) -->
+  <!-- 첫 접속 게스트 계정 등록 모달 -->
   <div class="modal-overlay" id="guest-setup-modal" onclick="closeGuestSetupModal(event)">
     <div class="modal-content" style="max-width:420px;" onclick="event.stopPropagation()">
       <div class="modal-header">
@@ -931,19 +931,19 @@
       </div>
       <div class="modal-body">
         <div style="font-size:0.88rem; color:#94a3b8; margin-bottom:12px;">
-          각 사용자의 계정명과 비밀번호(PIN)를 수정하거나 새 게스트(D, E, F...)를 추가할 수 있습니다.
+          사용자 계정명/비밀번호 수정, 초기화(게스트 상태 복구), 새 게스트 추가가 가능합니다.
         </div>
         <div id="admin-user-list-form" style="display:flex; flex-direction:column; gap:10px;"></div>
         
         <div style="display:flex; gap:10px; margin-top:16px;">
-          <button type="button" class="sm-btn" style="padding:10px; flex:1; border-color:#818cf8; color:#818cf8; font-weight:700;" onclick="adminAddNewGuest()">➕ 새 게스트 추가 (D, E, F...)</button>
+          <button type="button" class="sm-btn" style="padding:10px; flex:1; border-color:#818cf8; color:#818cf8; font-weight:700;" onclick="adminAddNewGuest()">➕ 새 게스트 추가</button>
           <button type="button" class="login-submit-btn" style="flex:1;" onclick="saveAdminChanges()">전체 저장 및 DB 동기화</button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- 본인 정보 변경 모달 (계정명 및 PW 변경) -->
+  <!-- 본인 정보 변경 모달 -->
   <div class="modal-overlay" id="self-pw-modal" onclick="closeSelfPwModal(event)">
     <div class="modal-content" style="max-width:400px;" onclick="event.stopPropagation()">
       <div class="modal-header">
@@ -986,7 +986,7 @@
 
   <script>
     // ==========================================
-    // 1. Firebase 연동 설정
+    // 1. Firebase 연동 설정 (본인 키를 채워넣으세요)
     // ==========================================
     const firebaseConfig = {
       apiKey: "AIzaSyDcRoix908f6kAPVVqsdYGuRDovKURmKH4",
@@ -1008,10 +1008,10 @@
         isCloudEnabled = true;
       }
     } catch(err) {
-      console.warn("Firebase 연동 오류. 로컬 모드로 작동합니다.", err);
+      console.warn("Firebase 연동 오류.", err);
     }
 
-    // 기본 4인 초기 계정 (준영: 132, 게스트A: 1111, B: 2222, C: 3333)
+    // 기본 4인 초기 계정 정의
     const DEFAULT_ACCOUNTS = [
       { id: "user_1", name: "준영", pin: "132", role: "admin", isConfigured: true },
       { id: "user_2", name: "게스트A", pin: "1111", role: "user", isConfigured: false },
@@ -1084,7 +1084,7 @@
           }
           localStorage.setItem("CACHED_DB_USERS", JSON.stringify(dbUsers));
         } catch(e) {
-          console.error("DB 사용자 로드 실패, 캐시 사용:", e);
+          console.error("DB 로드 실패, 로컬 캐시 사용", e);
           const cached = localStorage.getItem("CACHED_DB_USERS");
           dbUsers = cached ? JSON.parse(cached) : [...DEFAULT_ACCOUNTS];
         }
@@ -1096,7 +1096,6 @@
       renderLoginUserButtons();
     }
 
-    // 로그인 화면의 사용자 버튼 동적 렌더링
     function renderLoginUserButtons() {
       const grid = document.getElementById("login-user-grid");
       grid.innerHTML = "";
@@ -1120,18 +1119,15 @@
       });
     }
 
-    // 사용자가 버튼을 눌렀을 때
     function handleUserCardClick(uid) {
       const targetUser = dbUsers.find(u => u.id === uid);
       if (!targetUser) return;
 
-      // 아직 계정 설정이 안 된 게스트인 경우 -> 계정명 & 새 비번 설정 팝업 띄움
       if (!targetUser.isConfigured && uid !== "user_1") {
         openGuestSetupModal(uid);
         return;
       }
 
-      // 이미 등록된 사용자인 경우 -> 비밀번호 입력창 오픈
       selectUserForLogin(uid);
     }
 
@@ -1155,7 +1151,6 @@
       }
     }
 
-    // 로그인 검증
     function attemptLogin() {
       if (!pendingLoginUserId) return;
       const targetUser = dbUsers.find(u => u.id === pendingLoginUserId);
@@ -1184,7 +1179,6 @@
       document.getElementById("active-user-name").textContent = uName;
       document.getElementById("current-user-title").textContent = uName;
 
-      // 준영(user_1)만 관리자 버튼 표시
       const adminBtn = document.getElementById("admin-panel-btn");
       if (uid === "user_1") {
         adminBtn.style.display = "inline-block";
@@ -1211,7 +1205,7 @@
       document.getElementById("login-screen").style.display = "flex";
     }
 
-    // --- 게스트 셀프 등록 모달 (계정명 & 새 비번 설정) ---
+    // --- 게스트 셀프 등록 모달 ---
     let setupTargetUid = null;
     function openGuestSetupModal(uid) {
       setupTargetUid = uid;
@@ -1225,7 +1219,7 @@
       document.getElementById("setup-name-input").focus();
     }
 
-    function closeGuestSetupModal(e) {
+    function closeGuestSetupModal() {
       document.getElementById("guest-setup-modal").style.display = "none";
       setupTargetUid = null;
     }
@@ -1247,7 +1241,6 @@
       targetUser.pin = pinVal;
       targetUser.isConfigured = true;
 
-      // DB 갱신
       if (isCloudEnabled && db) {
         try {
           await db.collection("users").doc(setupTargetUid).update({
@@ -1281,6 +1274,14 @@
       dbUsers.forEach((u, idx) => {
         const row = document.createElement("div");
         row.className = "admin-user-row";
+        
+        let resetBtnHtml = "";
+        if (u.id !== "user_1") {
+          resetBtnHtml = `<button type="button" class="sm-btn" style="color:#f87171; border-color:#ef4444;" onclick="adminResetSingleUser('${u.id}')">초기화</button>`;
+        } else {
+          resetBtnHtml = `<span style="font-size:0.75rem; color:#64748b; padding:4px;">관리자</span>`;
+        }
+
         row.innerHTML = `
           <div style="font-weight:700; color:#818cf8; font-size:0.85rem;">
             ${u.id === "user_1" ? "👑 준영" : `계정 ${idx+1}`}
@@ -1293,6 +1294,9 @@
             <label style="font-size:0.75rem; color:#94a3b8; display:block; margin-bottom:2px;">비밀번호 (PIN)</label>
             <input type="text" id="admin-pin-${u.id}" class="admin-input" value="${u.pin}" style="width:100%;">
           </div>
+          <div>
+            ${resetBtnHtml}
+          </div>
         `;
         formContainer.appendChild(row);
       });
@@ -1300,21 +1304,58 @@
       document.getElementById("admin-modal").style.display = "flex";
     }
 
-    function closeAdminModal(e) {
+    function closeAdminModal() {
       document.getElementById("admin-modal").style.display = "none";
+    }
+
+    // 단일 게스트를 원래의 기본 게스트 상태로 리셋
+    async function adminResetSingleUser(uid) {
+      if (currentUserId !== "user_1") return;
+      const targetUser = dbUsers.find(u => u.id === uid);
+      if (!targetUser) return;
+
+      const idx = parseInt(uid.replace("user_", ""), 10);
+      const guestLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+      const defaultName = (idx >= 2 && idx <= 27) ? `게스트${guestLetters[idx - 2]}` : `게스트${idx}`;
+      const defaultPin = `${idx - 1}${idx - 1}${idx - 1}${idx - 1}`;
+
+      if (confirm(`'${targetUser.name}' 계정을 초기 상태 [${defaultName}] (기본 PIN: ${defaultPin})으로 되돌리고 통계를 초기화하시겠습니까?`)) {
+        targetUser.name = defaultName;
+        targetUser.pin = defaultPin;
+        targetUser.isConfigured = false;
+
+        if (isCloudEnabled && db) {
+          try {
+            await db.collection("users").doc(uid).set({
+              name: defaultName,
+              pin: defaultPin,
+              role: "user",
+              isConfigured: false,
+              stats: {}
+            });
+          } catch(e) {
+            console.error("초기화 실패:", e);
+          }
+        }
+
+        localStorage.removeItem(`LOCAL_STATS_${uid}`);
+        localStorage.setItem("CACHED_DB_USERS", JSON.stringify(dbUsers));
+        renderLoginUserButtons();
+        openAdminModal();
+        alert(`'${defaultName}'으로 초기화되었습니다.`);
+      }
     }
 
     // 관리자가 새 게스트 추가 (게스트D, E, F...)
     async function adminAddNewGuest() {
       if (currentUserId !== "user_1") return;
 
-      const guestLetters = "DEFGHIJKLMNOPQRSTUVWXYZ";
-      const existingCount = dbUsers.length;
-      const letterIndex = Math.max(0, existingCount - 1); // user_1 제외 인덱스
-      const nextLetter = letterIndex < guestLetters.length ? guestLetters[letterIndex - 3] : `${existingCount}`;
-      const defaultName = `게스트${nextLetter}`;
-      const newId = `user_${existingCount + 1}`;
-      const defaultPin = `${existingCount + 1}${existingCount + 1}${existingCount + 1}${existingCount + 1}`;
+      const guestLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+      const nextIndex = dbUsers.length + 1; // user_1이 1이므로
+      const letterChar = (nextIndex - 2 < guestLetters.length) ? guestLetters[nextIndex - 2] : `${nextIndex}`;
+      const defaultName = `게스트${letterChar}`;
+      const newId = `user_${nextIndex}`;
+      const defaultPin = `${nextIndex - 1}${nextIndex - 1}${nextIndex - 1}${nextIndex - 1}`;
 
       const newAccount = {
         id: newId,
@@ -1334,14 +1375,14 @@
             stats: {}
           });
         } catch(e) {
-          console.error("새 게스트 DB 추가 실패", e);
+          console.error("새 게스트 추가 실패:", e);
         }
       }
 
       dbUsers.push(newAccount);
       localStorage.setItem("CACHED_DB_USERS", JSON.stringify(dbUsers));
       renderLoginUserButtons();
-      openAdminModal(); // 모달 폼 새로고침
+      openAdminModal();
       alert(`새 사용자 [${defaultName}] 계정이 추가되었습니다! (초기 PIN: ${defaultPin})`);
     }
 
@@ -1396,7 +1437,7 @@
       closeAdminModal();
     }
 
-    // --- 본인 정보(이름 및 PW) 변경 모달 ---
+    // --- 본인 정보 변경 모달 ---
     function openSelfPwModal() {
       const curUser = dbUsers.find(u => u.id === currentUserId);
       document.getElementById("self-new-name").value = curUser.name;
@@ -1406,7 +1447,7 @@
       document.getElementById("self-pw-modal").style.display = "flex";
     }
 
-    function closeSelfPwModal(e) {
+    function closeSelfPwModal() {
       document.getElementById("self-pw-modal").style.display = "none";
     }
 
@@ -1480,7 +1521,7 @@
     function fallbackToLocal(uid) {
       const local = localStorage.getItem(`LOCAL_STATS_${uid}`);
       currentUserStats = local ? JSON.parse(local) : {};
-      updateSyncStatus(isCloudEnabled ? "오프라인 모드" : "로컬 모드", "#94a3b8");
+      updateSyncStatus(isCloudEnabled ? "오프라인 모드" : "오프라인 모드 (키 설정 필요)", "#94a3b8");
     }
 
     async function saveUserData() {
@@ -1929,7 +1970,6 @@
       }
     }
 
-    // 결과 저장 및 클라우드 동기화
     async function finishAndSaveResults() {
       const total = questions.length;
       let correctCount = 0;
@@ -1964,13 +2004,11 @@
       subjStat.attempts = (subjStat.attempts || 0) + 1;
       subjStat.lastScore = `${correctCount}/${total}`;
 
-      // 누적 오답 갱신 (맞힌 문제는 자동 졸업 제외)
       const existingWrongSet = new Set(subjStat.cumulativeWrongIds || []);
       currentWrongIds.forEach(id => existingWrongSet.add(id));
       currentCorrectIds.forEach(id => existingWrongSet.delete(id));
       subjStat.cumulativeWrongIds = Array.from(existingWrongSet);
 
-      // 회차 히스토리 저장
       if (!subjStat.history) subjStat.history = [];
       const now = new Date();
       const dateStr = `${now.getMonth()+1}/${now.getDate()} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
