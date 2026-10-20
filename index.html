@@ -900,7 +900,7 @@
       </div>
     </div>
 
-    <!-- 2. 퀴즈 풀이 화면 (문제 오류 검토 요청 버튼 포함) -->
+    <!-- 2. 퀴즈 풀이 화면 -->
     <div id="quiz-view">
       <div class="quiz-top-bar">
         <button type="button" class="back-btn" onclick="confirmExit()">← 그만두기</button>
@@ -967,9 +967,9 @@
     </div>
   </div>
 
-  <!-- 🚩 문제 오류 검토 요청 제출 모달 -->
-  <div class="modal-overlay" id="error-report-modal" onclick="closeErrorReportModal(event)">
-    <div class="modal-content" style="max-width:480px;" onclick="event.stopPropagation()">
+  <!-- 🚩 문제 오류 검토 요청 제출 모달 (바깥 클릭 방지: X버튼 또는 ESC로만 닫힘) -->
+  <div class="modal-overlay" id="error-report-modal">
+    <div class="modal-content" style="max-width:480px;">
       <div class="modal-header">
         <h3 id="report-modal-header-title">🚩 문제 오류 검토 요청</h3>
         <button type="button" class="modal-close-btn" onclick="closeErrorReportModal()">&times;</button>
@@ -1118,7 +1118,6 @@
       console.warn("Firebase 연동 오류.", err);
     }
 
-    // 기본 4인 초기 계정 정의
     const DEFAULT_ACCOUNTS = [
       { id: "user_1", name: "준영", pin: "132", role: "admin", isConfigured: true },
       { id: "user_2", name: "게스트A", pin: "1111", role: "user", isConfigured: false },
@@ -1133,7 +1132,6 @@
 
     const labels = ["A", "B", "C", "D", "E"];
 
-    // 11개 과목 메타데이터 정의
     const subjectMeta = [
       { key: 'anatomy', name: '구강해부학 (1교시 1~12)', period: 1 },
       { key: 'morphology', name: '치아형태학 (1교시 13~28)', period: 1 },
@@ -1595,7 +1593,7 @@
     }
 
     // ==========================================
-    // 🚩 오류 검토 요청 및 리스트 관리 로직
+    // 🚩 오류 검토 요청 및 리스트 관리
     // ==========================================
     let currentReportQuestion = null;
 
@@ -1617,7 +1615,7 @@
       document.getElementById("report-reason-input").focus();
     }
 
-    function closeErrorReportModal(e) {
+    function closeErrorReportModal() {
       document.getElementById("error-report-modal").style.display = "none";
       currentReportQuestion = null;
     }
@@ -1660,7 +1658,6 @@
         }
       }
 
-      // 로컬 스토리지에도 백업 보관
       let localReports = JSON.parse(localStorage.getItem("LOCAL_ERROR_REPORTS") || "[]");
       localReports.unshift({ id: `local_${Date.now()}`, ...reportData });
       localStorage.setItem("LOCAL_ERROR_REPORTS", JSON.stringify(localReports));
@@ -1669,7 +1666,6 @@
       closeErrorReportModal();
     }
 
-    // 오류 검토 요청 목록 모달 열기
     async function openErrorReportListModal() {
       const container = document.getElementById("error-reports-container");
       container.innerHTML = `<div style="color:#94a3b8; font-size:0.9rem;">목록을 불러오는 중...</div>`;
@@ -1697,11 +1693,10 @@
       }
 
       container.innerHTML = "";
-      reports.forEach((rep, idx) => {
+      reports.forEach((rep) => {
         const card = document.createElement("div");
         card.className = "error-report-card";
 
-        // 관리자(user_1)일 경우 삭제/처리완료 버튼 표시
         const isAdmin = currentUserId === "user_1";
         const deleteBtnHtml = isAdmin ? `
           <button type="button" class="sm-btn" style="color:#f87171; border-color:#ef4444;" onclick="deleteErrorReport('${rep.id}')">처리 완료/삭제</button>
@@ -1727,7 +1722,7 @@
       });
     }
 
-    function closeErrorReportListModal(e) {
+    function closeErrorReportListModal() {
       document.getElementById("error-list-modal").style.display = "none";
     }
 
@@ -1750,7 +1745,6 @@
       openErrorReportListModal();
     }
 
-    // 오류 검토 건수 뱃지 카운트 실시간 감지
     function listenErrorReportCount() {
       if (isCloudEnabled && db) {
         db.collection("error_reports").onSnapshot(snapshot => {
@@ -1837,12 +1831,14 @@
         const wrongCount = stat.cumulativeWrongIds ? stat.cumulativeWrongIds.length : 0;
         const historyList = stat.history || [];
 
+        const displayHistory = historyList.slice(0, 6);
+
         const row = document.createElement("div");
         row.className = "subject-row-card";
 
         let histHtml = "";
-        if (historyList.length > 0) {
-          histHtml = historyList.map(h => `
+        if (displayHistory.length > 0) {
+          histHtml = displayHistory.map((h) => `
             <div class="history-item">
               <div class="hist-desc">
                 <span class="hist-attempt">[${h.attempt}회차]</span>
@@ -1855,6 +1851,7 @@
                   <button type="button" class="sm-btn" style="color:#fca5a5; border-color:#f87171;" onclick="startSubject('${meta.key}', false, ${JSON.stringify(h.wrongIds)})">✍ 이 회차 오답 풀기</button>
                   <button type="button" class="sm-btn" style="color:#38bdf8; border-color:#0284c7;" onclick="openHistoryKeyPointsModal('${meta.key}', ${h.attempt}, ${JSON.stringify(h.wrongIds)})">💡 핵심포인트 모아보기</button>
                 ` : `<span style="font-size:0.78rem; color:#4ade80;">만점 통과</span>`}
+                <button type="button" class="sm-btn" style="color:#f87171; border-color:#ef4444;" onclick="deleteSingleHistoryItem('${meta.key}', ${h.attempt})">삭제</button>
               </div>
             </div>
           `).join("");
@@ -1887,7 +1884,9 @@
             </div>
           </div>
           <div class="history-dropdown" id="history-box-${meta.key}">
-            <div style="font-size:0.85rem; font-weight:700; color:#cbd5e1; margin-bottom:8px;">📊 회차별 풀이 이력:</div>
+            <div style="font-size:0.85rem; font-weight:700; color:#cbd5e1; margin-bottom:8px;">
+              📊 회차별 풀이 이력 (최근 최대 6회):
+            </div>
             ${histHtml}
           </div>
         `;
@@ -1899,6 +1898,27 @@
       const box = document.getElementById(`history-box-${key}`);
       if (!box) return;
       box.style.display = box.style.display === "block" ? "none" : "block";
+    }
+
+    async function deleteSingleHistoryItem(subjectKey, attemptNum) {
+      if (!confirm(`[${attemptNum}회차] 풀이 기록을 삭제하시겠습니까?`)) return;
+
+      const subjStat = currentUserStats[subjectKey];
+      if (!subjStat || !subjStat.history) return;
+
+      subjStat.history = subjStat.history.filter(h => h.attempt !== attemptNum);
+
+      if (subjStat.history.length > 0) {
+        subjStat.lastScore = subjStat.history[0].score;
+      } else {
+        subjStat.lastScore = "-";
+      }
+
+      await saveUserData();
+      renderSubjectList();
+      
+      const box = document.getElementById(`history-box-${subjectKey}`);
+      if (box) box.style.display = "block";
     }
 
     function openHistoryKeyPointsModal(subjectKey, attemptNum, wrongIds) {
@@ -1964,12 +1984,16 @@
       const reportModal = document.getElementById("error-report-modal");
       const reportListModal = document.getElementById("error-list-modal");
 
+      // ESC 키로 모달 닫기
       if (e.key === "Escape") {
+        if (reportModal && reportModal.style.display === "flex") {
+          closeErrorReportModal();
+          return;
+        }
         if (modal && modal.style.display === "flex") closeHistoryModal();
         if (adminModal && adminModal.style.display === "flex") closeAdminModal();
         if (selfModal && selfModal.style.display === "flex") closeSelfPwModal();
         if (setupModal && setupModal.style.display === "flex") closeGuestSetupModal();
-        if (reportModal && reportModal.style.display === "flex") closeErrorReportModal();
         if (reportListModal && reportListModal.style.display === "flex") closeErrorReportListModal();
         return;
       }
