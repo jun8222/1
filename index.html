@@ -67,7 +67,6 @@
       margin-bottom: 24px;
     }
     
-    /* 스크롤 없이 2개씩 쭉 아래로 나열 */
     .user-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -157,15 +156,16 @@
       padding: 12px 18px;
       margin-bottom: 20px;
       flex-wrap: wrap;
-      gap: 12px;
+      gap: 10px;
     }
     .user-profile-badge {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
       font-size: 0.95rem;
       font-weight: 700;
       color: #f8fafc;
+      flex-wrap: wrap;
     }
     .sync-status {
       font-size: 0.8rem;
@@ -390,6 +390,13 @@
       font-weight: 700;
     }
     .admin-badge-btn:hover { background: var(--primary); color: #fff; }
+    .report-badge-btn {
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid rgba(245, 158, 11, 0.5);
+      color: #fbbf24;
+      font-weight: 700;
+    }
+    .report-badge-btn:hover { background: #f59e0b; color: #fff; }
 
     /* 2. 퀴즈 풀이 화면 */
     #quiz-view { display: none; }
@@ -434,13 +441,40 @@
       border: 1px solid var(--border);
       margin-bottom: 20px;
     }
+    .q-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 16px;
+      gap: 12px;
+    }
     .q-title {
       font-size: 1.18rem;
       font-weight: 700;
-      margin-bottom: 16px;
       color: #f8fafc;
       line-height: 1.5;
+      flex: 1;
     }
+    .report-issue-btn {
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      color: #fca5a5;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s;
+    }
+    .report-issue-btn:hover {
+      background: #ef4444;
+      color: #fff;
+    }
+
     .q-context-box {
       background: rgba(15, 23, 42, 0.45);
       padding: 14px 18px;
@@ -742,7 +776,7 @@
       gap: 16px;
     }
 
-    /* 관리자 폼 스타일: 비밀번호 없이 이름과 초기화 버튼만 배치 */
+    /* 관리자 폼 스타일 */
     .admin-user-row {
       display: grid;
       grid-template-columns: 80px 1fr auto;
@@ -763,6 +797,42 @@
       outline: none;
     }
     .admin-input:focus { border-color: var(--primary-light); }
+
+    /* 오류 제보 카드 스타일 */
+    .error-report-card {
+      background: rgba(15, 23, 42, 0.55);
+      border: 1px solid var(--border);
+      border-left: 4px solid #f59e0b;
+      border-radius: 10px;
+      padding: 14px 18px;
+    }
+    .report-meta-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .report-reporter-name {
+      font-weight: 700;
+      color: #38bdf8;
+    }
+    .report-date {
+      color: #64748b;
+      font-size: 0.78rem;
+    }
+    .report-content-text {
+      font-size: 0.92rem;
+      color: #e2e8f0;
+      background: rgba(0, 0, 0, 0.25);
+      padding: 10px 14px;
+      border-radius: 8px;
+      margin-top: 6px;
+      white-space: pre-line;
+      line-height: 1.5;
+    }
   </style>
 </head>
 <body>
@@ -774,7 +844,6 @@
         <h2>치기공과 국가고시 퀴즈</h2>
         <p>학습할 사용자를 선택해주세요.</p>
         
-        <!-- 스크롤 없이 2개씩 쭉 아래로 나열되는 그리드 -->
         <div class="user-grid" id="login-user-grid">
           <div style="grid-column: span 2; color:#94a3b8; font-size:0.9rem; padding:12px;">사용자 계정을 불러오는 중...</div>
         </div>
@@ -787,12 +856,13 @@
       </div>
     </div>
 
-    <!-- 상단 로그인 상태 및 과목 이동 바 -->
+    <!-- 상단 로그인 상태 및 메뉴 바 -->
     <div class="user-nav-bar" id="logged-nav-bar" style="display:none;">
       <div class="user-profile-badge">
         <span style="font-size:1.1rem;">👤</span>
         <span id="active-user-name">준영</span>
         <button type="button" class="sm-btn" onclick="openSelfPwModal()">이름/PW 변경</button>
+        <button type="button" class="sm-btn report-badge-btn" onclick="openErrorReportListModal()">📋 오류 검토 목록 <span id="report-count-badge"></span></button>
         <button type="button" class="sm-btn admin-badge-btn" id="admin-panel-btn" style="display:none;" onclick="openAdminModal()">⚙️ 계정 관리 (Admin)</button>
         <button type="button" class="sm-btn" onclick="logoutToUserSelect()">사용자 변경</button>
       </div>
@@ -830,7 +900,7 @@
       </div>
     </div>
 
-    <!-- 2. 퀴즈 풀이 화면 -->
+    <!-- 2. 퀴즈 풀이 화면 (문제 오류 검토 요청 버튼 포함) -->
     <div id="quiz-view">
       <div class="quiz-top-bar">
         <button type="button" class="back-btn" onclick="confirmExit()">← 그만두기</button>
@@ -897,6 +967,41 @@
     </div>
   </div>
 
+  <!-- 🚩 문제 오류 검토 요청 제출 모달 -->
+  <div class="modal-overlay" id="error-report-modal" onclick="closeErrorReportModal(event)">
+    <div class="modal-content" style="max-width:480px;" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3 id="report-modal-header-title">🚩 문제 오류 검토 요청</h3>
+        <button type="button" class="modal-close-btn" onclick="closeErrorReportModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div style="font-size:0.88rem; color:#cbd5e1;" id="report-target-summary"></div>
+        <div>
+          <label style="font-size:0.85rem; color:#94a3b8; display:block; margin-bottom:6px;">오류 사유 (문제 오탈자, 정답 이상, 해설 오류 등)</label>
+          <textarea id="report-reason-input" class="admin-input" style="width:100%; height:90px; resize:none;" placeholder="검토가 필요한 내용을 자유롭게 적어주세요."></textarea>
+        </div>
+        <div id="report-error-msg" style="font-size:0.85rem; color:#f87171; display:none;"></div>
+        <button type="button" class="login-submit-btn" onclick="submitErrorReport()">검토 요청 제출</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 📋 전체 사용자 오류 검토 요청 리스트 모달 -->
+  <div class="modal-overlay" id="error-list-modal" onclick="closeErrorReportListModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3>📋 전체 오류 검토 요청 리스트</h3>
+        <button type="button" class="modal-close-btn" onclick="closeErrorReportListModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div style="font-size:0.88rem; color:#94a3b8; margin-bottom:8px;">
+          학습자들이 풀이 중 제보한 문제 오류 검토 요청 목록입니다.
+        </div>
+        <div id="error-reports-container" style="display:flex; flex-direction:column; gap:12px;"></div>
+      </div>
+    </div>
+  </div>
+
   <!-- 첫 접속 게스트 계정 등록 모달 -->
   <div class="modal-overlay" id="guest-setup-modal" onclick="closeGuestSetupModal(event)">
     <div class="modal-content" style="max-width:420px;" onclick="event.stopPropagation()">
@@ -924,7 +1029,7 @@
     </div>
   </div>
 
-  <!-- 관리자(Admin) 전용 계정 관리 모달: 비밀번호 필드 없이 이름 수정과 초기화 버튼만 제공 -->
+  <!-- 관리자(Admin) 전용 계정 관리 모달 -->
   <div class="modal-overlay" id="admin-modal" onclick="closeAdminModal(event)">
     <div class="modal-content" onclick="event.stopPropagation()">
       <div class="modal-header">
@@ -1096,9 +1201,9 @@
       }
 
       renderLoginUserButtons();
+      listenErrorReportCount();
     }
 
-    // 로그인 화면의 사용자 버튼 동적 렌더링 (2열로 아래로 쭉 나열)
     function renderLoginUserButtons() {
       const grid = document.getElementById("login-user-grid");
       grid.innerHTML = "";
@@ -1227,7 +1332,6 @@
       setupTargetUid = null;
     }
 
-    // 등록 후 바로 학습 화면으로 가지 않고 사용자 선택 화면으로 복귀하여 비밀번호 입력 유도
     async function saveGuestSetup() {
       if (!setupTargetUid) return;
       const nameVal = document.getElementById("setup-name-input").value.trim();
@@ -1262,12 +1366,10 @@
       closeGuestSetupModal();
 
       alert(`'${nameVal}' 계정 등록이 완료되었습니다.\n목록에서 본인 이름 버튼을 클릭한 뒤 비밀번호를 입력해주세요.`);
-      
-      // 등록된 버튼을 자동으로 선택하고 비밀번호 입력창으로 포커스
       selectUserForLogin(setupTargetUid);
     }
 
-    // --- 관리자(Admin) 전용 모달 로직: 비밀번호 없이 이름 수정과 초기화 버튼만 제공 ---
+    // --- 관리자(Admin) 전용 모달 ---
     function openAdminModal() {
       if (currentUserId !== "user_1") {
         alert("관리자 권한이 없습니다.");
@@ -1309,7 +1411,6 @@
       document.getElementById("admin-modal").style.display = "none";
     }
 
-    // 단일 게스트를 원래의 기본 게스트 상태로 리셋
     async function adminResetSingleUser(uid) {
       if (currentUserId !== "user_1") return;
       const targetUser = dbUsers.find(u => u.id === uid);
@@ -1347,7 +1448,6 @@
       }
     }
 
-    // 관리자가 새 게스트 추가 (게스트D, E, F...)
     async function adminAddNewGuest() {
       if (currentUserId !== "user_1") return;
 
@@ -1387,7 +1487,6 @@
       alert(`새 사용자 [${defaultName}] 계정이 추가되었습니다! (초기 PIN: ${defaultPin})`);
     }
 
-    // 관리자가 계정명 변경 사항 일괄 저장
     async function saveAdminChanges() {
       if (currentUserId !== "user_1") return;
 
@@ -1403,7 +1502,7 @@
         updatedUsers.push({
           id: u.id,
           name: nameVal,
-          pin: u.pin, // 기존 비밀번호 유지
+          pin: u.pin,
           role: u.role,
           isConfigured: (nameVal.startsWith("게스트") ? false : true)
         });
@@ -1493,6 +1592,173 @@
 
       alert("내 정보가 성공적으로 변경되었습니다!");
       closeSelfPwModal();
+    }
+
+    // ==========================================
+    // 🚩 오류 검토 요청 및 리스트 관리 로직
+    // ==========================================
+    let currentReportQuestion = null;
+
+    function openErrorReportModal() {
+      const item = questions[currentIndex];
+      currentReportQuestion = item;
+
+      const meta = subjectMeta.find(m => m.key === currentSubjectKey);
+      const subjName = meta ? meta.name : currentSubjectKey;
+
+      document.getElementById("report-target-summary").innerHTML = `
+        <strong>과목:</strong> ${subjName}<br>
+        <strong>문제 번호:</strong> ${item.id}번<br>
+        <strong>문제 미리보기:</strong> ${item.question}
+      `;
+      document.getElementById("report-reason-input").value = "";
+      document.getElementById("report-error-msg").style.display = "none";
+      document.getElementById("error-report-modal").style.display = "flex";
+      document.getElementById("report-reason-input").focus();
+    }
+
+    function closeErrorReportModal(e) {
+      document.getElementById("error-report-modal").style.display = "none";
+      currentReportQuestion = null;
+    }
+
+    async function submitErrorReport() {
+      if (!currentReportQuestion) return;
+      const reasonVal = document.getElementById("report-reason-input").value.trim();
+      const errMsg = document.getElementById("report-error-msg");
+
+      if (!reasonVal) {
+        errMsg.textContent = "오류 사유를 적어주세요.";
+        errMsg.style.display = "block";
+        return;
+      }
+
+      const curUser = dbUsers.find(u => u.id === currentUserId) || { name: "익명" };
+      const meta = subjectMeta.find(m => m.key === currentSubjectKey);
+      const subjName = meta ? meta.name : currentSubjectKey;
+
+      const now = new Date();
+      const dateStr = `${now.getFullYear()}.${now.getMonth()+1}.${now.getDate()} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+
+      const reportData = {
+        subjectKey: currentSubjectKey,
+        subjectName: subjName,
+        questionId: currentReportQuestion.id,
+        questionText: currentReportQuestion.question,
+        reporterId: currentUserId,
+        reporterName: curUser.name,
+        reason: reasonVal,
+        createdAt: isCloudEnabled ? firebase.firestore.FieldValue.serverTimestamp() : null,
+        displayDate: dateStr
+      };
+
+      if (isCloudEnabled && db) {
+        try {
+          await db.collection("error_reports").add(reportData);
+        } catch(e) {
+          console.error("오류 제보 DB 저장 실패", e);
+        }
+      }
+
+      // 로컬 스토리지에도 백업 보관
+      let localReports = JSON.parse(localStorage.getItem("LOCAL_ERROR_REPORTS") || "[]");
+      localReports.unshift({ id: `local_${Date.now()}`, ...reportData });
+      localStorage.setItem("LOCAL_ERROR_REPORTS", JSON.stringify(localReports));
+
+      alert("오류 검토 요청이 등록되었습니다. 소중한 의견 감사합니다!");
+      closeErrorReportModal();
+    }
+
+    // 오류 검토 요청 목록 모달 열기
+    async function openErrorReportListModal() {
+      const container = document.getElementById("error-reports-container");
+      container.innerHTML = `<div style="color:#94a3b8; font-size:0.9rem;">목록을 불러오는 중...</div>`;
+      document.getElementById("error-list-modal").style.display = "flex";
+
+      let reports = [];
+
+      if (isCloudEnabled && db) {
+        try {
+          const snapshot = await db.collection("error_reports").orderBy("createdAt", "desc").get();
+          snapshot.forEach(doc => {
+            reports.push({ id: doc.id, ...doc.data() });
+          });
+        } catch(e) {
+          console.warn("오류 목록 DB 로드 실패, 로컬 캐시 사용", e);
+          reports = JSON.parse(localStorage.getItem("LOCAL_ERROR_REPORTS") || "[]");
+        }
+      } else {
+        reports = JSON.parse(localStorage.getItem("LOCAL_ERROR_REPORTS") || "[]");
+      }
+
+      if (reports.length === 0) {
+        container.innerHTML = `<div style="color:#64748b; font-size:0.9rem; padding:12px; text-align:center;">현재 등록된 오류 검토 요청이 없습니다.</div>`;
+        return;
+      }
+
+      container.innerHTML = "";
+      reports.forEach((rep, idx) => {
+        const card = document.createElement("div");
+        card.className = "error-report-card";
+
+        // 관리자(user_1)일 경우 삭제/처리완료 버튼 표시
+        const isAdmin = currentUserId === "user_1";
+        const deleteBtnHtml = isAdmin ? `
+          <button type="button" class="sm-btn" style="color:#f87171; border-color:#ef4444;" onclick="deleteErrorReport('${rep.id}')">처리 완료/삭제</button>
+        ` : '';
+
+        card.innerHTML = `
+          <div class="report-meta-row">
+            <div>
+              <span style="font-weight:700; color:#818cf8;">[${rep.subjectName || rep.subjectKey}]</span>
+              <span style="font-weight:700; color:#fff; margin-left:4px;">${rep.questionId}번 문제</span>
+              <span style="color:#94a3b8; margin: 0 4px;">|</span>
+              <span class="report-reporter-name">제보자: ${rep.reporterName || '알 수 없음'}</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span class="report-date">${rep.displayDate || ''}</span>
+              ${deleteBtnHtml}
+            </div>
+          </div>
+          <div style="font-size:0.85rem; color:#cbd5e1; margin-bottom:4px;"><strong>문제:</strong> ${rep.questionText || ''}</div>
+          <div class="report-content-text"><strong>검토 요청 내용:</strong>\n${rep.reason}</div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function closeErrorReportListModal(e) {
+      document.getElementById("error-list-modal").style.display = "none";
+    }
+
+    async function deleteErrorReport(reportId) {
+      if (currentUserId !== "user_1") return;
+      if (!confirm("이 검토 요청을 처리 완료하고 목록에서 삭제하시겠습니까?")) return;
+
+      if (isCloudEnabled && db && !reportId.startsWith("local_")) {
+        try {
+          await db.collection("error_reports").doc(reportId).delete();
+        } catch(e) {
+          console.error("삭제 실패", e);
+        }
+      }
+
+      let localReports = JSON.parse(localStorage.getItem("LOCAL_ERROR_REPORTS") || "[]");
+      localReports = localReports.filter(r => r.id !== reportId);
+      localStorage.setItem("LOCAL_ERROR_REPORTS", JSON.stringify(localReports));
+
+      openErrorReportListModal();
+    }
+
+    // 오류 검토 건수 뱃지 카운트 실시간 감지
+    function listenErrorReportCount() {
+      if (isCloudEnabled && db) {
+        db.collection("error_reports").onSnapshot(snapshot => {
+          const count = snapshot.size;
+          const badge = document.getElementById("report-count-badge");
+          badge.textContent = count > 0 ? `(${count})` : '';
+        }, err => console.log(err));
+      }
     }
 
     // --- 통계 및 오답 데이터 동기화 ---
@@ -1586,8 +1852,8 @@
               </div>
               <div class="hist-actions">
                 ${(h.wrongIds && h.wrongIds.length > 0) ? `
-                  <button type="button" class="sm-btn" style="color:#fca5a5; border-color:#f87171;" onclick="startSubject('${meta.key}', false,${JSON.stringify(h.wrongIds)})">✍ 이 회차 오답 풀기</button>
-                  <button type="button" class="sm-btn" style="color:#38bdf8; border-color:#0284c7;" onclick="openHistoryKeyPointsModal('${meta.key}', ${h.attempt},${JSON.stringify(h.wrongIds)})">💡 핵심포인트 모아보기</button>
+                  <button type="button" class="sm-btn" style="color:#fca5a5; border-color:#f87171;" onclick="startSubject('${meta.key}', false, ${JSON.stringify(h.wrongIds)})">✍ 이 회차 오답 풀기</button>
+                  <button type="button" class="sm-btn" style="color:#38bdf8; border-color:#0284c7;" onclick="openHistoryKeyPointsModal('${meta.key}', ${h.attempt}, ${JSON.stringify(h.wrongIds)})">💡 핵심포인트 모아보기</button>
                 ` : `<span style="font-size:0.78rem; color:#4ade80;">만점 통과</span>`}
               </div>
             </div>
@@ -1695,12 +1961,16 @@
       const adminModal = document.getElementById("admin-modal");
       const selfModal = document.getElementById("self-pw-modal");
       const setupModal = document.getElementById("guest-setup-modal");
+      const reportModal = document.getElementById("error-report-modal");
+      const reportListModal = document.getElementById("error-list-modal");
 
       if (e.key === "Escape") {
         if (modal && modal.style.display === "flex") closeHistoryModal();
         if (adminModal && adminModal.style.display === "flex") closeAdminModal();
         if (selfModal && selfModal.style.display === "flex") closeSelfPwModal();
         if (setupModal && setupModal.style.display === "flex") closeGuestSetupModal();
+        if (reportModal && reportModal.style.display === "flex") closeErrorReportModal();
+        if (reportListModal && reportListModal.style.display === "flex") closeErrorReportListModal();
         return;
       }
 
@@ -1871,8 +2141,11 @@
       `).join("") : "";
 
       card.innerHTML = `
-        <div class="q-title">
-          <span class="q-number">${currentIndex + 1}.</span>${item.question}
+        <div class="q-header-row">
+          <div class="q-title">
+            <span class="q-number">${currentIndex + 1}.</span>${item.question}
+          </div>
+          <button type="button" class="report-issue-btn" onclick="openErrorReportModal()">🚩 오류 검토 요청</button>
         </div>
         ${contextHtml}
         <div class="options-list">
