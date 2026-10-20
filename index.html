@@ -946,7 +946,6 @@
       <div class="quiz-bottom-actions">
         <div class="quiz-action-left">
           <button type="button" class="action-btn" id="prev-btn" onclick="prevQuestion()">← 이전 문제</button>
-          <!-- 정답을 맞혀도 오답으로 기록할 수 있는 헷갈림 토글 버튼 -->
           <button type="button" class="mark-wrong-btn" id="toggle-force-wrong-btn" onclick="toggleForceWrong()">📌 헷갈림 (오답으로 기록)</button>
         </div>
         <button type="button" class="action-btn" id="skip-next-btn" onclick="skipOrNextQuestion()">건너뛰기</button>
@@ -1001,7 +1000,7 @@
     </div>
   </div>
 
-  <!-- 🚩 문제 오류 검토 요청 제출 모달 (바깥 클릭 방지: X버튼 또는 ESC로만 닫힘)[cite: 4] -->
+  <!-- 🚩 문제 오류 검토 요청 제출 모달 (바깥 클릭 방지: X버튼 또는 ESC로만 닫힘)[cite: 5] -->
   <div class="modal-overlay" id="error-report-modal">
     <div class="modal-content" style="max-width:480px;">
       <div class="modal-header">
@@ -2010,6 +2009,7 @@
       return arr;
     }
 
+    // 키보드 단축키 이벤트 (입력창 포커스 및 모달 오픈 시 단축키 차단 처리 완비)
     window.addEventListener("keydown", function(e) {
       const modal = document.getElementById("history-modal");
       const adminModal = document.getElementById("admin-modal");
@@ -2018,7 +2018,7 @@
       const reportModal = document.getElementById("error-report-modal");
       const reportListModal = document.getElementById("error-list-modal");
 
-      // ESC 키로 모달 닫기
+      // 1. ESC 키로 팝업 모달 닫기
       if (e.key === "Escape") {
         if (reportModal && reportModal.style.display === "flex") {
           closeErrorReportModal();
@@ -2032,9 +2032,24 @@
         return;
       }
 
+      // 2. textarea나 input 등 입력창에 포커스가 있을 때는 단축키를 가로채지 않고 정상 타이핑되도록 바로 반환
+      const activeTag = document.activeElement ? document.activeElement.tagName : "";
+      if (activeTag === "TEXTAREA" || activeTag === "INPUT") {
+        return;
+      }
+
+      // 3. 어떤 모달이라도 열려 있는 상태라면 백그라운드 퀴즈 키가 눌리지 않도록 차단
+      const isAnyModalOpen = [modal, adminModal, selfModal, setupModal, reportModal, reportListModal]
+        .some(m => m && m.style.display === "flex");
+      if (isAnyModalOpen) {
+        return;
+      }
+
+      // 4. 퀴즈 화면이 아닐 때는 반환
       const quizView = document.getElementById("quiz-view");
       if (!quizView || quizView.style.display !== "block") return;
 
+      // 5. 퀴즈 풀이 단축키 처리
       if (['Digit1', 'Numpad1'].includes(e.code)) {
         e.preventDefault();
         handleSelectChoice(1);
@@ -2051,7 +2066,6 @@
         e.preventDefault();
         handleSelectChoice(5);
       } else if (e.code === 'KeyM') {
-        // 단축키 M으로 헷갈림 오답 마킹 토글
         e.preventDefault();
         toggleForceWrong();
       } else if (e.code === 'ArrowRight') {
@@ -2115,7 +2129,7 @@
         selectedDisplayIndex: null,
         isCorrect: null,
         isSkipped: false,
-        isForceWrong: false // 맞췄지만 수동으로 오답 마킹한 플래그
+        isForceWrong: false
       }));
 
       document.getElementById("selection-screen").style.display = "none";
@@ -2170,7 +2184,6 @@
         skipBtn.className = "action-btn";
       }
 
-      // 헷갈림 수동 오답 마킹 버튼 상태 제어
       updateForceWrongBtnUI();
 
       const card = document.createElement("div");
@@ -2255,7 +2268,6 @@
       updateForceWrongBtnUI();
     }
 
-    // 헷갈림(오답 처리) 토글 기능
     function toggleForceWrong() {
       if (isReviewMode) return;
       const answerState = userAnswers[currentIndex];
@@ -2265,7 +2277,6 @@
       updateForceWrongBtnUI();
     }
 
-    // 헷갈림 오답 마킹 버튼 UI 동기화
     function updateForceWrongBtnUI() {
       const btn = document.getElementById("toggle-force-wrong-btn");
       if (!btn) return;
@@ -2276,7 +2287,6 @@
         return;
       }
 
-      // 정답을 맞힌 문제일 때만 오답 마킹 전환 버튼 노출
       const item = questions[currentIndex];
       const isNaturallyCorrect = item.displayOptions[answerState.selectedDisplayIndex - 1].originalIndex === item.answer;
 
@@ -2352,7 +2362,6 @@
       }
     }
 
-    // 결과 저장 시 수동 오답 마킹(isForceWrong) 반영
     async function finishAndSaveResults() {
       const total = questions.length;
       let correctCount = 0;
@@ -2364,8 +2373,6 @@
 
       userAnswers.forEach((ans, idx) => {
         const q = questions[idx];
-        
-        // 정답을 맞혔더라도 수동으로 오답 마킹(isForceWrong)했으면 오답으로 처리
         const isEffectivelyCorrect = (ans.isCorrect === true && !ans.isForceWrong);
 
         if (isEffectivelyCorrect) {
