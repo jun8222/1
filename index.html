@@ -578,6 +578,13 @@
       justify-content: space-between;
       align-items: center;
       margin-top: 20px;
+      gap: 10px;
+    }
+    .quiz-action-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
     }
     .action-btn {
       padding: 10px 22px;
@@ -604,6 +611,29 @@
       color: #fff;
     }
     .action-btn.warning:hover:not(:disabled) { background-color: #ef4444; }
+
+    /* 맞췄지만 오답으로 강제 마킹하는 버튼 스타일 */
+    .mark-wrong-btn {
+      display: none;
+      padding: 9px 16px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: 1px solid rgba(245, 158, 11, 0.5);
+      background: rgba(245, 158, 11, 0.15);
+      color: #fbbf24;
+      transition: all 0.2s ease;
+    }
+    .mark-wrong-btn:hover {
+      background: #f59e0b;
+      color: #fff;
+    }
+    .mark-wrong-btn.active {
+      border-color: #ef4444;
+      background: rgba(239, 68, 68, 0.2);
+      color: #fca5a5;
+    }
 
     /* 3. 결과 요약 화면 */
     #result-view { display: none; }
@@ -914,7 +944,11 @@
       <div id="single-question-container"></div>
 
       <div class="quiz-bottom-actions">
-        <button type="button" class="action-btn" id="prev-btn" onclick="prevQuestion()">← 이전 문제</button>
+        <div class="quiz-action-left">
+          <button type="button" class="action-btn" id="prev-btn" onclick="prevQuestion()">← 이전 문제</button>
+          <!-- 정답을 맞혀도 오답으로 기록할 수 있는 헷갈림 토글 버튼 -->
+          <button type="button" class="mark-wrong-btn" id="toggle-force-wrong-btn" onclick="toggleForceWrong()">📌 헷갈림 (오답으로 기록)</button>
+        </div>
         <button type="button" class="action-btn" id="skip-next-btn" onclick="skipOrNextQuestion()">건너뛰기</button>
       </div>
     </div>
@@ -967,7 +1001,7 @@
     </div>
   </div>
 
-  <!-- 🚩 문제 오류 검토 요청 제출 모달 (바깥 클릭 방지: X버튼 또는 ESC로만 닫힘) -->
+  <!-- 🚩 문제 오류 검토 요청 제출 모달 (바깥 클릭 방지: X버튼 또는 ESC로만 닫힘)[cite: 4] -->
   <div class="modal-overlay" id="error-report-modal">
     <div class="modal-content" style="max-width:480px;">
       <div class="modal-header">
@@ -2016,6 +2050,10 @@
       } else if (['Digit5', 'Numpad5'].includes(e.code)) {
         e.preventDefault();
         handleSelectChoice(5);
+      } else if (e.code === 'KeyM') {
+        // 단축키 M으로 헷갈림 오답 마킹 토글
+        e.preventDefault();
+        toggleForceWrong();
       } else if (e.code === 'ArrowRight') {
         e.preventDefault();
         skipOrNextQuestion();
@@ -2076,7 +2114,8 @@
       userAnswers = questions.map(() => ({
         selectedDisplayIndex: null,
         isCorrect: null,
-        isSkipped: false
+        isSkipped: false,
+        isForceWrong: false // 맞췄지만 수동으로 오답 마킹한 플래그
       }));
 
       document.getElementById("selection-screen").style.display = "none";
@@ -2130,6 +2169,9 @@
         skipBtn.textContent = "건너뛰기 →";
         skipBtn.className = "action-btn";
       }
+
+      // 헷갈림 수동 오답 마킹 버튼 상태 제어
+      updateForceWrongBtnUI();
 
       const card = document.createElement("div");
       card.className = "quiz-card";
@@ -2202,12 +2244,54 @@
       answerState.selectedDisplayIndex = displayChoiceNum;
       answerState.isCorrect = isCorrect;
       answerState.isSkipped = false;
+      answerState.isForceWrong = false;
 
       showQuestionExplanations(displayChoiceNum, isCorrect);
 
       const skipBtn = document.getElementById("skip-next-btn");
       skipBtn.textContent = currentIndex === questions.length - 1 ? "결과 보기" : "다음 문제 →";
       skipBtn.className = "action-btn primary";
+
+      updateForceWrongBtnUI();
+    }
+
+    // 헷갈림(오답 처리) 토글 기능
+    function toggleForceWrong() {
+      if (isReviewMode) return;
+      const answerState = userAnswers[currentIndex];
+      if (answerState.selectedDisplayIndex === null) return;
+
+      answerState.isForceWrong = !answerState.isForceWrong;
+      updateForceWrongBtnUI();
+    }
+
+    // 헷갈림 오답 마킹 버튼 UI 동기화
+    function updateForceWrongBtnUI() {
+      const btn = document.getElementById("toggle-force-wrong-btn");
+      if (!btn) return;
+
+      const answerState = userAnswers[currentIndex];
+      if (!answerState || answerState.selectedDisplayIndex === null || isReviewMode) {
+        btn.style.display = "none";
+        return;
+      }
+
+      // 정답을 맞힌 문제일 때만 오답 마킹 전환 버튼 노출
+      const item = questions[currentIndex];
+      const isNaturallyCorrect = item.displayOptions[answerState.selectedDisplayIndex - 1].originalIndex === item.answer;
+
+      if (isNaturallyCorrect) {
+        btn.style.display = "inline-flex";
+        if (answerState.isForceWrong) {
+          btn.className = "mark-wrong-btn active";
+          btn.textContent = "✕ 오답으로 기록됨 (클릭 시 정답으로 복구)";
+        } else {
+          btn.className = "mark-wrong-btn";
+          btn.textContent = "📌 헷갈림 (오답으로 기록)";
+        }
+      } else {
+        btn.style.display = "none";
+      }
     }
 
     function showQuestionExplanations(selectedDisplayNum, isCorrect) {
@@ -2268,6 +2352,7 @@
       }
     }
 
+    // 결과 저장 시 수동 오답 마킹(isForceWrong) 반영
     async function finishAndSaveResults() {
       const total = questions.length;
       let correctCount = 0;
@@ -2279,11 +2364,15 @@
 
       userAnswers.forEach((ans, idx) => {
         const q = questions[idx];
-        if (ans.isCorrect === true) {
+        
+        // 정답을 맞혔더라도 수동으로 오답 마킹(isForceWrong)했으면 오답으로 처리
+        const isEffectivelyCorrect = (ans.isCorrect === true && !ans.isForceWrong);
+
+        if (isEffectivelyCorrect) {
           correctCount++;
           currentCorrectIds.push(q.id);
         } else {
-          if (ans.isCorrect === false) wrongCount++;
+          if (ans.isCorrect === false || ans.isForceWrong) wrongCount++;
           else skippedCount++;
           currentWrongIds.push(q.id);
         }
@@ -2335,9 +2424,11 @@
 
       userAnswers.forEach((ans, idx) => {
         const q = questions[idx];
-        if (ans.isCorrect !== true) {
+        const isEffectivelyCorrect = (ans.isCorrect === true && !ans.isForceWrong);
+
+        if (!isEffectivelyCorrect) {
           const card = document.createElement("div");
-          card.className = ans.isCorrect === false ? "missed-question-card wrong-border" : "missed-question-card";
+          card.className = (ans.isCorrect === false || ans.isForceWrong) ? "missed-question-card wrong-border" : "missed-question-card";
 
           const correctOptObj = q.displayOptions.find(o => o.originalIndex === q.answer);
           const correctLetter = labels[q.displayOptions.indexOf(correctOptObj)];
@@ -2346,6 +2437,9 @@
           if (ans.selectedDisplayIndex !== null) {
             const userOptObj = q.displayOptions[ans.selectedDisplayIndex - 1];
             userChoiceText = `${labels[ans.selectedDisplayIndex - 1]}. ${userOptObj.text}`;
+            if (ans.isForceWrong) {
+              userChoiceText += ` <span style="color:#fbbf24; font-size:0.8rem; font-weight:700;">(📌 헷갈림으로 오답 처리)</span>`;
+            }
           }
 
           let commonHtml = "";
@@ -2361,7 +2455,7 @@
           card.innerHTML = `
             <div class="missed-header">${idx + 1}. [원문제 ${q.id}번] ${q.question}</div>
             <div class="missed-details">
-              <div><strong style="color:${ans.isCorrect === false ? '#f87171' : '#94a3b8'};">내 선택:</strong> ${userChoiceText}</div>
+              <div><strong style="color:${(ans.isCorrect === false || ans.isForceWrong) ? '#f87171' : '#94a3b8'};">내 선택:</strong> ${userChoiceText}</div>
               <div style="margin-top:3px;"><strong style="color:#4ade80;">정답:</strong> ${correctLetter}. ${correctOptObj.text}</div>
             </div>
             ${commonHtml}
@@ -2404,7 +2498,8 @@
     function retryWrongQuestionsOnly() {
       const wrongQuestions = [];
       userAnswers.forEach((ans, idx) => {
-        if (ans.isCorrect === false || ans.isSkipped === true || ans.selectedDisplayIndex === null) {
+        const isEffectivelyCorrect = (ans.isCorrect === true && !ans.isForceWrong);
+        if (!isEffectivelyCorrect || ans.isSkipped === true || ans.selectedDisplayIndex === null) {
           wrongQuestions.push(questions[idx]);
         }
       });
@@ -2421,7 +2516,8 @@
       userAnswers = questions.map(() => ({
         selectedDisplayIndex: null,
         isCorrect: null,
-        isSkipped: false
+        isSkipped: false,
+        isForceWrong: false
       }));
 
       document.getElementById("result-view").style.display = "none";
