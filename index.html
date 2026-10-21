@@ -452,7 +452,7 @@
       font-size: 1.18rem;
       font-weight: 700;
       color: #f8fafc;
-      line-height: 1.5;
+      line-height: 1.55;
       flex: 1;
     }
     .report-issue-btn {
@@ -475,16 +475,18 @@
       color: #fff;
     }
 
+    /* 보기 모음 및 본문 박스 스타일 (시인성 극대화) */
     .q-context-box {
-      background: rgba(15, 23, 42, 0.45);
-      padding: 14px 18px;
+      background: rgba(15, 23, 42, 0.6);
+      padding: 16px 20px;
       border-radius: 10px;
-      font-size: 0.95rem;
+      font-size: 0.96rem;
       color: #cbd5e1;
       margin-bottom: 18px;
       white-space: pre-line;
-      border: 1px solid #333a48;
-      line-height: 1.7;
+      border: 1px solid #3b4252;
+      line-height: 1.8;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
     }
 
     .options-list { display: flex; flex-direction: column; gap: 12px; }
@@ -999,7 +1001,7 @@
     </div>
   </div>
 
-  <!-- 🚩 문제 오류 검토 요청 제출 모달 (바깥 클릭 방지: X버튼 또는 ESC로만 닫힘)[cite: 5] -->
+  <!-- 🚩 문제 오류 검토 요청 제출 모달 (바깥 클릭 방지: X버튼 또는 ESC로만 닫힘) -->
   <div class="modal-overlay" id="error-report-modal">
     <div class="modal-content" style="max-width:480px;">
       <div class="modal-header">
@@ -1122,12 +1124,11 @@
   <script src="./data/partial_denture.js"></script>
   <script src="./data/restorative.js"></script>
   <script src="./data/orthodontics.js"></script>
-  <!-- 신규 추가: 7개년 기출 전용 파일 -->
   <script src="./data/orthodontics_past.js"></script>
 
   <script>
     // ==========================================
-    // 1. Firebase 연동 설정 (본인 키를 채워넣으세요)
+    // 1. Firebase 연동 설정
     // ==========================================
     const firebaseConfig = {
       apiKey: "AIzaSyDcRoix908f6kAPVVqsdYGuRDovKURmKH4",
@@ -1188,6 +1189,45 @@
     let currentIndex = 0;
     let userAnswers = [];
     let isReviewMode = false;
+
+    // 문제 본문에서 보기 모음(가. / 가) / [가] / 가,)을 정밀 감지하여 깔끔한 독립 박스 텍스트로 분리하는 함수
+    function parseQuestionText(rawText) {
+      if (!rawText) return { question: "", contextBox: "" };
+
+      // 줄바꿈이 이미 들어간 형태 우선 처리
+      if (rawText.includes("\n")) {
+        const parts = rawText.split("\n");
+        const qTitle = parts[0].trim();
+        const boxContent = parts.slice(1).join("\n").trim();
+        return { question: qTitle, contextBox: boxContent };
+      }
+
+      // 1. "가)" 형태 또는 "가." 형태 또는 "[가]" 형태의 시작 위치 탐색 (물음표 뒤에 띄어쓰기 없이 붙은 경우 포함)
+      const startRegex = /(?:[\?\.\s]|^)(?:가[\)\.\,\:]|\[가\])/;
+      const match = rawText.match(startRegex);
+
+      if (match && match.index !== undefined) {
+        // 첫 '가'의 실제 시작 인덱스 계산
+        const offset = match[0].indexOf('가');
+        const splitPos = match.index + offset;
+
+        const qTitle = rawText.substring(0, splitPos).trim();
+        let bodyText = rawText.substring(splitPos).trim();
+
+        // 2. 가, 나, 다, 라, 마를 각 줄의 머리로 정렬하여 줄바꿈 처리
+        bodyText = bodyText
+          .replace(/(?:^|\s+)(?:\[?가\]?[\)\.\,\:]?)\s*/g, "가. ")
+          .replace(/(?:^|\s+)(?:\[?나\]?[\)\.\,\:]?)\s*/g, "\n나. ")
+          .replace(/(?:^|\s+)(?:\[?다\]?[\)\.\,\:]?)\s*/g, "\n다. ")
+          .replace(/(?:^|\s+)(?:\[?라\]?[\)\.\,\:]?)\s*/g, "\n라. ")
+          .replace(/(?:^|\s+)(?:\[?마\]?[\)\.\,\:]?)\s*/g, "\n마. ")
+          .trim();
+
+        return { question: qTitle, contextBox: bodyText };
+      }
+
+      return { question: rawText.trim(), contextBox: "" };
+    }
 
     // --- DB에서 사용자 계정 로드 & 초기 세팅 ---
     async function initUsersFromDB() {
@@ -1639,10 +1679,16 @@
       const meta = subjectMeta.find(m => m.key === currentSubjectKey);
       const subjName = meta ? meta.name : currentSubjectKey;
 
+      const parsed = parseQuestionText(item.question);
+      let previewText = parsed.question;
+      if (parsed.contextBox) {
+        previewText += `\n[보기]\n${parsed.contextBox}`;
+      }
+
       document.getElementById("report-target-summary").innerHTML = `
         <strong>과목:</strong> ${subjName}<br>
         <strong>문제 번호:</strong> ${item.displayNumber || (currentIndex + 1)}번<br>
-        <strong>문제 미리보기:</strong> ${item.question}
+        <strong>문제 미리보기:</strong> ${previewText}
       `;
       document.getElementById("report-reason-input").value = "";
       document.getElementById("report-error-msg").style.display = "none";
@@ -1750,7 +1796,7 @@
               ${deleteBtnHtml}
             </div>
           </div>
-          <div style="font-size:0.85rem; color:#cbd5e1; margin-bottom:4px;"><strong>문제:</strong> ${rep.questionText || ''}</div>
+          <div style="font-size:0.85rem; color:#cbd5e1; margin-bottom:4px; white-space:pre-line;"><strong>문제:</strong>\n${rep.questionText || ''}</div>
           <div class="report-content-text"><strong>검토 요청 내용:</strong>\n${rep.reason}</div>
         `;
         container.appendChild(card);
@@ -1985,9 +2031,16 @@
           `;
         }
 
+        const parsed = parseQuestionText(q.question);
+        let qBoxHtml = "";
+        if (q.contextBox || parsed.contextBox) {
+          qBoxHtml = `<div class="q-context-box" style="margin-top:8px;">${q.contextBox || parsed.contextBox}</div>`;
+        }
+
         card.innerHTML = `
-          <div class="missed-header">${idx + 1}. ${q.question}</div>
-          <div class="missed-details">
+          <div class="missed-header">${idx + 1}. ${parsed.question}</div>
+          ${qBoxHtml}
+          <div class="missed-details" style="margin-top:8px;">
             <div><strong style="color:#4ade80;">정답:</strong> ${labels[q.answer - 1]}. ${correctAnswerText}</div>
           </div>
           ${commonHtml}
@@ -2107,7 +2160,7 @@
       // 1. 문제 섞기 토글 여부 반영 (체크 해제 시 JS 원본 순서 유지)
       let baseQuestions = shouldShuffleQ ? shuffleArray(targetList) : [...targetList];
 
-      // 2. 선택지 섞기 및 화면 번호 순차 부여 (무조건 1번부터 시작)
+      // 2. 선택지 섞기 및 화면 번호 순차 부여 (1번부터 시작)
       questions = baseQuestions.map((q, idx) => {
         let optObjects = q.options.map((optText, optIdx) => ({
           text: optText,
@@ -2119,7 +2172,7 @@
 
         return {
           ...q,
-          displayNumber: idx + 1, // 화면에 나타날 문제 번호
+          displayNumber: idx + 1,
           displayOptions: displayOpts
         };
       });
@@ -2190,7 +2243,12 @@
       const card = document.createElement("div");
       card.className = "quiz-card";
 
-      let contextHtml = item.contextBox ? `<div class="q-context-box">${item.contextBox}</div>` : "";
+      // 문제 본문에서 보기 모음(가. / 가) / [가])을 자동 분리하여 박스 처리
+      const parsed = parseQuestionText(item.question);
+      const mainQuestionTitle = parsed.question;
+      const combinedContextBox = item.contextBox || parsed.contextBox;
+
+      let contextHtml = combinedContextBox ? `<div class="q-context-box">${combinedContextBox}</div>` : "";
 
       let optionsHtml = item.displayOptions.map((optObj, optIdx) => {
         const displayChoiceNum = optIdx + 1;
@@ -2220,11 +2278,10 @@
         <div class="common-item">${exp}</div>
       `).join("") : "";
 
-      // 깔끔하게 1., 2. 형태로만 출력
       card.innerHTML = `
         <div class="q-header-row">
           <div class="q-title">
-            <span class="q-number">${item.displayNumber || (currentIndex + 1)}.</span> ${item.question}
+            <span class="q-number">${item.displayNumber || (currentIndex + 1)}.</span> ${mainQuestionTitle}
           </div>
           <button type="button" class="report-issue-btn" onclick="openErrorReportModal()">🚩 오류 검토 요청</button>
         </div>
@@ -2461,10 +2518,16 @@
             `;
           }
 
-          // [원문제 N번] 제거하고 순차 번호로만 표시
+          const parsed = parseQuestionText(q.question);
+          let qBoxHtml = "";
+          if (q.contextBox || parsed.contextBox) {
+            qBoxHtml = `<div class="q-context-box" style="margin-top:8px;">${q.contextBox || parsed.contextBox}</div>`;
+          }
+
           card.innerHTML = `
-            <div class="missed-header">${q.displayNumber || (idx + 1)}. ${q.question}</div>
-            <div class="missed-details">
+            <div class="missed-header">${q.displayNumber || (idx + 1)}. ${parsed.question}</div>
+            ${qBoxHtml}
+            <div class="missed-details" style="margin-top:8px;">
               <div><strong style="color:${(ans.isCorrect === false || ans.isForceWrong) ? '#f87171' : '#94a3b8'};">내 선택:</strong> ${userChoiceText}</div>
               <div style="margin-top:3px;"><strong style="color:#4ade80;">정답:</strong> ${correctLetter}. ${correctOptObj.text}</div>
             </div>
