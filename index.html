@@ -921,8 +921,8 @@
           </label>
         </div>
 
-        <!-- 1교시 (5과목) -->
-        <div class="period-section-title">📘 제1교시 필기 시험 (5과목)</div>
+        <!-- 1교시 (6과목: 기본 5과목 + 국시 구강해부학 7개년) -->
+        <div class="period-section-title">📘 제1교시 필기 시험 (6과목)</div>
         <div class="subject-list-group" id="group-period-1"></div>
 
         <!-- 2교시 (7과목) -->
@@ -1001,7 +1001,7 @@
     </div>
   </div>
 
-  <!-- 🚩 문제 오류 검토 요청 제출 모달 (바깥 클릭 방지: X버튼 또는 ESC로만 닫힘) -->
+  <!-- 🚩 문제 오류 검토 요청 제출 모달 -->
   <div class="modal-overlay" id="error-report-modal">
     <div class="modal-content" style="max-width:480px;">
       <div class="modal-header">
@@ -1114,6 +1114,7 @@
 
   <!-- 11개 기본 과목 + 기출 과목 스크립트 연결 -->
   <script src="./data/anatomy.js"></script>
+  <script src="./data/anatomy_past.js"></script>
   <script src="./data/morphology.js"></script>
   <script src="./data/hygiene.js"></script>
   <script src="./data/materials.js"></script>
@@ -1169,6 +1170,7 @@
 
     const subjectMeta = [
       { key: 'anatomy', name: '구강해부학 (1교시 1~12)', period: 1 },
+      { key: 'anatomy_past', name: '구강해부학 국시기출 (19~25년)', period: 1 },
       { key: 'morphology', name: '치아형태학 (1교시 13~28)', period: 1 },
       { key: 'hygiene', name: '구강보건학 (1교시 29~40)', period: 1 },
       { key: 'materials', name: '치과재료학 (1교시 41~75)', period: 1 },
@@ -1202,19 +1204,16 @@
         return { question: qTitle, contextBox: boxContent };
       }
 
-      // 1. "가)" 형태 또는 "가." 형태 또는 "[가]" 형태의 시작 위치 탐색 (물음표 뒤에 띄어쓰기 없이 붙은 경우 포함)
       const startRegex = /(?:[\?\.\s]|^)(?:가[\)\.\,\:]|\[가\])/;
       const match = rawText.match(startRegex);
 
       if (match && match.index !== undefined) {
-        // 첫 '가'의 실제 시작 인덱스 계산
         const offset = match[0].indexOf('가');
         const splitPos = match.index + offset;
 
         const qTitle = rawText.substring(0, splitPos).trim();
         let bodyText = rawText.substring(splitPos).trim();
 
-        // 2. 가, 나, 다, 라, 마를 각 줄의 머리로 정렬하여 줄바꿈 처리
         bodyText = bodyText
           .replace(/(?:^|\s+)(?:\[?가\]?[\)\.\,\:]?)\s*/g, "가. ")
           .replace(/(?:^|\s+)(?:\[?나\]?[\)\.\,\:]?)\s*/g, "\n나. ")
@@ -2157,10 +2156,8 @@
       const shouldShuffleQ = document.getElementById("shuffle-q-toggle").checked;
       const shouldShuffleOpt = document.getElementById("shuffle-opt-toggle").checked;
 
-      // 1. 문제 섞기 토글 여부 반영 (체크 해제 시 JS 원본 순서 유지)
       let baseQuestions = shouldShuffleQ ? shuffleArray(targetList) : [...targetList];
 
-      // 2. 선택지 섞기 및 화면 번호 순차 부여 (1번부터 시작)
       questions = baseQuestions.map((q, idx) => {
         let optObjects = q.options.map((optText, optIdx) => ({
           text: optText,
@@ -2243,7 +2240,6 @@
       const card = document.createElement("div");
       card.className = "quiz-card";
 
-      // 문제 본문에서 보기 모음(가. / 가) / [가])을 자동 분리하여 박스 처리
       const parsed = parseQuestionText(item.question);
       const mainQuestionTitle = parsed.question;
       const combinedContextBox = item.contextBox || parsed.contextBox;
