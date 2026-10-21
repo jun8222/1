@@ -8,7 +8,7 @@ window.quizDatabase['orthodontics_past'] = {
     // ==========================================
     {
       id: 1,
-      question: "[2019년 97번] 악태모형의 상악 기저면과 일치하는 안면두개평면은?",
+      question: "악태모형의 상악 기저면과 일치하는 안면두개평면은?",
       options: [
         "교합평면",
         "안외평면",
@@ -34,7 +34,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 2,
-      question: "[2019년 98번] 하악 안장 치열궁에서 특징적으로 보이는 치아의 위치 이상은?",
+      question: "하악 안장 치열궁에서 특징적으로 보이는 치아의 위치 이상은?",
       options: [
         "견치의 설측전위",
         "중절치의 설측전위",
@@ -60,7 +60,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 3,
-      question: "[2019년 99번] 그래이버(Graber)의 부정교합 분류법에서, 악골 관계는 정상이나 치아의 위치 이상 때문에 나타난 부정교합은?",
+      question: "그래이버(Graber)의 부정교합 분류법에서, 악골 관계는 정상이나 치아의 위치 이상 때문에 나타난 부정교합은?",
       options: [
         "치성 부조화(dental dysplasia)",
         "골격성 부조화(skeletal dysplasia)",
@@ -86,7 +86,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 4,
-      question: "[2019년 100번] 약한 힘(light force)을 지속적이고 탄력적으로 가할 수 있는 확대나사(expansion screw)는?",
+      question: "약한 힘(light force)을 지속적이고 탄력적으로 가할 수 있는 확대나사(expansion screw)는?",
       options: [
         "스켈레톤 스크루(skeleton screw)",
         "피스톤 스프링 스크루(piston spring screw)",
@@ -111,7 +111,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 5,
-      question: "[2019년 101번] 교정선을 굴곡(wire bending)할 때 영 플라이어(Young plier) 사용 기술로 옳은 것은?",
+      question: "교정선을 굴곡(wire bending)할 때 영 플라이어(Young plier) 사용 기술로 옳은 것은?",
       options: [
         "교정선이 빠지지 않도록 최대한 강하게 파지한다.",
         "부리(beak) 장축에 대하여 교정선을 경사지게 위치시켜 굴곡한다.",
@@ -137,7 +137,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 6,
-      question: "[2019년 102번] 랩어라운드(wraparound) 보정장치를 제작할 때 순측호선(labial bow)이 치경부로 이동하는 것을 방지하기 위한 방법은?",
+      question: "랩어라운드(wraparound) 보정장치를 제작할 때 순측호선(labial bow)이 치경부로 이동하는 것을 방지하기 위한 방법은?",
       options: [
         "순측호선을 열처리한다.",
         "레진상을 얇게 제작한다.",
@@ -162,7 +162,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 7,
-      question: "[2019년 103번] 상교정장치의 구성요소로 고정원(anchorage)의 기능을 담당하는 것은?",
+      question: "상교정장치의 구성요소로 고정원(anchorage)의 기능을 담당하는 것은?",
       options: [
         "스프링(spring)",
         "클래스프(clasp)",
@@ -188,7 +188,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 8,
-      question: "[2019년 104번] III급 부정교합 치료를 위한 액티베이터(activator)를 제작할 때 유도선이 접촉해야 하는 부위는?",
+      question: "III급 부정교합 치료를 위한 액티베이터(activator)를 제작할 때 유도선이 접촉해야 하는 부위는?",
       options: [
         "상악 전치 순면",
         "하악 전치 순면",
@@ -213,7 +213,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 9,
-      question: "[2019년 105번] 액티베이터(activator)의 적응증은?",
+      question: "액티베이터(activator)의 적응증은?",
       options: [
         "비질환이나 구호흡증",
         "심한 골격성 부정교합",
@@ -238,7 +238,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 10,
-      question: "[2019년 106번] 프렌켈 레귤레이터(function regulator)를 제작할 때 II급 부정교합 환자의 하악 전방성장을 자극하는 요소는?",
+      question: "프렌켈 레귤레이터(function regulator)를 제작할 때 II급 부정교합 환자의 하악 전방성장을 자극하는 요소는?",
       options: [
         "구순 전정판(lip pad)",
         "왁스 릴리프(wax relief)",
@@ -264,7 +264,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 11,
-      question: "[2019년 107번] 제2유구치의 조기상실 후 제1대구치의 근심이동을 방지하기 위해 밴드 앤 루프 공간유지장치(band & loop space maintainer)를 사용하였다. 적용된 교정학의 범주는?",
+      question: "제2유구치의 조기상실 후 제1대구치의 근심이동을 방지하기 위해 밴드 앤 루프 공간유지장치(band & loop space maintainer)를 사용하였다. 적용된 교정학의 범주는?",
       options: [
         "예방교정학",
         "진단교정학",
@@ -289,7 +289,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 12,
-      question: "[2019년 108번] 가철식 상교정장치의 레진(resin) 중합이 끝난 직후의 상태로 옳은 것은?",
+      question: "가철식 상교정장치의 레진(resin) 중합이 끝난 직후의 상태로 옳은 것은?",
       options: [
         "레진상(resin baseplate) 내부에 기포가 있어야 한다.",
         "확대나사(expansion screw)는 노출되어 있어야 한다.",
@@ -313,7 +313,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 13,
-      question: "[2019년 109번] 치과교정장치의 클래스프를 제작할 때 납착 과정이 필요한 것은?",
+      question: "치과교정장치의 클래스프를 제작할 때 납착 과정이 필요한 것은?",
       options: [
         "루프 클래스프(loop clasp)",
         "듀징 클래스프(duyzing clasp)",
@@ -337,7 +337,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 14,
-      question: "[2019년 110번] 액티베이터(activator)의 레진상(resin baseplate)에서 치아 이동을 위해 삭제할 부분은?",
+      question: "액티베이터(activator)의 레진상(resin baseplate)에서 치아 이동을 위해 삭제할 부분은?",
       options: [
         "유도면",
         "상익부",
@@ -365,7 +365,7 @@ window.quizDatabase['orthodontics_past'] = {
     // ==========================================
     {
       id: 15,
-      question: "[2020년 97번] 악태모형의 설명으로 옳은 것은?",
+      question: "악태모형의 설명으로 옳은 것은?",
       options: [
         "제작이 간단하다.",
         "전용기구가 필요 없다.",
@@ -390,7 +390,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 16,
-      question: "[2020년 98번] 두개안면골격에 대한 치열궁의 위치관계를 기준으로 분류하는 사이먼(Simon)의 악태진단법에서 안이평면(Frankfort Horizontal Plane)을 기준으로 확인할 수 있는 관계는?",
+      question: "두개안면골격에 대한 치열궁의 위치관계를 기준으로 분류하는 사이먼(Simon)의 악태진단법에서 안이평면(Frankfort Horizontal Plane)을 기준으로 확인할 수 있는 관계는?",
       options: [
         "치열궁의 수직 관계",
         "치열궁의 내·외측 관계",
@@ -416,7 +416,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 17,
-      question: "[2020년 99번] 치아의 고위(supraversion) 상태에 대한 교정 치료적 치아 이동은?",
+      question: "치아의 고위(supraversion) 상태에 대한 교정 치료적 치아 이동은?",
       options: [
         "압하(intrusion)",
         "회전(rotation)",
@@ -441,7 +441,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 18,
-      question: "[2020년 100번] 체적이 작아 이물감이 적고, 견고하며, 강력한 유지력을 발휘하여 구외력에도 사용할 수 있는 클래스프(clasp)는?",
+      question: "체적이 작아 이물감이 적고, 견고하며, 강력한 유지력을 발휘하여 구외력에도 사용할 수 있는 클래스프(clasp)는?",
       options: [
         "루프 클래스프(loop clasp)",
         "로치 클래스프(roach clasp)",
@@ -466,7 +466,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 19,
-      question: "[2020년 101번] 아담스 클래스프(Adams clasp) 제작 시, 상악 제1대구치 근원심 폭경에 대한 브리지(bridge)의 길이는?",
+      question: "아담스 클래스프(Adams clasp) 제작 시, 상악 제1대구치 근원심 폭경에 대한 브리지(bridge)의 길이는?",
       options: [
         "1/3",
         "2/3",
@@ -492,7 +492,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 20,
-      question: "[2020년 102번] 교정용 확대나사(expansion screw)를 이용한 장치에서 스크루 키(screw key)로 한 번 돌렸을 때 회전되는 각도는?",
+      question: "교정용 확대나사(expansion screw)를 이용한 장치에서 스크루 키(screw key)로 한 번 돌렸을 때 회전되는 각도는?",
       options: [
         "45°",
         "90°",
@@ -517,7 +517,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 21,
-      question: "[2020년 103번] 보정 중 혹은 보정 후에 생기는 전치부의 가벼운 회전이나 총생을 치료할 목적으로 사용하는 능동적인 보정장치는?",
+      question: "보정 중 혹은 보정 후에 생기는 전치부의 가벼운 회전이나 총생을 치료할 목적으로 사용하는 능동적인 보정장치는?",
       options: [
         "액티베이터(activator)",
         "베그형 보정장치(Begg retainer)",
@@ -542,7 +542,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 22,
-      question: "[2020년 104번] 혼합치열기에 상악골의 성장결핍으로 인한 전치부 반대교합을 개선하기 위해 사용할 수 있는 장치는?",
+      question: "혼합치열기에 상악골의 성장결핍으로 인한 전치부 반대교합을 개선하기 위해 사용할 수 있는 장치는?",
       options: [
         "교합판(bite plate)",
         "립범퍼(lip bumper)",
@@ -567,7 +567,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 23,
-      question: "[2020년 105번] 유도선이 하악 순측에 있는 액티베이터(activator)의 사용 증례는?",
+      question: "유도선이 하악 순측에 있는 액티베이터(activator)의 사용 증례는?",
       options: [
         "총생(crowding)이 있는 I급 부정교합",
         "II급 1류 부정교합",
@@ -592,7 +592,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 24,
-      question: "[2020년 106번] 상악에 구순전정판(lip pad)이 있는 펑션 레귤레이터(function regulator)는?",
+      question: "상악에 구순전정판(lip pad)이 있는 펑션 레귤레이터(function regulator)는?",
       options: [
         "FR I b",
         "FR I c",
@@ -617,7 +617,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 25,
-      question: "[2020년 107번] 혀를 전방에 두는 이상연하습관으로 개방교합이 생긴 7~8세의 어린이에게 적절한 장치는?",
+      question: "혀를 전방에 두는 이상연하습관으로 개방교합이 생긴 7~8세의 어린이에게 적절한 장치는?",
       options: [
         "립범퍼(lip bumper)",
         "텅가드(tongue guard)",
@@ -643,7 +643,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 26,
-      question: "[2020년 108번] 축성한 아크릴 수지를 압력중합기(pressure pot)로 중합할 때의 장점은?",
+      question: "축성한 아크릴 수지를 압력중합기(pressure pot)로 중합할 때의 장점은?",
       options: [
         "레진의 분리가 용이하다.",
         "모형의 변형이 방지된다.",
@@ -668,7 +668,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 27,
-      question: "[2020년 109번] 크롬(Cr)에 의해 형성된 스테인리스 스틸 와이어 표면의 피막을 제거하기 위해 교정용 용제에 포함되는 성분은?",
+      question: "크롬(Cr)에 의해 형성된 스테인리스 스틸 와이어 표면의 피막을 제거하기 위해 교정용 용제에 포함되는 성분은?",
       options: [
         "왁스(wax)",
         "석고(plaster)",
@@ -693,7 +693,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 28,
-      question: "[2020년 110번] 아크릴 수지로 제작된 치과교정장치의 연마 시 사용되는 것은?",
+      question: "아크릴 수지로 제작된 치과교정장치의 연마 시 사용되는 것은?",
       options: [
         "레이스(lathe)",
         "전기용접기(welder)",
@@ -720,7 +720,7 @@ window.quizDatabase['orthodontics_past'] = {
     // ==========================================
     {
       id: 29,
-      question: "[2021년 97번] 수평모형(plane model) 제작 시, 교합평면을 설정하는 기준으로 옳은 것은?",
+      question: "수평모형(plane model) 제작 시, 교합평면을 설정하는 기준으로 옳은 것은?",
       options: [
         "교합평면을 수평면과 평행하게 제작한다.",
         "사이먼(Simon)의 3평면을 이용하여 설정한다.",
@@ -745,7 +745,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 30,
-      question: "[2021년 98번] 전치부가 저위인 상태로, 상·하악 전치 절단 사이에 틈이 생겨 수직피개가 없는 부정교합은?",
+      question: "전치부가 저위인 상태로, 상·하악 전치 절단 사이에 틈이 생겨 수직피개가 없는 부정교합은?",
       options: [
         "가위교합",
         "개방교합",
@@ -770,7 +770,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 31,
-      question: "[2021년 99번] 기계적 교정력을 이용하는 교정장치는?",
+      question: "기계적 교정력을 이용하는 교정장치는?",
       options: [
         "교합판(bite plate)",
         "엑티베이터(activator)",
@@ -795,7 +795,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 32,
-      question: "[2021년 100번] 하얼리 보정장치(Hawley retainer)에 사용되는 클래스프(clasp) 중, 아담스 클래스프(Adams clasp) 제작에 관한 설명으로 옳은 것은?",
+      question: "하얼리 보정장치(Hawley retainer)에 사용되는 클래스프(clasp) 중, 아담스 클래스프(Adams clasp) 제작에 관한 설명으로 옳은 것은?",
       options: [
         "태그(tag)를 치은 조직과 접촉시킨다.",
         "0.9 mm 와이어를 사용하여 제작한다.",
@@ -820,7 +820,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 33,
-      question: "[2021년 101번] 아담스 클래스프(Adams clasp) 제작 시, 루프(에로우헤드)와 작업모형의 교합평면이 이루어야 하는 각도는?",
+      question: "아담스 클래스프(Adams clasp) 제작 시, 루프(에로우헤드)와 작업모형의 교합평면이 이루어야 하는 각도는?",
       options: [
         "30°",
         "60°",
@@ -845,7 +845,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 34,
-      question: "[2021년 102번] 기능적 교정장치로 분류되는 것은?",
+      question: "기능적 교정장치로 분류되는 것은?",
       options: [
         "교합판(bite plate)",
         "공간확보장치(space regainer)",
@@ -868,7 +868,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 35,
-      question: "[2021년 103번] 변위된 치아나 악골을 교정치료한 후, 원래 위치로 되돌아가치 못하게 하는 것은?",
+      question: "변위된 치아나 악골을 교정치료한 후, 원래 위치로 되돌아가치 못하게 하는 것은?",
       options: [
         "고정",
         "보정",
@@ -893,7 +893,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 36,
-      question: "[2021년 104번] 펑션 레귤레이터(function regulator) 중, FR IV의 적응증은?",
+      question: "펑션 레귤레이터(function regulator) 중, FR IV의 적응증은?",
       options: [
         "심한 총생(crowding)",
         "하악 저성장 Class II",
@@ -919,7 +919,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 37,
-      question: "[2021년 105번] 고정식 보정장치(fixed retainer)에 해당하는 것은?",
+      question: "고정식 보정장치(fixed retainer)에 해당하는 것은?",
       options: [
         "엑티베이터(activator)",
         "베그 보정장치(Begg retainer)",
@@ -943,7 +943,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 38,
-      question: "[2021년 106번] 협착된 상악골의 정중구개봉합 부위를 이개시켜 상악궁을 확대할 수 있는 장치는?",
+      question: "협착된 상악골의 정중구개봉합 부위를 이개시켜 상악궁을 확대할 수 있는 장치는?",
       options: [
         "바이 헬릭스(bi-helix)",
         "설측호선(lingual arch)",
@@ -968,7 +968,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 39,
-      question: "[2021년 107번] 상·하 전치 순측경사나 개방교합을 초래할 우려가 있는 이상연하 습관을 치료하기 위해 사용하는 장치는?",
+      question: "상·하 전치 순측경사나 개방교합을 초래할 우려가 있는 이상연하 습관을 치료하기 위해 사용하는 장치는?",
       options: [
         "립 범퍼(lip bumper)",
         "사면판(inclined plane)",
@@ -991,7 +991,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 40,
-      question: "[2021년 108번] 상교정장치 제작 시, 레진(resin) 축성 전에 모형의 기저면을 물속에 담그는 이유는?",
+      question: "상교정장치 제작 시, 레진(resin) 축성 전에 모형의 기저면을 물속에 담그는 이유는?",
       options: [
         "모형 손상 방지",
         "모형 활택도 증가",
@@ -1015,7 +1015,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 41,
-      question: "[2021년 109번] 설측호선(lingual arch) 제작 시, 납착부에 다량의 미세기포가 발생된 원인은?",
+      question: "설측호선(lingual arch) 제작 시, 납착부에 다량의 미세기포가 발생된 원인은?",
       options: [
         "모세관 현상",
         "납착 합금의 과열",
@@ -1039,7 +1039,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 42,
-      question: "[2021년 110번] 스프링 보정장치(spring retainer)를 제작할 때, 장치의 유지를 강화하기 위한 방법은?",
+      question: "스프링 보정장치(spring retainer)를 제작할 때, 장치의 유지를 강화하기 위한 방법은?",
       options: [
         "전치부 치간 사이의 레진이 삭제되지 않도록 한다.",
         "전치 순측부 와이어가 치아에 접촉되도록 제작한다.",
@@ -1067,7 +1067,7 @@ window.quizDatabase['orthodontics_past'] = {
     // ==========================================
     {
       id: 43,
-      question: "[2022년 97번] 악태모형에서 안이평면으로 진단할 수 있는 것은?",
+      question: "악태모형에서 안이평면으로 진단할 수 있는 것은?",
       options: [
         "악의 개대",
         "악의 협착",
@@ -1093,7 +1093,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 44,
-      question: "[2022년 98번] 교정력에 의해 치아가 치아장축 방향의 치조골 내로 이동하는 것은?",
+      question: "교정력에 의해 치아가 치아장축 방향의 치조골 내로 이동하는 것은?",
       options: [
         "정출",
         "압하",
@@ -1118,7 +1118,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 45,
-      question: "[2022년 99번] 후두골을 고정원으로 사용하는 장치의 고정은?",
+      question: "후두골을 고정원으로 사용하는 장치의 고정은?",
       options: [
         "구내고정",
         "단순고정",
@@ -1143,7 +1143,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 46,
-      question: "[2022년 100번] 두 개의 인접치아 접촉점 하방에 사용할 수 있는 클래스프는?",
+      question: "두 개의 인접치아 접촉점 하방에 사용할 수 있는 클래스프는?",
       options: [
         "볼 클래스프(ball clasp)",
         "비직 클래스프(Visick clasp)",
@@ -1167,7 +1167,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 47,
-      question: "[2022년 101번] 고정식 교정장치 제작에 사용되는 스크루는?",
+      question: "고정식 교정장치 제작에 사용되는 스크루는?",
       options: [
         "트렉션 스크루(traction screw)",
         "섹셔널 스크루(sectional screw)",
@@ -1191,7 +1191,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 48,
-      question: "[2022년 102번] 자연적 보정의 조건으로 옳은 것은?",
+      question: "자연적 보정의 조건으로 옳은 것은?",
       options: [
         "다수 치아의 총생을 치료한 경우",
         "긴밀하지 못한 교두감합인 경우",
@@ -1218,7 +1218,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 49,
-      question: "[2022년 103번] 상악 좌·우측 제1소구치를 발치하고 교정치료를 완료한 후 발치공간의 이개를 방지하기 위해 사용하는 보정장치로 가장 효과적인 것은?",
+      question: "상악 좌·우측 제1소구치를 발치하고 교정치료를 완료한 후 발치공간의 이개를 방지하기 위해 사용하는 보정장치로 가장 효과적인 것은?",
       options: [
         "액티베이터(activator)",
         "베그 보정장치(Begg retainer)",
@@ -1243,7 +1243,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 50,
-      question: "[2022년 104번] 랩어라운드 보정장치(wraparound retainer)의 순측 호선(labial arch)이 치경부로 흘러내리는 것을 방지하기 위해 제작하는 부분은?",
+      question: "랩어라운드 보정장치(wraparound retainer)의 순측 호선(labial arch)이 치경부로 흘러내리는 것을 방지하기 위해 제작하는 부분은?",
       options: [
         "태그(tag)",
         "브릿지(bridge)",
@@ -1267,7 +1267,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 51,
-      question: "[2022년 105번] 보정 중이나 보정 후에 생기는 하악 전치의 가벼운 회전이나 총생을 치료하고 그대로 보정장치로 사용하는 동적 보정장치는?",
+      question: "보정 중이나 보정 후에 생기는 하악 전치의 가벼운 회전이나 총생을 치료하고 그대로 보정장치로 사용하는 동적 보정장치는?",
       options: [
         "베그 보정장치(Begg retainer)",
         "하얼리 보정장치(Hawley retainer)",
@@ -1293,7 +1293,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 52,
-      question: "[2022년 106번] 하악에 2개 이상의 유치가 조기 상실되었을 때 구치의 전방이동과 전치의 후방이동을 방지할 목적으로 사용하는 장치는?",
+      question: "하악에 2개 이상의 유치가 조기 상실되었을 때 구치의 전방이동과 전치의 후방이동을 방지할 목적으로 사용하는 장치는?",
       options: [
         "설측 호선(lingual arch)",
         "낸스 장치(Nance appliance)",
@@ -1318,7 +1318,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 53,
-      question: "[2022년 107번] 유치가 맹출한 이후에도 엄지손가락을 빠는 습관이 장기적으로 지속될 때 나타날 수 있는 현상은?",
+      question: "유치가 맹출한 이후에도 엄지손가락을 빠는 습관이 장기적으로 지속될 때 나타날 수 있는 현상은?",
       options: [
         "과개교합이 된다.",
         "상악 치열궁이 좁아진다.",
@@ -1345,7 +1345,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 54,
-      question: "[2022년 108번] 하얼리 보정장치 제작 시 레진 기초상 제작 방법으로 옳은 것은?",
+      question: "하얼리 보정장치 제작 시 레진 기초상 제작 방법으로 옳은 것은?",
       options: [
         "와이어는 설면에서 왁스로 고정한다.",
         "압력중합조는 실온의 온도를 유지한다.",
@@ -1369,7 +1369,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 55,
-      question: "[2022년 109번] 납착한 장치를 연마한 후 묻어 있는 루즈를 제거하는 방법으로 옳은 것은?",
+      question: "납착한 장치를 연마한 후 묻어 있는 루즈를 제거하는 방법으로 옳은 것은?",
       options: [
         "샌드블라스팅 한다.",
         "퍼미스로 제거한다.",
@@ -1392,7 +1392,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 56,
-      question: "[2022년 110번] 레진 기초상 연마 시 조직면과 접촉하는 부위의 처리는?",
+      question: "레진 기초상 연마 시 조직면과 접촉하는 부위의 처리는?",
       options: [
         "연마하지 않는다.",
         "퍼미스로 연마한다.",
@@ -1421,7 +1421,7 @@ window.quizDatabase['orthodontics_past'] = {
     // ==========================================
     {
       id: 57,
-      question: "[2023년 97번] 악태모형의 장점으로 옳은 것은?",
+      question: "악태모형의 장점으로 옳은 것은?",
       options: [
         "수평모형보다 많이 사용한다.",
         "전용 기구 없이 제작할 수 있다.",
@@ -1445,7 +1445,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 58,
-      question: "[2023년 98번] 치아 맹출이 완료된 단계에서 교합평면까지 도달하지 못한 상태는?",
+      question: "치아 맹출이 완료된 단계에서 교합평면까지 도달하지 못한 상태는?",
       options: [
         "고위",
         "경사",
@@ -1470,7 +1470,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 59,
-      question: "[2023년 99번] 상악 전치가 하악 전치 치관을 2/3 이상 덮은 상태의 부정교합은?",
+      question: "상악 전치가 하악 전치 치관을 2/3 이상 덮은 상태의 부정교합은?",
       options: [
         "개방교합(open bite)",
         "교차교합(cross bite)",
@@ -1495,7 +1495,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 60,
-      question: "[2023년 100번] 2개의 와이어로 구성되어 있으며 단일치아에 적용하는 클래스프는?",
+      question: "2개의 와이어로 구성되어 있으며 단일치아에 적용하는 클래스프는?",
       options: [
         "볼 클래스프(ball clasp)",
         "루프 클래스프(loop clasp)",
@@ -1519,7 +1519,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 61,
-      question: "[2023년 101번] 스크루 유도핀의 한쪽이 'U'자 모양으로 제작되어 한쪽 방향으로만 확장력이 발휘되는 스크루는?",
+      question: "스크루 유도핀의 한쪽이 'U'자 모양으로 제작되어 한쪽 방향으로만 확장력이 발휘되는 스크루는?",
       options: [
         "섹셔널 스크루(sectional screw)",
         "스켈레톤 스크루(skeleton screw)",
@@ -1543,7 +1543,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 62,
-      question: "[2023년 102번] 보정장치 제작 시 치아배열 모형(set-up model)이 필요한 것은?",
+      question: "보정장치 제작 시 치아배열 모형(set-up model)이 필요한 것은?",
       options: [
         "액티베이터(activator)",
         "베그 보정장치(Begg retainer)",
@@ -1567,7 +1567,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 63,
-      question: "[2023년 103번] 환자의 협조도가 낮아 전치부 재발이 우려되는 경우에 사용할 수 있는 고정성 보정장치는?",
+      question: "환자의 협조도가 낮아 전치부 재발이 우려되는 경우에 사용할 수 있는 고정성 보정장치는?",
       options: [
         "베그 보정장치(Begg retainer)",
         "치아 포지셔너(tooth positioner)",
@@ -1592,7 +1592,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 64,
-      question: "[2023년 104번] 기능조절장치(function regulator)의 구성 중 비정상적 협근력을 차단하는 부위는?",
+      question: "기능조절장치(function regulator)의 구성 중 비정상적 협근력을 차단하는 부위는?",
       options: [
         "순측 호선(labial bow)",
         "버컬 쉴드(buccal shield)",
@@ -1617,7 +1617,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 65,
-      question: "[2023년 105번] 상악 좌측 제2유구치가 조기 상실되었을 경우, 후방에 맹출된 제1대구치를 이용하여 사용할 수 있는 공간유지장치는?",
+      question: "상악 좌측 제2유구치가 조기 상실되었을 경우, 후방에 맹출된 제1대구치를 이용하여 사용할 수 있는 공간유지장치는?",
       options: [
         "사면판(inclined plane)",
         "구강전정판(oral screen)",
@@ -1642,7 +1642,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 66,
-      question: "[2023년 106번] 치조골에 교정력을 가하는 것으로 치아이동보다는 정중구개봉합을 이개시키고 협착치열궁을 치료하는 정형적 장치는?",
+      question: "치조골에 교정력을 가하는 것으로 치아이동보다는 정중구개봉합을 이개시키고 협착치열궁을 치료하는 정형적 장치는?",
       options: [
         "교합판(bite plate)",
         "사면판(inclined plane)",
@@ -1661,12 +1661,12 @@ window.quizDatabase['orthodontics_past'] = {
       commonExplanations: [
         "RPE (Rapid Palatal Expander):",
         "- 정중구개봉합 분리 이개 → 기저골 수준의 상악골 확장.",
-        "암기 팁: 정중구개봉합 이개 = RPE (급속구개확대장치)!."
+        "암기 팁: 정중구개봉합 벌리기 = RPE (급속구개확대장치)!."
       ]
     },
     {
       id: 67,
-      question: "[2023년 107번] 혀를 내밀거나 이상 연하 습관으로 나타날 수 있는 현상은?",
+      question: "혀를 내밀거나 이상 연하 습관으로 나타날 수 있는 현상은?",
       options: [
         "개방 교합(open bite)",
         "균형 교합(balanced occlusion)",
@@ -1690,7 +1690,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 68,
-      question: "[2023년 108번] 가철성 보정장치(retainer) 제작 시 레진상의 밀도를 높이기 위해 사용하는 것은?",
+      question: "가철성 보정장치(retainer) 제작 시 레진상의 밀도를 높이기 위해 사용하는 것은?",
       options: [
         "전기용접기(welder)",
         "블로우 파이프(blow pipe)",
@@ -1714,7 +1714,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 69,
-      question: "[2023년 109번] 교정용 납착 용제(flux)가 건조된 경우 점도를 조절하는 방법은?",
+      question: "교정용 납착 용제(flux)가 건조된 경우 점도를 조절하는 방법은?",
       options: [
         "오일을 첨가한다.",
         "증류수를 첨가한다.",
@@ -1737,7 +1737,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 70,
-      question: "[2023년 110번] 엑티베이터(activator)의 레진상(resin baseplate)에서 치아 이동을 위해 삭제할 부분은?",
+      question: "엑티베이터(activator)의 레진상(resin baseplate)에서 치아 이동을 위해 삭제할 부분은?",
       options: [
         "상익부",
         "유도면",
@@ -1765,7 +1765,7 @@ window.quizDatabase['orthodontics_past'] = {
     // ==========================================
     {
       id: 71,
-      question: "[2024년 97번] 미국치과의사협회(ADA)의 연구모형 기저면 외형의 각도 규격에 따라 상악 수정모형의 후면(back surface)에 대해 약 70°의 내각으로 이루어진 부위는?",
+      question: "미국치과의사협회(ADA)의 연구모형 기저면 외형의 각도 규격에 따라 상악 수정모형의 후면(back surface)에 대해 약 70°의 내각으로 이루어진 부위는?",
       options: [
         "전면(front surface)",
         "측면(side surface)",
@@ -1791,7 +1791,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 72,
-      question: "[2024년 98번] 상악 제1대구치와 하악 제1대구치 교합관계가 중심교합(neutroclusion)을 이루면서 전치부 총생(crowding)이 있는 악궁이 분류되는 앵글(Angle)의 부정교합은?",
+      question: "상악 제1대구치와 하악 제1대구치 교합관계가 중심교합(neutroclusion)을 이루면서 전치부 총생(crowding)이 있는 악궁이 분류되는 앵글(Angle)의 부정교합은?",
       options: [
         "제I급 부정교합",
         "제II급 1류 부정교합",
@@ -1817,7 +1817,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 73,
-      question: "[2024년 99번] 치관부위에 힘과 부가적인 모멘트(moment)를 함께 적용시켜 치근첨에 회전중심이 위치하는 치아의 이동 양상은?",
+      question: "치관부위에 힘과 부가적인 모멘트(moment)를 함께 적용시켜 치근첨에 회전중심이 위치하는 치아의 이동 양상은?",
       options: [
         "압하(intrusion)",
         "치근이동(root movement)",
@@ -1844,7 +1844,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 74,
-      question: "[2024년 100번] 교정치료 시 고정성 교정장치를 이용하는 것에 비해 상교정장치(active plate)를 이용하는 것의 장점은?",
+      question: "교정치료 시 고정성 교정장치를 이용하는 것에 비해 상교정장치(active plate)를 이용하는 것의 장점은?",
       options: [
         "발치공간의 폐쇄에 효과적이다.",
         "환자의 협력에 영향을 받지 않는다.",
@@ -1869,7 +1869,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 75,
-      question: "[2024년 101번] 상교정장치(active plate) 제작 시 근·원심 인접치가 탈락되어 독립된 제1대구치에 적합한 클래스프는?",
+      question: "상교정장치(active plate) 제작 시 근·원심 인접치가 탈락되어 독립된 제1대구치에 적합한 클래스프는?",
       options: [
         "볼 클래스프(ball clasp)",
         "루프 클래스프(loop clasp)",
@@ -1893,7 +1893,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 76,
-      question: "[2024년 102번] 상교정장치(active plate)에 사용되는 스프링을 형태에 따라 분류할 때 폐쇄형(closed type)에 포함되는 것은?",
+      question: "상교정장치(active plate)에 사용되는 스프링을 형태에 따라 분류할 때 폐쇄형(closed type)에 포함되는 것은?",
       options: [
         "에스 스프링(S-spring)",
         "핑거 스프링(finger spring)",
@@ -1918,7 +1918,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 77,
-      question: "[2024년 103번] 협측 전위된 구치부를 설측으로 이동시킨 후 재발(relapse)을 방지하기 위해 권장하는 보정장치는?",
+      question: "협측 전위된 구치부를 설측으로 이동시킨 후 재발(relapse)을 방지하기 위해 권장하는 보정장치는?",
       options: [
         "엑티베이터(activator)",
         "베그 보정장치(Begg retainer)",
@@ -1943,7 +1943,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 78,
-      question: "[2024년 104번] III급 액티베이터(activator)의 악간 유도선을 제작할 때 근육의 기능을 전달하고 치관의 설측경사를 예방하기 위해서 설치하는 순측호선(labial arch)의 수평부 위치는?",
+      question: "III급 액티베이터(activator)의 악간 유도선을 제작할 때 근육의 기능을 전달하고 치관의 설측경사를 예방하기 위해서 설치하는 순측호선(labial arch)의 수평부 위치는?",
       options: [
         "상악 전치 순면 1/2",
         "상악 전치 순면 절단부",
@@ -1967,7 +1967,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 79,
-      question: "[2024년 105번] 기능조절장치(function regulator, FR)의 구조에서 하악 전치부에 순측호선(labial arch)이 존재하는 것은?",
+      question: "기능조절장치(function regulator, FR)의 구조에서 하악 전치부에 순측호선(labial arch)이 존재하는 것은?",
       options: [
         "FR Ib",
         "FR Ic",
@@ -1992,7 +1992,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 80,
-      question: "[2024년 106번] 제1대구치 맹출 전에 제2유구치가 조기상실되었을 때 제1대구치의 올바른 맹출을 유도하면서 공간을 유지하는 데 사용하는 장치는?",
+      question: "제1대구치 맹출 전에 제2유구치가 조기상실되었을 때 제1대구치의 올바른 맹출을 유도하면서 공간을 유지하는 데 사용하는 장치는?",
       options: [
         "설측호선장치(lingual arch)",
         "횡구개호선장치(transpalatal arch)",
@@ -2016,7 +2016,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 81,
-      question: "[2024년 107번] 공간확보장치 중 오메가 루프(omega loop) 사이의 레진을 디스크로 절단한 다음 루프를 활성화(activation)하여 사용하는 장치는?",
+      question: "공간확보장치 중 오메가 루프(omega loop) 사이의 레진을 디스크로 절단한 다음 루프를 활성화(activation)하여 사용하는 장치는?",
       options: [
         "슬링 샷 공간확보장치(sling shot space regainer)",
         "홀터만 공간확보장치(Halterman space regainer)",
@@ -2040,7 +2040,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 82,
-      question: "[2024년 108번] 혀를 빠는 습관이나 이상 연하 습관(abnormal swallowing habits)으로 인하여 생성된 상·하 전치의 순측경사와 개방교합을 치료하기 위해 사용하는 구강 악습관 제거장치는?",
+      question: "혀를 빠는 습관이나 이상 연하 습관(abnormal swallowing habits)으로 인하여 생성된 상·하 전치의 순측경사와 개방교합을 치료하기 위해 사용하는 구강 악습관 제거장치는?",
       options: [
         "교합판(bite plate)",
         "립범퍼(lip bumper)",
@@ -2064,7 +2064,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 83,
-      question: "[2024년 109번] 납착된 교정장치의 표면에 형성된 산화막을 제거하거나 열처리된 와이어(wire) 변색을 복원하여 합금재료의 고유한 색과 광택을 얻는 방법으로 옳은 것은?",
+      question: "납착된 교정장치의 표면에 형성된 산화막을 제거하거나 열처리된 와이어(wire) 변색을 복원하여 합금재료의 고유한 색과 광택을 얻는 방법으로 옳은 것은?",
       options: [
         "덴처버로 연마한다.",
         "전해연마기를 사용한다.",
@@ -2088,7 +2088,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 84,
-      question: "[2024년 110번] 가철성 교정장치의 기초상 제작 과정에서 자가중합 레진을 산포법(sprinkle method)으로 축성 시 약간 두껍게 쌓아 올리는 이유는?",
+      question: "가철성 교정장치의 기초상 제작 과정에서 자가중합 레진을 산포법(sprinkle method)으로 축성 시 약간 두껍게 쌓아 올리는 이유는?",
       options: [
         "레진의 탄성 증가",
         "레진의 중합 수축 보상",
@@ -2116,7 +2116,7 @@ window.quizDatabase['orthodontics_past'] = {
     // ==========================================
     {
       id: 85,
-      question: "[2025년 97번] 수평모형의 설명으로 옳은 것은?",
+      question: "수평모형의 설명으로 옳은 것은?",
       options: [
         "제작이 어렵다.",
         "전용기구가 필요하다.",
@@ -2141,7 +2141,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 86,
-      question: "[2025년 98번] 악태모형의 상악 기저면과 일치하는 안면두개평면은?",
+      question: "악태모형의 상악 기저면과 일치하는 안면두개평면은?",
       options: [
         "교합평면",
         "안와평면",
@@ -2164,7 +2164,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 87,
-      question: "[2025년 99번] 전치부 치아의 수직피개 정도가 심하여 상악전치가 하악전치 치관의 2/3 이상 피개한 상태의 교합은?",
+      question: "전치부 치아의 수직피개 정도가 심하여 상악전치가 하악전치 치관의 2/3 이상 피개한 상태의 교합은?",
       options: [
         "가위교합",
         "과개교합",
@@ -2189,7 +2189,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 88,
-      question: "[2025년 100번] 보정장치 제작 시 교합이 긴밀할 경우 대합치와의 교합 장애를 피할 수 있도록 최후방 구치에 적절한 클래스프(clasp)는?",
+      question: "보정장치 제작 시 교합이 긴밀할 경우 대합치와의 교합 장애를 피할 수 있도록 최후방 구치에 적절한 클래스프(clasp)는?",
       options: [
         "볼 클래스프(ball clasp)",
         "루프 클래스프(loop clasp)",
@@ -2214,7 +2214,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 89,
-      question: "[2025년 101번] 상악 전치부에 총생이 보이는 10대 아동에게 구치부 확대 없이 전치부를 확장하기 위해 사용하기 적절한 스크루(screw)는?",
+      question: "상악 전치부에 총생이 보이는 10대 아동에게 구치부 확대 없이 전치부를 확장하기 위해 사용하기 적절한 스크루(screw)는?",
       options: [
         "스켈레톤 스크루(skeleton screw)",
         "피스톤 스프링 스크루(piston spring screw)",
@@ -2238,7 +2238,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 90,
-      question: "[2025년 102번] 대합치와 교합에 장애가 없고, 구치부 치아의 협측변위를 방지하는 보정장치는?",
+      question: "대합치와 교합에 장애가 없고, 구치부 치아의 협측변위를 방지하는 보정장치는?",
       options: [
         "설측호선장치(lingual arch)",
         "스프링 보정장치(spring retainer)",
@@ -2263,7 +2263,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 91,
-      question: "[2025년 103번] 셋업모형(set-up model) 제작 시, 분리된 개개 치아의 접촉부 하방을 쐐기모양으로 만드는 이유는?",
+      question: "셋업모형(set-up model) 제작 시, 분리된 개개 치아의 접촉부 하방을 쐐기모양으로 만드는 이유는?",
       options: [
         "치조부를 자극하기 위해",
         "치간공극을 확보하기 위해",
@@ -2287,7 +2287,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 92,
-      question: "[2025년 104번] 교정치료 후 가철식 보정장치를 잘 장착하지 않아 하악 전치부에 약간의 회전과 총생이 생겼다. 이 환자에게 적합한 장치는?",
+      question: "교정치료 후 가철식 보정장치를 잘 장착하지 않아 하악 전치부에 약간의 회전과 총생이 생겼다. 이 환자에게 적합한 장치는?",
       options: [
         "공간확보장치(space regainer)",
         "스프링 보정장치(spring retainer)",
@@ -2311,7 +2311,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 93,
-      question: "[2025년 105번] 기능적 교정력을 이용하는 장치는?",
+      question: "기능적 교정력을 이용하는 장치는?",
       options: [
         "엑티베이터(activator)",
         "설측호선장치(lingual arch)",
@@ -2334,7 +2334,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 94,
-      question: "[2025년 106번] 설측호선장치(lingual arch)를 제작할 경우, 밴드를 치아 만곡도에 밀착시키기 위해 사용하는 기구는?",
+      question: "설측호선장치(lingual arch)를 제작할 경우, 밴드를 치아 만곡도에 밀착시키기 위해 사용하는 기구는?",
       options: [
         "영 플라이어(Young plier)",
         "아담스 플라이어(Adams plier)",
@@ -2358,7 +2358,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 95,
-      question: "[2025년 107번] 고정성 교정장치에 해당하는 것은?",
+      question: "고정성 교정장치에 해당하는 것은?",
       options: [
         "교합판(bite plate)",
         "엑티베이터(activator)",
@@ -2382,7 +2382,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 96,
-      question: "[2025년 108번] 제2유구치가 조기 상실되어 인접 치아가 경사되거나 근심 이동된 경우 사용하는 장치는?",
+      question: "제2유구치가 조기 상실되어 인접 치아가 경사되거나 근심 이동된 경우 사용하는 장치는?",
       options: [
         "텅가드(tongue guard)",
         "오랄스크린(oral screen)",
@@ -2405,7 +2405,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 97,
-      question: "[2025년 109번] 교정용 와이어 납착 시, 고정할 때 사용하는 기구는?",
+      question: "교정용 와이어 납착 시, 고정할 때 사용하는 기구는?",
       options: [
         "수직교합기(verticulator)",
         "블로우파이프(blow pipe)",
@@ -2429,7 +2429,7 @@ window.quizDatabase['orthodontics_past'] = {
     },
     {
       id: 98,
-      question: "[2025년 110번] 레진 기초상 최종 연마 시 퍼미스(pumice)를 활용하여 면을 활택하게 하기 위해 사용하는 것은?",
+      question: "레진 기초상 최종 연마 시 퍼미스(pumice)를 활용하여 면을 활택하게 하기 위해 사용하는 것은?",
       options: [
         "펠트 휠(felt wheel)",
         "덴처 버(denture bur)",
