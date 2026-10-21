@@ -612,7 +612,6 @@
     }
     .action-btn.warning:hover:not(:disabled) { background-color: #ef4444; }
 
-    /* 맞췄지만 오답으로 강제 마킹하는 버튼 스타일 */
     .mark-wrong-btn {
       display: none;
       padding: 9px 16px;
@@ -924,8 +923,8 @@
         <div class="period-section-title">📘 제1교시 필기 시험 (5과목)</div>
         <div class="subject-list-group" id="group-period-1"></div>
 
-        <!-- 2교시 (6과목) -->
-        <div class="period-section-title">📙 제2교시 필기 시험 (6과목)</div>
+        <!-- 2교시 (7과목) -->
+        <div class="period-section-title">📙 제2교시 필기 시험 (7과목)</div>
         <div class="subject-list-group" id="group-period-2"></div>
       </div>
     </div>
@@ -1111,7 +1110,7 @@
     </div>
   </div>
 
-  <!-- 11개 과목 데이터 스크립트 연결 -->
+  <!-- 11개 기본 과목 + 기출 과목 스크립트 연결 -->
   <script src="./data/anatomy.js"></script>
   <script src="./data/morphology.js"></script>
   <script src="./data/hygiene.js"></script>
@@ -1179,7 +1178,6 @@
       { key: 'partial_denture', name: '국소의치기공학 (2교시 59~82)', period: 2 },
       { key: 'restorative', name: '충전기공학 (2교시 83~96)', period: 2 },
       { key: 'orthodontics', name: '교정기공학 (2교시 97~110)', period: 2 },
-      // 제2교시 목록에 추가
       { key: 'orthodontics_past', name: '교정기공학 국시기출 (19~25년)', period: 2 }
     ];
 
@@ -1643,7 +1641,7 @@
 
       document.getElementById("report-target-summary").innerHTML = `
         <strong>과목:</strong> ${subjName}<br>
-        <strong>문제 번호:</strong> ${item.id}번<br>
+        <strong>문제 번호:</strong> ${item.displayNumber || (currentIndex + 1)}번<br>
         <strong>문제 미리보기:</strong> ${item.question}
       `;
       document.getElementById("report-reason-input").value = "";
@@ -1678,7 +1676,7 @@
       const reportData = {
         subjectKey: currentSubjectKey,
         subjectName: subjName,
-        questionId: currentReportQuestion.id,
+        questionId: currentReportQuestion.displayNumber || (currentIndex + 1),
         questionText: currentReportQuestion.question,
         reporterId: currentUserId,
         reporterName: curUser.name,
@@ -1988,7 +1986,7 @@
         }
 
         card.innerHTML = `
-          <div class="missed-header">${idx + 1}. [원문제 ${q.id}번] ${q.question}</div>
+          <div class="missed-header">${idx + 1}. ${q.question}</div>
           <div class="missed-details">
             <div><strong style="color:#4ade80;">정답:</strong> ${labels[q.answer - 1]}. ${correctAnswerText}</div>
           </div>
@@ -2013,7 +2011,7 @@
       return arr;
     }
 
-    // 키보드 단축키 이벤트 (입력창 포커스 및 모달 오픈 시 단축키 차단 처리 완비)
+    // 키보드 단축키 이벤트
     window.addEventListener("keydown", function(e) {
       const modal = document.getElementById("history-modal");
       const adminModal = document.getElementById("admin-modal");
@@ -2022,7 +2020,6 @@
       const reportModal = document.getElementById("error-report-modal");
       const reportListModal = document.getElementById("error-list-modal");
 
-      // 1. ESC 키로 팝업 모달 닫기
       if (e.key === "Escape") {
         if (reportModal && reportModal.style.display === "flex") {
           closeErrorReportModal();
@@ -2036,24 +2033,20 @@
         return;
       }
 
-      // 2. textarea나 input 등 입력창에 포커스가 있을 때는 단축키를 가로채지 않고 정상 타이핑되도록 바로 반환
       const activeTag = document.activeElement ? document.activeElement.tagName : "";
       if (activeTag === "TEXTAREA" || activeTag === "INPUT") {
         return;
       }
 
-      // 3. 어떤 모달이라도 열려 있는 상태라면 백그라운드 퀴즈 키가 눌리지 않도록 차단
       const isAnyModalOpen = [modal, adminModal, selfModal, setupModal, reportModal, reportListModal]
         .some(m => m && m.style.display === "flex");
       if (isAnyModalOpen) {
         return;
       }
 
-      // 4. 퀴즈 화면이 아닐 때는 반환
       const quizView = document.getElementById("quiz-view");
       if (!quizView || quizView.style.display !== "block") return;
 
-      // 5. 퀴즈 풀이 단축키 처리
       if (['Digit1', 'Numpad1'].includes(e.code)) {
         e.preventDefault();
         handleSelectChoice(1);
@@ -2081,6 +2074,7 @@
       }
     });
 
+    // 문제 시작 로직: 섞기 여부에 따라 순차적 번호 부여
     function startSubject(subjectKey, wrongOnly = false, specificIds = null) {
       const qData = window.quizDatabase && window.quizDatabase[subjectKey];
       if (!qData || !qData.questions) {
@@ -2110,19 +2104,22 @@
       const shouldShuffleQ = document.getElementById("shuffle-q-toggle").checked;
       const shouldShuffleOpt = document.getElementById("shuffle-opt-toggle").checked;
 
+      // 1. 문제 섞기 토글 여부 반영 (체크 해제 시 JS 원본 순서 유지)
       let baseQuestions = shouldShuffleQ ? shuffleArray(targetList) : [...targetList];
 
-      questions = baseQuestions.map(q => {
-        let optObjects = q.options.map((optText, idx) => ({
+      // 2. 선택지 섞기 및 화면 번호 순차 부여 (무조건 1번부터 시작)
+      questions = baseQuestions.map((q, idx) => {
+        let optObjects = q.options.map((optText, optIdx) => ({
           text: optText,
-          originalIndex: idx + 1,
-          explanation: (q.optionExplanations && q.optionExplanations[idx + 1]) || ""
+          originalIndex: optIdx + 1,
+          explanation: (q.optionExplanations && q.optionExplanations[optIdx + 1]) || ""
         }));
 
         let displayOpts = shouldShuffleOpt ? shuffleArray(optObjects) : optObjects;
 
         return {
           ...q,
+          displayNumber: idx + 1, // 화면에 나타날 문제 번호
           displayOptions: displayOpts
         };
       });
@@ -2223,10 +2220,11 @@
         <div class="common-item">${exp}</div>
       `).join("") : "";
 
+      // 깔끔하게 1., 2. 형태로만 출력
       card.innerHTML = `
         <div class="q-header-row">
           <div class="q-title">
-            <span class="q-number">${currentIndex + 1}.</span>${item.question}
+            <span class="q-number">${item.displayNumber || (currentIndex + 1)}.</span> ${item.question}
           </div>
           <button type="button" class="report-issue-btn" onclick="openErrorReportModal()">🚩 오류 검토 요청</button>
         </div>
@@ -2463,8 +2461,9 @@
             `;
           }
 
+          // [원문제 N번] 제거하고 순차 번호로만 표시
           card.innerHTML = `
-            <div class="missed-header">${idx + 1}. [원문제 ${q.id}번] ${q.question}</div>
+            <div class="missed-header">${q.displayNumber || (idx + 1)}. ${q.question}</div>
             <div class="missed-details">
               <div><strong style="color:${(ans.isCorrect === false || ans.isForceWrong) ? '#f87171' : '#94a3b8'};">내 선택:</strong> ${userChoiceText}</div>
               <div style="margin-top:3px;"><strong style="color:#4ade80;">정답:</strong> ${correctLetter}. ${correctOptObj.text}</div>
