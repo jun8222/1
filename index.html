@@ -437,16 +437,53 @@
       background-color: var(--card-inner);
     }
 
+    /* 회차 이력 아코디언 드롭다운 패널 */
     .history-dropdown-panel {
       display: none;
       background-color: #0d0e2e;
       border: 1px solid var(--border-color);
       border-top: none;
       border-radius: 0 0 12px 12px;
-      padding: 16px;
+      padding: 18px 16px 16px;
       margin-top: -4px;
       flex-direction: column;
-      gap: 10px;
+      gap: 12px;
+    }
+
+    /* 드롭다운 상단 전체 문제 풀기 바 */
+    .panel-top-action-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background-color: var(--card-inner);
+      border: 1px solid rgba(66, 85, 255, 0.3);
+      padding: 12px 16px;
+      border-radius: 10px;
+    }
+
+    .panel-top-text {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .btn-start-full-quiz {
+      background-color: var(--accent-blue);
+      color: #fff;
+      border: none;
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: background-color 0.2s;
+    }
+
+    .btn-start-full-quiz:hover {
+      background-color: var(--accent-blue-hover);
     }
 
     .history-card-item {
@@ -1053,7 +1090,6 @@
             <option value="1">1교시 과목</option>
             <option value="2">2교시 과목</option>
           </select>
-          <!-- 문제/보기 섞기 토글 -->
           <div class="shuffle-toggle-group">
             <label class="shuffle-label" title="문제 출제 순서를 무작위로 섞습니다">
               <input type="checkbox" id="toggle-shuffle-questions">
@@ -1358,7 +1394,6 @@
       }
     }
 
-    // 프로필 선택 화면 표시 (하단 바 숨김)
     function showUserSelectView() {
       document.getElementById('user-select-view').style.display = 'flex';
       document.getElementById('subject-view').style.display = 'none';
@@ -1455,7 +1490,6 @@
       showUserSelectView();
     }
 
-    // 메인 화면 노출 (하단 바 숨김)
     function showMainView(user) {
       document.getElementById('user-select-view').style.display = 'none';
       document.getElementById('quiz-view').style.display = 'none';
@@ -1625,7 +1659,9 @@
       document.getElementById(id).style.display = 'none';
     }
 
-    // 메인 과목 목록 렌더링
+    // =========================================================
+    // ★ 과목 목록 렌더링 (카드 클릭 시 드롭다운 토글 및 전체 풀기 버튼 제공)
+    // =========================================================
     function renderSubjectList() {
       const p1Container = document.getElementById('subject-list-period-1');
       const p2Container = document.getElementById('subject-list-period-2');
@@ -1664,9 +1700,10 @@
           `;
         }
 
+        // 과목 카드를 누르면 즉시 풀이로 가지 않고 드롭다운 패널이 토글됨
         const card = document.createElement('div');
         card.className = 'subject-card';
-        card.onclick = () => startQuiz(meta.key);
+        card.onclick = () => toggleSubjectDropdown(meta.key);
 
         card.innerHTML = `
           <div class="subject-card-left">
@@ -1680,18 +1717,34 @@
           </div>
           <div class="subject-card-right">
             ${recentWrongBadgeHtml}
-            <button class="card-more-btn" onclick="event.stopPropagation(); toggleSubjectDropdown('${meta.key}')" title="회차별 풀이 이력 열기">
+            <button class="card-more-btn" onclick="event.stopPropagation(); toggleSubjectDropdown('${meta.key}')" title="회차별 풀이 이력 및 전체 풀기">
               <i class="fa-solid fa-ellipsis"></i>
             </button>
           </div>
         `;
 
+        // 드롭다운 패널 생성 (상단에 전체 문제 풀기 버튼 배치)
         const panel = document.createElement('div');
         panel.className = 'history-dropdown-panel';
         panel.id = `history-panel-${meta.key}`;
 
+        // 1) 패널 최상단: 전체 문제 풀기 액션 바
+        const topActionBar = document.createElement('div');
+        topActionBar.className = 'panel-top-action-bar';
+        topActionBar.innerHTML = `
+          <div class="panel-top-text"><i class="fa-solid fa-book-open"></i> 전체 문제 학습</div>
+          <button class="btn-start-full-quiz" onclick="startQuiz('${meta.key}')">
+            <i class="fa-solid fa-play"></i> 전체 문제 풀기 (${count}문항)
+          </button>
+        `;
+        panel.appendChild(topActionBar);
+
+        // 2) 회차별 풀이 이력 항목들
         if (subjectHistories.length === 0) {
-          panel.innerHTML = '<div style="font-size:0.85rem; color:var(--text-sub); text-align:center; padding:12px;">이 사용자의 풀이 이력이 없습니다.</div>';
+          const emptyNotice = document.createElement('div');
+          emptyNotice.style.cssText = 'font-size:0.85rem; color:var(--text-sub); text-align:center; padding:12px;';
+          emptyNotice.innerText = '이 사용자의 풀이 이력이 없습니다.';
+          panel.appendChild(emptyNotice);
         } else {
           subjectHistories.forEach(rec => {
             const item = document.createElement('div');
@@ -1745,7 +1798,7 @@
       return arr;
     }
 
-    // 퀴즈 시작 (하단 바 초기에는 숨김)
+    // 퀴즈 시작
     function startQuiz(key, specificQuestions = null) {
       const db = window.quizDatabase || {};
       const sub = db[key];
@@ -1809,13 +1862,12 @@
       document.getElementById('subject-view').style.display = 'none';
       document.getElementById('quiz-result-view').style.display = 'none';
       document.getElementById('quiz-view').style.display = 'block';
-      document.getElementById('bottom-feedback-bar').style.display = 'none'; // 하단 바 숨김
+      document.getElementById('bottom-feedback-bar').style.display = 'none';
 
       initProgressBar();
       renderCurrentQuestion();
     }
 
-    // 홈 이동 시 하단 바 숨김
     function goHome() {
       document.getElementById('quiz-view').style.display = 'none';
       document.getElementById('quiz-result-view').style.display = 'none';
@@ -1869,7 +1921,7 @@
         restoreQuestionState(previousAnswer);
       } else {
         isAnswerChecked = false;
-        document.getElementById('bottom-feedback-bar').style.display = 'none'; // 선택 전에는 하단 바 숨김
+        document.getElementById('bottom-feedback-bar').style.display = 'none';
         const banner = document.getElementById('status-msg-banner');
         banner.className = 'status-msg-banner';
         banner.style.display = 'none';
@@ -1885,7 +1937,6 @@
       restoreQuestionState(userPick);
       updateProgressStats();
 
-      // 보기를 선택했을 때만 하단 액션바 표시
       document.getElementById('bottom-feedback-bar').style.display = 'flex';
     }
 
@@ -1979,7 +2030,7 @@
     }
 
     function finishQuizSession() {
-      document.getElementById('bottom-feedback-bar').style.display = 'none'; // 하단 바 숨김
+      document.getElementById('bottom-feedback-bar').style.display = 'none';
       document.getElementById('quiz-view').style.display = 'none';
 
       currentSessionWrongItems = [];
