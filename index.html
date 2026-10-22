@@ -257,6 +257,14 @@
       justify-content: space-between;
       gap: 16px;
       margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .filter-bar-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
     }
 
     .select-dropdown {
@@ -271,9 +279,33 @@
       outline: none;
     }
 
+    .shuffle-toggle-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .shuffle-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text-sub);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .shuffle-label input[type="checkbox"] {
+      accent-color: var(--accent-blue);
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
+
     .search-input-box {
       position: relative;
-      width: 280px;
+      width: 260px;
     }
 
     .search-input-box input {
@@ -554,15 +586,24 @@
       font-weight: 600;
       line-height: 1.6;
       color: var(--text-main);
-      margin-bottom: 20px;
+      margin-bottom: 16px;
     }
 
     .status-msg-banner {
-      font-size: 0.95rem;
+      font-size: 1rem;
       font-weight: 700;
-      color: var(--error-orange);
       margin-bottom: 18px;
       display: none;
+    }
+
+    .status-msg-banner.correct {
+      color: var(--correct-green);
+      display: block;
+    }
+
+    .status-msg-banner.wrong {
+      color: var(--error-orange);
+      display: block;
     }
 
     .options-grid {
@@ -722,6 +763,42 @@
       z-index: 100;
     }
 
+    .feedback-hint-text {
+      color: var(--text-sub);
+      font-size: 0.95rem;
+    }
+
+    .nav-btn-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .prev-nav-btn {
+      background-color: var(--card-inner);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .prev-nav-btn:hover:not(:disabled) {
+      border-color: var(--accent-blue);
+      background-color: var(--card-hover);
+    }
+
+    .prev-nav-btn:disabled {
+      opacity: 0.4;
+      cursor: default;
+    }
+
     .continue-btn {
       background-color: var(--accent-blue);
       color: #fff;
@@ -731,6 +808,9 @@
       font-size: 0.95rem;
       font-weight: 700;
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
       transition: background-color 0.2s;
     }
 
@@ -841,7 +921,7 @@
       line-height: 1.5;
     }
 
-    /* 모달 스타일 */
+    /* 모달 공통 스타일 */
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -957,7 +1037,7 @@
   <!-- 메인 뷰 컨테이너 -->
   <main class="main-container">
     
-    <!-- [화면 0] 사용자 선택 화면 (준영 + 게스트 A~E 6개 배치) -->
+    <!-- [화면 0] 사용자 선택 화면 -->
     <div id="user-select-view">
       <div class="user-select-title">학습할 프로필을 선택하세요</div>
       <div class="user-select-sub">계정을 선택하거나 신규 등록하여 맞춤형 오답 학습을 시작합니다.</div>
@@ -967,11 +1047,25 @@
     <!-- [화면 1] 메인 과목 목록 화면 -->
     <div id="subject-view">
       <div class="filter-bar">
-        <select class="select-dropdown" id="period-filter" onchange="filterSubjects()">
-          <option value="all">전체 교시</option>
-          <option value="1">1교시 과목</option>
-          <option value="2">2교시 과목</option>
-        </select>
+        <div class="filter-bar-left">
+          <select class="select-dropdown" id="period-filter" onchange="filterSubjects()">
+            <option value="all">전체 교시</option>
+            <option value="1">1교시 과목</option>
+            <option value="2">2교시 과목</option>
+          </select>
+          <!-- 문제/보기 섞기 토글 -->
+          <div class="shuffle-toggle-group">
+            <label class="shuffle-label" title="문제 출제 순서를 무작위로 섞습니다">
+              <input type="checkbox" id="toggle-shuffle-questions">
+              <span><i class="fa-solid fa-shuffle"></i> 문제 섞기</span>
+            </label>
+            <label class="shuffle-label" title="1~5번 보기 순서를 무작위로 섞습니다">
+              <input type="checkbox" id="toggle-shuffle-options">
+              <span><i class="fa-solid fa-arrows-split-up-and-left"></i> 보기 섞기</span>
+            </label>
+          </div>
+        </div>
+
         <div class="search-input-box">
           <input type="text" id="subject-search" placeholder="제목으로 필터링" oninput="filterSubjects()">
           <i class="fa-solid fa-magnifying-glass"></i>
@@ -1003,7 +1097,7 @@
         <div>
           <div class="quiz-card-header">단어 • 문제</div>
           <div class="quiz-question-title" id="quiz-question-text">문제가 여기에 표시됩니다.</div>
-          <div class="status-msg-banner" id="status-msg-banner">걱정하지 마세요, 아직 배우고 있잖아요!</div>
+          <div class="status-msg-banner" id="status-msg-banner"></div>
         </div>
 
         <div>
@@ -1041,7 +1135,7 @@
         </div>
       </div>
 
-      <!-- 방금 풀이에서 틀렸던 문항 리스트 -->
+      <!-- 틀린 문항 리스트 -->
       <div class="wrong-review-section" id="wrong-review-section" style="display:none;">
         <div class="wrong-review-header">
           <i class="fa-solid fa-triangle-exclamation" style="color:var(--error-orange);"></i>
@@ -1055,8 +1149,11 @@
 
   <!-- 하단 정답 피드백 액션바 -->
   <div class="bottom-feedback-bar" id="bottom-feedback-bar">
-    <div class="feedback-hint-text">정답을 클릭하거나 아무 키나 눌러 계속하세요</div>
-    <button class="continue-btn" id="continue-btn" onclick="nextQuestion()">계속</button>
+    <div class="feedback-hint-text">키보드 방향키(← 이전, → 다음) 또는 계속을 누르세요</div>
+    <div class="nav-btn-group">
+      <button class="prev-nav-btn" id="prev-btn" onclick="prevQuestion()"><i class="fa-solid fa-chevron-left"></i> 이전 문제</button>
+      <button class="continue-btn" id="continue-btn" onclick="nextQuestion()">계속 <i class="fa-solid fa-chevron-right"></i></button>
+    </div>
   </div>
 
   <!-- [모달: 신규 게스트 등록 모달] -->
@@ -1190,7 +1287,6 @@
   <script src="./data/orthodontics_past.js"></script>
 
   <script>
-    // 과목 메타데이터
     const subjectMeta = [
       // 1교시
       { key: 'anatomy', name: '구강해부학 (1~12)', period: 1 },
@@ -1222,8 +1318,7 @@
     let currentSubjectKey = null;
     let quizQuestions = [];
     let currentIndex = 0;
-    let correctCount = 0;
-    let currentSessionWrongItems = [];
+    let userAnswersRecord = [];
     let isAnswerChecked = false;
     let pendingLoginUserIndex = null;
     let registeringSlotIndex = null;
@@ -1233,14 +1328,12 @@
     const STORAGE_KEY_USERS_DB = 'quizlet_users_db_v5';
     const STORAGE_KEY_REPORTS = 'quizlet_reports_db_v5';
 
-    // 1. 초기 실행
     window.addEventListener('DOMContentLoaded', () => {
       initUserDatabase();
       checkAutoLogin();
       window.addEventListener('keydown', handleGlobalKeydown);
     });
 
-    // 2. 6개 고정 슬롯 초기화
     function initUserDatabase() {
       let users = JSON.parse(localStorage.getItem(STORAGE_KEY_USERS_DB) || 'null');
       if (!users || users.length !== 6) {
@@ -1265,12 +1358,13 @@
       }
     }
 
-    // [화면 0] 사용자 프로필 선택 화면
+    // 프로필 선택 화면 표시 (하단 바 숨김)
     function showUserSelectView() {
       document.getElementById('user-select-view').style.display = 'flex';
       document.getElementById('subject-view').style.display = 'none';
       document.getElementById('quiz-view').style.display = 'none';
       document.getElementById('quiz-result-view').style.display = 'none';
+      document.getElementById('bottom-feedback-bar').style.display = 'none';
       document.getElementById('header-user-controls').style.display = 'none';
 
       const users = JSON.parse(localStorage.getItem(STORAGE_KEY_USERS_DB));
@@ -1357,13 +1451,16 @@
 
     function logout() {
       localStorage.removeItem(STORAGE_KEY_USER);
+      document.getElementById('bottom-feedback-bar').style.display = 'none';
       showUserSelectView();
     }
 
+    // 메인 화면 노출 (하단 바 숨김)
     function showMainView(user) {
       document.getElementById('user-select-view').style.display = 'none';
       document.getElementById('quiz-view').style.display = 'none';
       document.getElementById('quiz-result-view').style.display = 'none';
+      document.getElementById('bottom-feedback-bar').style.display = 'none';
       document.getElementById('subject-view').style.display = 'block';
       document.getElementById('header-user-controls').style.display = 'flex';
 
@@ -1528,7 +1625,7 @@
       document.getElementById(id).style.display = 'none';
     }
 
-    // 6. 메인 과목 목록 렌더링
+    // 메인 과목 목록 렌더링
     function renderSubjectList() {
       const p1Container = document.getElementById('subject-list-period-1');
       const p2Container = document.getElementById('subject-list-period-2');
@@ -1639,7 +1736,16 @@
       }
     }
 
-    // 7. 문제 풀이 세션 (★ 배열 깊은 복사로 오답 세션 안정성 보장)
+    function shuffleArray(array) {
+      const arr = [...array];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    // 퀴즈 시작 (하단 바 초기에는 숨김)
     function startQuiz(key, specificQuestions = null) {
       const db = window.quizDatabase || {};
       const sub = db[key];
@@ -1649,23 +1755,67 @@
       }
 
       currentSubjectKey = key;
-      // 특정 문항이 넘어왔을 때 완벽하게 독립된 새 배열로 할당
-      quizQuestions = specificQuestions ? specificQuestions.map(item => ({ ...item })) : sub.questions.map(item => ({ ...item }));
+      const shuffleQuestions = document.getElementById('toggle-shuffle-questions').checked;
+      const shuffleOptions = document.getElementById('toggle-shuffle-options').checked;
+
+      let baseQuestions = specificQuestions 
+        ? specificQuestions.map(item => JSON.parse(JSON.stringify(item))) 
+        : sub.questions.map(item => JSON.parse(JSON.stringify(item)));
+
+      if (shuffleQuestions) {
+        baseQuestions = shuffleArray(baseQuestions);
+      }
+
+      if (shuffleOptions) {
+        baseQuestions.forEach(q => {
+          const originalAnswerIndex = q.answer;
+          const mappedOptions = q.options.map((optText, idx) => {
+            const optNum = idx + 1;
+            return {
+              text: optText,
+              originalNum: optNum,
+              expl: (q.optionExplanations && q.optionExplanations[optNum]) ? q.optionExplanations[optNum] : ''
+            };
+          });
+
+          const shuffledMapped = shuffleArray(mappedOptions);
+
+          const newOptions = [];
+          const newExplMap = {};
+          let newAnswer = 1;
+
+          shuffledMapped.forEach((item, newIdx) => {
+            const newNum = newIdx + 1;
+            newOptions.push(item.text);
+            if (item.expl) {
+              newExplMap[newNum] = item.expl;
+            }
+            if (item.originalNum === originalAnswerIndex) {
+              newAnswer = newNum;
+            }
+          });
+
+          q.options = newOptions;
+          q.answer = newAnswer;
+          q.optionExplanations = newExplMap;
+        });
+      }
+
+      quizQuestions = baseQuestions;
       currentIndex = 0;
-      correctCount = 0;
-      currentSessionWrongItems = [];
+      userAnswersRecord = new Array(quizQuestions.length).fill(null);
       isAnswerChecked = false;
 
-      // 뷰 상태 전환
       document.getElementById('subject-view').style.display = 'none';
       document.getElementById('quiz-result-view').style.display = 'none';
       document.getElementById('quiz-view').style.display = 'block';
-      document.getElementById('bottom-feedback-bar').style.display = 'none';
+      document.getElementById('bottom-feedback-bar').style.display = 'none'; // 하단 바 숨김
 
       initProgressBar();
       renderCurrentQuestion();
     }
 
+    // 홈 이동 시 하단 바 숨김
     function goHome() {
       document.getElementById('quiz-view').style.display = 'none';
       document.getElementById('quiz-result-view').style.display = 'none';
@@ -1688,11 +1838,6 @@
     }
 
     function renderCurrentQuestion() {
-      isAnswerChecked = false;
-      document.getElementById('bottom-feedback-bar').style.display = 'none';
-      document.getElementById('status-msg-banner').style.display = 'none';
-      document.getElementById('common-explanation-box').style.display = 'none';
-
       const q = quizQuestions[currentIndex];
       document.getElementById('quiz-question-text').innerText = `${currentIndex + 1}. ${q.question}`;
 
@@ -1716,20 +1861,44 @@
         `;
         optContainer.appendChild(btn);
       });
+
+      document.getElementById('prev-btn').disabled = (currentIndex === 0);
+
+      const previousAnswer = userAnswersRecord[currentIndex];
+      if (previousAnswer !== null) {
+        restoreQuestionState(previousAnswer);
+      } else {
+        isAnswerChecked = false;
+        document.getElementById('bottom-feedback-bar').style.display = 'none'; // 선택 전에는 하단 바 숨김
+        const banner = document.getElementById('status-msg-banner');
+        banner.className = 'status-msg-banner';
+        banner.style.display = 'none';
+        document.getElementById('common-explanation-box').style.display = 'none';
+      }
     }
 
     function selectAnswer(userPick) {
       if (isAnswerChecked) return;
       isAnswerChecked = true;
 
+      userAnswersRecord[currentIndex] = userPick;
+      restoreQuestionState(userPick);
+      updateProgressStats();
+
+      // 보기를 선택했을 때만 하단 액션바 표시
+      document.getElementById('bottom-feedback-bar').style.display = 'flex';
+    }
+
+    function restoreQuestionState(userPick) {
+      isAnswerChecked = true;
       const q = quizQuestions[currentIndex];
-      const isCorrect = userPick === q.answer;
+      const isCorrect = (userPick === q.answer);
       const optButtons = document.querySelectorAll('.option-btn');
       const segment = document.getElementById(`seg-${currentIndex}`);
+      const banner = document.getElementById('status-msg-banner');
 
       optButtons.forEach(btn => btn.classList.add('disabled'));
 
-      // 1) 모든 선택지 박스 내부 개별 해설 노출
       q.options.forEach((_, idx) => {
         const optNum = idx + 1;
         const explElem = document.getElementById(`opt-expl-${optNum}`);
@@ -1738,7 +1907,6 @@
         }
       });
 
-      // 2) 공통 해설 및 팁 노출
       const commonExplText = (q.commonExplanations && q.commonExplanations.length > 0) ? q.commonExplanations.join('<br>') : '';
       if (commonExplText) {
         document.getElementById('common-explanation-text').innerHTML = commonExplText;
@@ -1746,16 +1914,21 @@
       }
 
       if (isCorrect) {
-        correctCount++;
-        document.getElementById('quiz-badge-correct').innerText = correctCount;
-        if (segment) segment.classList.add('passed');
+        if (segment) {
+          segment.classList.remove('failed');
+          segment.classList.add('passed');
+        }
 
         optButtons[userPick - 1].classList.add('correct-choice');
         document.getElementById(`opt-icon-${userPick}`).innerHTML = '<i class="fa-solid fa-check"></i>';
+
+        banner.innerText = '잘하고 있어요!';
+        banner.className = 'status-msg-banner correct';
       } else {
-        // 객체 복사본을 안전하게 오답 목록에 보관
-        currentSessionWrongItems.push({ ...q });
-        if (segment) segment.classList.add('failed');
+        if (segment) {
+          segment.classList.remove('passed');
+          segment.classList.add('failed');
+        }
 
         if (userPick > 0 && userPick <= optButtons.length) {
           optButtons[userPick - 1].classList.add('wrong-choice');
@@ -1763,10 +1936,23 @@
         }
 
         optButtons[q.answer - 1].classList.add('correct-highlight');
-        document.getElementById('status-msg-banner').style.display = 'block';
+
+        banner.innerText = '걱정하지 마세요, 아직 배우고 있잖아요!';
+        banner.className = 'status-msg-banner wrong';
       }
 
       document.getElementById('bottom-feedback-bar').style.display = 'flex';
+    }
+
+    function updateProgressStats() {
+      let count = 0;
+      userAnswersRecord.forEach((ans, idx) => {
+        if (ans !== null && ans === quizQuestions[idx].answer) {
+          count++;
+        }
+      });
+      correctCount = count;
+      document.getElementById('quiz-badge-correct').innerText = correctCount;
     }
 
     function handleDontKnow() {
@@ -1774,9 +1960,17 @@
       selectAnswer(-1);
     }
 
+    function prevQuestion() {
+      if (currentIndex > 0) {
+        currentIndex--;
+        renderCurrentQuestion();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+
     function nextQuestion() {
-      currentIndex++;
-      if (currentIndex < quizQuestions.length) {
+      if (currentIndex < quizQuestions.length - 1) {
+        currentIndex++;
         renderCurrentQuestion();
         window.scrollTo({ top: 0, behavior: 'smooth' });
       } else {
@@ -1784,10 +1978,17 @@
       }
     }
 
-    // 8. 학습 완료 처리 및 오답 리스트 렌더링
     function finishQuizSession() {
-      document.getElementById('bottom-feedback-bar').style.display = 'none';
+      document.getElementById('bottom-feedback-bar').style.display = 'none'; // 하단 바 숨김
       document.getElementById('quiz-view').style.display = 'none';
+
+      currentSessionWrongItems = [];
+      quizQuestions.forEach((q, idx) => {
+        const userAns = userAnswersRecord[idx];
+        if (userAns === null || userAns !== q.answer) {
+          currentSessionWrongItems.push({ ...q });
+        }
+      });
 
       const wrongIds = currentSessionWrongItems.map(item => item.id);
       saveSessionHistory(currentSubjectKey, quizQuestions.length, correctCount, wrongIds);
@@ -1797,7 +1998,6 @@
         <span style="color:var(--error-orange); font-weight:600;">오답 ${currentSessionWrongItems.length}문항</span>
       `;
 
-      // 오답 다시 풀기 버튼 제어
       const retryBtn = document.getElementById('result-retry-wrong-btn');
       if (currentSessionWrongItems.length > 0) {
         retryBtn.innerText = `오답 ${currentSessionWrongItems.length}문제 다시 풀기`;
@@ -1806,7 +2006,6 @@
         retryBtn.style.display = 'none';
       }
 
-      // 오답 리스트 렌더링
       const wrongSection = document.getElementById('wrong-review-section');
       const wrongContainer = document.getElementById('wrong-items-container');
 
@@ -1848,7 +2047,6 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // ★ 오답 다시 풀기 (깊은 복사본을 넘겨서 재시작 문제 완벽 해결)
     function retryWrongQuestions() {
       if (!currentSessionWrongItems || currentSessionWrongItems.length === 0) return;
       const wrongListToRetry = currentSessionWrongItems.map(item => ({ ...item }));
@@ -1867,14 +2065,16 @@
           }
         }
       } else {
-        if (e.key === 'Enter' || e.key === ' ') {
+        if (e.key === 'ArrowRight' || e.key === 'Enter') {
           e.preventDefault();
           nextQuestion();
+        } else if (e.key === 'ArrowLeft') {
+          e.preventDefault();
+          prevQuestion();
         }
       }
     }
 
-    // 9. 사용자별 독립 풀이 이력(History) 관리
     function getUserSpecificHistory() {
       try {
         const currentUser = JSON.parse(localStorage.getItem(STORAGE_KEY_USER));
