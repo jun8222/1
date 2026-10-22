@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>치과기공사 국가시험 퀴즈</title>
   
-  <!-- 스타일시트 & 아이콘 -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
   <style>
@@ -60,12 +59,12 @@
     }
 
     .brand-title {
-      font-size: 1.1rem;
+      font-size: 1.15rem;
       font-weight: 700;
       color: var(--text-main);
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
       cursor: pointer;
     }
 
@@ -76,7 +75,39 @@
     .header-right {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 16px;
+    }
+
+    .user-profile-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .header-btn {
+      background-color: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .header-btn:hover {
+      background-color: var(--card-hover);
+      border-color: var(--accent-blue);
     }
 
     .header-icon-btn {
@@ -99,17 +130,17 @@
       color: var(--text-main);
     }
 
-    /* 공통 컨테이너 */
+    /* 메인 컨테이너 */
     .main-container {
       flex: 1;
       width: 100%;
       max-width: 960px;
       margin: 0 auto;
-      padding: 32px 24px 64px;
+      padding: 32px 24px 80px;
     }
 
     /* =========================================================
-       [화면 1] 퀴즐렛 스타일 과목 목록 화면 (Subject View)
+       [화면 1] 메인 과목 목록 화면
        ========================================================= */
     .filter-bar {
       display: flex;
@@ -129,11 +160,6 @@
       font-weight: 600;
       cursor: pointer;
       outline: none;
-      transition: all 0.2s;
-    }
-
-    .select-dropdown:hover {
-      background-color: var(--card-hover);
     }
 
     .search-input-box {
@@ -150,12 +176,10 @@
       color: var(--text-main);
       font-size: 0.95rem;
       outline: none;
-      transition: all 0.2s;
     }
 
     .search-input-box input:focus {
       border-color: var(--accent-blue);
-      box-shadow: 0 0 0 2px rgba(66, 85, 255, 0.2);
     }
 
     .search-input-box i {
@@ -166,11 +190,11 @@
       color: var(--text-sub);
     }
 
-    .section-label {
-      font-size: 1rem;
+    .period-section-title {
+      font-size: 1.15rem;
       font-weight: 700;
       color: var(--text-main);
-      margin: 28px 0 12px;
+      margin: 32px 0 14px;
       display: flex;
       align-items: center;
       gap: 8px;
@@ -182,16 +206,23 @@
       gap: 8px;
     }
 
-    .subject-card {
+    .subject-card-wrapper {
+      display: flex;
+      flex-direction: column;
       background-color: transparent;
-      border: 1px solid transparent;
       border-radius: 12px;
-      padding: 12px 16px;
+      transition: all 0.2s ease;
+    }
+
+    .subject-card {
+      padding: 14px 18px;
+      border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       cursor: pointer;
-      transition: all 0.2s ease;
+      border: 1px solid transparent;
+      transition: all 0.2s;
     }
 
     .subject-card:hover {
@@ -218,32 +249,16 @@
       font-size: 1.2rem;
     }
 
-    .subject-card:hover .card-icon-box {
-      background-color: var(--card-hover);
-    }
-
     .subject-info-title {
-      font-size: 1rem;
+      font-size: 1.02rem;
       font-weight: 600;
       color: var(--text-main);
       margin-bottom: 4px;
     }
 
     .subject-info-sub {
-      font-size: 0.82rem;
+      font-size: 0.85rem;
       color: var(--text-sub);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .subject-info-sub span::after {
-      content: "•";
-      margin-left: 8px;
-    }
-
-    .subject-info-sub span:last-child::after {
-      content: "";
     }
 
     .subject-card-right {
@@ -270,9 +285,9 @@
       border: none;
       color: var(--text-sub);
       font-size: 1.1rem;
-      padding: 8px;
+      padding: 8px 12px;
       cursor: pointer;
-      border-radius: 50%;
+      border-radius: 8px;
       transition: all 0.2s;
     }
 
@@ -281,19 +296,83 @@
       background-color: var(--card-inner);
     }
 
+    /* 과목별 회차 이력 아코디언 드롭다운 */
+    .history-dropdown-panel {
+      display: none;
+      background-color: #0d0e2e;
+      border: 1px solid var(--border-color);
+      border-top: none;
+      border-radius: 0 0 12px 12px;
+      padding: 16px;
+      margin-top: -4px;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .history-card-item {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .history-meta-text {
+      font-size: 0.85rem;
+      color: var(--text-sub);
+      margin-bottom: 2px;
+    }
+
+    .history-action-btns {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-action-sm {
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .btn-retry-wrong {
+      background-color: rgba(255, 120, 66, 0.15);
+      border-color: var(--error-orange);
+      color: var(--error-orange);
+    }
+
+    .btn-retry-wrong:hover {
+      background-color: var(--error-orange);
+      color: #fff;
+    }
+
+    .btn-review-expl {
+      background-color: var(--card-inner);
+      border-color: var(--border-color);
+      color: var(--text-main);
+    }
+
+    .btn-review-expl:hover {
+      border-color: var(--accent-blue);
+    }
+
     /* =========================================================
-       [화면 2] 퀴즐렛 스타일 문제 풀이 화면 (Quiz View)
+       [화면 2] 문제 풀이 화면
        ========================================================= */
     #quiz-view {
       display: none;
     }
 
-    /* 상단 구간형 진행 바 */
     .progress-wrapper {
       display: flex;
       align-items: center;
       gap: 12px;
-      margin-bottom: 32px;
+      margin-bottom: 28px;
     }
 
     .progress-count-badge {
@@ -345,16 +424,11 @@
       background-color: var(--error-orange);
     }
 
-    /* 문제 풀이 단일 카드 */
     .quiz-card {
       background-color: var(--card-bg);
       border: 1px solid var(--border-color);
       border-radius: 16px;
       padding: 36px 40px;
-      min-height: 440px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
     }
 
@@ -372,23 +446,22 @@
       font-weight: 600;
       line-height: 1.6;
       color: var(--text-main);
-      margin-bottom: 24px;
+      margin-bottom: 20px;
     }
 
     .status-msg-banner {
       font-size: 0.95rem;
       font-weight: 700;
       color: var(--error-orange);
-      margin-bottom: 16px;
+      margin-bottom: 18px;
       display: none;
     }
 
-    /* 선택지 그리드 (2열 레이아웃) */
     .options-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: 12px;
-      margin-bottom: 20px;
+      margin-bottom: 24px;
     }
 
     .option-btn {
@@ -397,18 +470,16 @@
       border-radius: 10px;
       padding: 14px 18px;
       display: flex;
-      align-items: flex-start;
-      gap: 12px;
+      flex-direction: column;
+      gap: 6px;
       color: var(--text-main);
       font-size: 0.95rem;
       text-align: left;
       cursor: pointer;
-      transition: all 0.2s ease;
       outline: none;
-      line-height: 1.4;
+      transition: all 0.2s ease;
     }
 
-    /* 5번째 보기는 전폭 채움 */
     .option-btn:nth-child(5) {
       grid-column: span 2;
     }
@@ -418,6 +489,12 @@
       border-color: var(--accent-blue);
     }
 
+    .option-top-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
     .option-idx {
       font-size: 0.85rem;
       font-weight: 700;
@@ -425,48 +502,76 @@
       min-width: 18px;
     }
 
-    /* 정답 / 오답 클래스 */
+    /* 선택지 내 개별 오답/정답 해설 박스 */
+    .option-explanation-inline {
+      display: none;
+      font-size: 0.82rem;
+      color: #cbd5e1;
+      padding-top: 8px;
+      margin-top: 6px;
+      border-top: 1px dashed rgba(255, 255, 255, 0.15);
+      line-height: 1.45;
+    }
+
     .option-btn.correct-choice {
       border: 2px solid var(--correct-green) !important;
       background-color: rgba(34, 197, 94, 0.08) !important;
-      color: var(--text-main);
     }
 
     .option-btn.correct-highlight {
       border: 2px dashed var(--correct-green) !important;
       background-color: rgba(34, 197, 94, 0.05) !important;
-      color: var(--text-main);
     }
 
     .option-btn.wrong-choice {
       border: 2px solid var(--error-orange) !important;
       background-color: rgba(255, 120, 66, 0.08) !important;
-      color: var(--text-main);
     }
 
     .option-btn.disabled {
       cursor: default;
-      opacity: 0.6;
     }
 
-    .option-btn.correct-choice.disabled,
-    .option-btn.correct-highlight.disabled,
-    .option-btn.wrong-choice.disabled {
-      opacity: 1;
+    /* 카드 하단 공통 해설 및 핵심 팁 박스 */
+    .common-explanation-box {
+      display: none;
+      background-color: var(--card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 16px;
+      margin-bottom: 20px;
+    }
+
+    .expl-header {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #60a5fa;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .expl-body-text {
+      font-size: 0.88rem;
+      line-height: 1.55;
+      color: #e2e8f0;
     }
 
     .quiz-card-footer {
       display: flex;
-      justify-content: flex-end;
+      justify-content: space-between;
       align-items: center;
       padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
     }
 
-    .dont-know-btn {
+    .report-issue-btn {
       background: none;
       border: none;
       color: #70799b;
-      font-size: 0.85rem;
+      font-size: 0.9rem;
       font-weight: 600;
       cursor: pointer;
       display: flex;
@@ -475,11 +580,27 @@
       transition: color 0.2s;
     }
 
-    .dont-know-btn:hover {
+    .report-issue-btn:hover {
       color: var(--text-main);
     }
 
-    /* 하단 정답 피드백 액션바 */
+    .dont-know-btn {
+      background-color: var(--card-inner);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .dont-know-btn:hover {
+      border-color: var(--accent-blue);
+    }
+
+    /* 하단 액션바 */
     .bottom-feedback-bar {
       position: fixed;
       bottom: 0;
@@ -495,11 +616,6 @@
       z-index: 100;
     }
 
-    .feedback-hint-text {
-      color: var(--text-sub);
-      font-size: 0.95rem;
-    }
-
     .continue-btn {
       background-color: var(--accent-blue);
       color: #fff;
@@ -509,15 +625,10 @@
       font-size: 0.95rem;
       font-weight: 700;
       cursor: pointer;
-      transition: background-color 0.2s;
-    }
-
-    .continue-btn:hover {
-      background-color: var(--accent-blue-hover);
     }
 
     /* =========================================================
-       [화면 3] 회차별 풀이 이력 모달 (History Modal)
+       모달 공통 스타일
        ========================================================= */
     .modal-overlay {
       position: fixed;
@@ -537,8 +648,8 @@
       border: 1px solid var(--border-color);
       border-radius: 16px;
       width: 90%;
-      max-width: 600px;
-      max-height: 80vh;
+      max-width: 580px;
+      max-height: 85vh;
       overflow-y: auto;
       padding: 28px;
     }
@@ -563,54 +674,49 @@
       cursor: pointer;
     }
 
-    .history-item {
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--text-sub);
+      margin-bottom: 6px;
+    }
+
+    .form-control {
+      width: 100%;
       background-color: var(--card-inner);
       border: 1px solid var(--border-color);
-      border-radius: 10px;
-      padding: 16px;
-      margin-bottom: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .history-item-info {
-      font-size: 0.9rem;
-    }
-
-    .history-item-date {
-      color: var(--text-sub);
-      font-size: 0.8rem;
-      margin-bottom: 4px;
-    }
-
-    .history-retry-btn {
-      background-color: var(--card-bg);
-      border: 1px solid var(--error-orange);
-      color: var(--error-orange);
-      padding: 6px 14px;
       border-radius: 8px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
+      padding: 10px 14px;
+      color: var(--text-main);
+      font-size: 0.95rem;
+      outline: none;
     }
 
-    .history-retry-btn:hover {
-      background-color: var(--error-orange);
-      color: #fff;
+    .form-control:focus {
+      border-color: var(--accent-blue);
     }
 
-    /* 세션 완료 화면 */
-    .complete-card {
-      text-align: center;
-      padding: 48px 24px;
+    /* 테이블 스타일 (회원 관리용) */
+    .admin-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 0.88rem;
     }
 
-    .complete-icon {
-      font-size: 3rem;
-      color: var(--correct-green);
-      margin-bottom: 16px;
+    .admin-table th, .admin-table td {
+      border: 1px solid var(--border-color);
+      padding: 10px;
+      text-align: left;
+    }
+
+    .admin-table th {
+      background-color: var(--card-inner);
+      color: var(--text-sub);
     }
   </style>
 </head>
@@ -625,7 +731,13 @@
       </div>
     </div>
     <div class="header-right">
-      <button class="header-icon-btn" onclick="toggleHistoryModal()" title="회차별 풀이 이력"><i class="fa-solid fa-clock-rotate-left"></i></button>
+      <div class="user-profile-badge" id="user-display">
+        <i class="fa-solid fa-circle-user"></i>
+        <span id="current-username">사용자</span>
+      </div>
+      <button class="header-btn" onclick="openProfileModal()"><i class="fa-solid fa-key"></i> 이름/PW 변경</button>
+      <button class="header-btn" onclick="openReportListModal()"><i class="fa-solid fa-list-check"></i> 오류 검토 리스트</button>
+      <button class="header-btn" id="admin-btn" style="display:none;" onclick="openAdminModal()"><i class="fa-solid fa-users-gear"></i> 회원 관리</button>
       <button class="header-icon-btn" onclick="goHome()" title="나가기"><i class="fa-solid fa-xmark"></i></button>
     </div>
   </header>
@@ -633,7 +745,7 @@
   <!-- 메인 뷰 컨테이너 -->
   <main class="main-container">
     
-    <!-- [화면 1] 퀴즐렛 스타일 과목 목록 화면 -->
+    <!-- [화면 1] 메인 과목 목록 화면 -->
     <div id="subject-view">
       <div class="filter-bar">
         <select class="select-dropdown" id="period-filter" onchange="filterSubjects()">
@@ -647,24 +759,27 @@
         </div>
       </div>
 
-      <div class="section-label" id="section-date-label">과목 및 기출문제 세트</div>
-      <div class="subject-list" id="subject-list-container">
-        <!-- 과목 카드 목록이 동적으로 렌더링됩니다 -->
+      <!-- 1교시 섹션 -->
+      <div id="section-period-1">
+        <div class="period-section-title"><i class="fa-regular fa-clock"></i> 1교시</div>
+        <div class="subject-list" id="subject-list-period-1"></div>
+      </div>
+
+      <!-- 2교시 섹션 -->
+      <div id="section-period-2">
+        <div class="period-section-title"><i class="fa-regular fa-clock"></i> 2교시</div>
+        <div class="subject-list" id="subject-list-period-2"></div>
       </div>
     </div>
 
-    <!-- [화면 2] 퀴즐렛 스타일 단일 카드 문제풀이 화면 -->
+    <!-- [화면 2] 문제 풀이 화면 -->
     <div id="quiz-view">
-      <!-- 구간형 진행바 -->
       <div class="progress-wrapper">
         <div class="progress-count-badge badge-correct" id="quiz-badge-correct">0</div>
-        <div class="segmented-progress-bar" id="segmented-bar">
-          <!-- 세그먼트 엘리먼트 동적 삽입 -->
-        </div>
+        <div class="segmented-progress-bar" id="segmented-bar"></div>
         <div class="progress-count-badge badge-total" id="quiz-badge-total">0</div>
       </div>
 
-      <!-- 문제 카드 -->
       <div class="quiz-card" id="quiz-card-box">
         <div>
           <div class="quiz-card-header">단어 • 문제</div>
@@ -673,12 +788,20 @@
         </div>
 
         <div>
-          <div class="options-grid" id="quiz-options-container">
-            <!-- 5지선다 버튼 동적 생성 -->
+          <div class="options-grid" id="quiz-options-container"></div>
+
+          <!-- 공통 해설 및 핵심 팁 박스 -->
+          <div class="common-explanation-box" id="common-explanation-box">
+            <div class="expl-header"><i class="fa-solid fa-lightbulb"></i> 핵심 해설 & TIP</div>
+            <div class="expl-body-text" id="common-explanation-text"></div>
           </div>
+
           <div class="quiz-card-footer">
+            <button class="report-issue-btn" onclick="openReportModal()" title="오류 검토 요청">
+              <i class="fa-regular fa-flag"></i> 오류 검토 요청
+            </button>
             <button class="dont-know-btn" id="dont-know-btn" onclick="handleDontKnow()">
-              <i class="fa-regular fa-flag"></i> 모르시겠어요?
+              모르시겠어요?
             </button>
           </div>
         </div>
@@ -693,22 +816,78 @@
     <button class="continue-btn" id="continue-btn" onclick="nextQuestion()">계속</button>
   </div>
 
-  <!-- [화면 3] 회차별 풀이 이력 모달 -->
-  <div class="modal-overlay" id="history-modal" onclick="closeModalOnOverlay(event)">
+  <!-- [모달 1] 오류 검토 요청 모달 -->
+  <div class="modal-overlay" id="report-modal">
     <div class="modal-box">
       <div class="modal-header">
-        <div class="modal-title">회차별 풀이 이력</div>
-        <button class="modal-close-btn" onclick="toggleHistoryModal()"><i class="fa-solid fa-xmark"></i></button>
+        <div class="modal-title">오류 검토 요청</div>
+        <button class="modal-close-btn" onclick="closeModal('report-modal')"><i class="fa-solid fa-xmark"></i></button>
       </div>
-      <div id="history-list-container">
-        <!-- 회차 이력 동적 렌더링 -->
+      <div class="form-group">
+        <label>해당 문제</label>
+        <textarea class="form-control" id="report-question-preview" rows="2" readonly></textarea>
       </div>
+      <div class="form-group">
+        <label>오류 내용 및 수정 건의</label>
+        <textarea class="form-control" id="report-content" rows="4" placeholder="오탈자, 정답 오류, 해설 이상 내용 등을 적어주세요."></textarea>
+      </div>
+      <button class="continue-btn" style="width:100%;" onclick="submitReport()">검토 요청 보내기</button>
     </div>
   </div>
 
-  <!-- =========================================================
-       11개 기본 과목 + 11개 기출 과목 스크립트 연결
-       ========================================================= -->
+  <!-- [모달 2] 이름/PW 변경 모달 -->
+  <div class="modal-overlay" id="profile-modal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div class="modal-title">이름 / 비밀번호 변경</div>
+        <button class="modal-close-btn" onclick="closeModal('profile-modal')"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="form-group">
+        <label>사용자 이름</label>
+        <input type="text" class="form-control" id="input-username">
+      </div>
+      <div class="form-group">
+        <label>새 비밀번호</label>
+        <input type="password" class="form-control" id="input-password" placeholder="변경할 새 비밀번호">
+      </div>
+      <button class="continue-btn" style="width:100%;" onclick="saveProfile()">저장하기</button>
+    </div>
+  </div>
+
+  <!-- [모달 3] 오류 검토 리스트 모달 -->
+  <div class="modal-overlay" id="report-list-modal">
+    <div class="modal-box" style="max-width:700px;">
+      <div class="modal-header">
+        <div class="modal-title">접수된 오류 검토 리스트</div>
+        <button class="modal-close-btn" onclick="closeModal('report-list-modal')"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div id="report-list-container"></div>
+    </div>
+  </div>
+
+  <!-- [모달 4] 회원 관리 모달 (admin 전용) -->
+  <div class="modal-overlay" id="admin-modal">
+    <div class="modal-box" style="max-width:700px;">
+      <div class="modal-header">
+        <div class="modal-title"><i class="fa-solid fa-users-gear"></i> 회원 계정 관리 (Admin)</div>
+        <button class="modal-close-btn" onclick="closeModal('admin-modal')"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div id="admin-user-list"></div>
+    </div>
+  </div>
+
+  <!-- [모달 5] 회차 전체 문제 해설 확인 모달 -->
+  <div class="modal-overlay" id="explanation-modal">
+    <div class="modal-box" style="max-width:750px;">
+      <div class="modal-header">
+        <div class="modal-title" id="expl-modal-title">전체 문제 및 정답 해설</div>
+        <button class="modal-close-btn" onclick="closeModal('explanation-modal')"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div id="expl-modal-content"></div>
+    </div>
+  </div>
+
+  <!-- 11개 기본 과목 + 11개 기출 과목 스크립트 연결 -->
   <script src="./data/anatomy.js"></script>
   <script src="./data/anatomy_past.js"></script>
   <script src="./data/morphology.js"></script>
@@ -733,91 +912,258 @@
   <script src="./data/orthodontics.js"></script>
   <script src="./data/orthodontics_past.js"></script>
 
-  <!-- =========================================================
-       어플리케이션 코어 로직
-       ========================================================= -->
   <script>
-    // 과목 메타데이터 정의
+    // 과목 메타데이터 (1교시/2교시 분류)
     const subjectMeta = [
       // 1교시
-      { key: 'anatomy', name: '구강해부학 (1교시 1~12)', period: 1 },
+      { key: 'anatomy', name: '구강해부학 (1~12)', period: 1 },
       { key: 'anatomy_past', name: '구강해부학 국시기출 (19~25년)', period: 1 },
-      { key: 'morphology', name: '치아형태학 (1교시 13~28)', period: 1 },
+      { key: 'morphology', name: '치아형태학 (13~28)', period: 1 },
       { key: 'morphology_past', name: '치아형태학 국시기출 (19~25년)', period: 1 },
-      { key: 'hygiene', name: '구강보건학 (1교시 29~40)', period: 1 },
+      { key: 'hygiene', name: '구강보건학 (29~40)', period: 1 },
       { key: 'hygiene_past', name: '구강보건학 국시기출 (19~25년)', period: 1 },
-      { key: 'materials', name: '치과재료학 (1교시 41~75)', period: 1 },
+      { key: 'materials', name: '치과재료학 (41~75)', period: 1 },
       { key: 'materials_past', name: '치과재료학 국시기출 (19~25년)', period: 1 },
-      { key: 'law', name: '의료관계법규 (1교시 76~95)', period: 1 },
+      { key: 'law', name: '의료관계법규 (76~95)', period: 1 },
       { key: 'law_past', name: '의료관계법규 국시기출 (19~25년)', period: 1 },
 
       // 2교시
-      { key: 'crown_bridge', name: '관교의치기공학 (2교시 1~19)', period: 2 },
+      { key: 'crown_bridge', name: '관교의치기공학 (1~19)', period: 2 },
       { key: 'crown_bridge_past', name: '관교의치기공학 국시기출 (19~25년)', period: 2 },
-      { key: 'porcelain', name: '도재기공학 (2교시 20~34)', period: 2 },
+      { key: 'porcelain', name: '도재기공학 (20~34)', period: 2 },
       { key: 'porcelain_past', name: '도재기공학 국시기출 (19~25년)', period: 2 },
-      { key: 'complete_denture', name: '총의치기공학 (2교시 35~58)', period: 2 },
+      { key: 'complete_denture', name: '총의치기공학 (35~58)', period: 2 },
       { key: 'complete_denture_past', name: '총의치기공학 국시기출 (19~25년)', period: 2 },
-      { key: 'partial_denture', name: '국소의치기공학 (2교시 59~82)', period: 2 },
+      { key: 'partial_denture', name: '국소의치기공학 (59~82)', period: 2 },
       { key: 'partial_denture_past', name: '국소의치기공학 국시기출 (19~25년)', period: 2 },
-      { key: 'restorative', name: '충전기공학 (2교시 83~96)', period: 2 },
+      { key: 'restorative', name: '충전기공학 (83~96)', period: 2 },
       { key: 'restorative_past', name: '충전기공학 국시기출 (19~25년)', period: 2 },
-      { key: 'orthodontics', name: '교정기공학 (2교시 97~110)', period: 2 },
+      { key: 'orthodontics', name: '교정기공학 (97~110)', period: 2 },
       { key: 'orthodontics_past', name: '교정기공학 국시기출 (19~25년)', period: 2 }
     ];
 
-    // 앱 상태 관리
+    // 상태 변수
     let currentSubjectKey = null;
     let quizQuestions = [];
     let currentIndex = 0;
     let correctCount = 0;
-    let currentSessionWrongItems = []; // 현재 세션 중 틀린 문항 추적
+    let currentSessionWrongItems = [];
     let isAnswerChecked = false;
 
     // 로컬 스토리지 키
-    const STORAGE_KEY_HISTORY = 'quizlet_exam_history_v1';
+    const STORAGE_KEY_HISTORY = 'quizlet_exam_history_v2';
+    const STORAGE_KEY_USER = 'quizlet_current_user_v2';
+    const STORAGE_KEY_USERS_DB = 'quizlet_users_db_v2';
+    const STORAGE_KEY_REPORTS = 'quizlet_reports_db_v2';
 
-    // 1. 초기 로드
+    // 1. 초기화
     window.addEventListener('DOMContentLoaded', () => {
+      initUserSystem();
       renderSubjectList();
       window.addEventListener('keydown', handleGlobalKeydown);
     });
 
-    // 2. 과목 목록 렌더링
+    // 2. 계정 및 권한 시스템
+    function initUserSystem() {
+      let users = JSON.parse(localStorage.getItem(STORAGE_KEY_USERS_DB) || '[]');
+      if (users.length === 0) {
+        users = [
+          { username: 'admin', password: '123', role: 'admin' },
+          { username: '학생', password: '123', role: 'user' }
+        ];
+        localStorage.setItem(STORAGE_KEY_USERS_DB, JSON.stringify(users));
+      }
+
+      let currentUser = JSON.parse(localStorage.getItem(STORAGE_KEY_USER) || 'null');
+      if (!currentUser) {
+        currentUser = users[1]; // 기본 '학생'
+        localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(currentUser));
+      }
+
+      updateUserUI();
+    }
+
+    function updateUserUI() {
+      const currentUser = JSON.parse(localStorage.getItem(STORAGE_KEY_USER));
+      document.getElementById('current-username').innerText = currentUser.username;
+      document.getElementById('admin-btn').style.display = (currentUser.role === 'admin') ? 'flex' : 'none';
+    }
+
+    function openProfileModal() {
+      const currentUser = JSON.parse(localStorage.getItem(STORAGE_KEY_USER));
+      document.getElementById('input-username').value = currentUser.username;
+      document.getElementById('input-password').value = currentUser.password;
+      document.getElementById('profile-modal').style.display = 'flex';
+    }
+
+    function saveProfile() {
+      const newName = document.getElementById('input-username').value.trim();
+      const newPw = document.getElementById('input-password').value.trim();
+      if (!newName || !newPw) {
+        alert('이름과 비밀번호를 모두 입력해주세요.');
+        return;
+      }
+
+      let users = JSON.parse(localStorage.getItem(STORAGE_KEY_USERS_DB) || '[]');
+      let currentUser = JSON.parse(localStorage.getItem(STORAGE_KEY_USER));
+
+      const idx = users.findIndex(u => u.username === currentUser.username);
+      if (idx !== -1) {
+        users[idx].username = newName;
+        users[idx].password = newPw;
+        currentUser.username = newName;
+        currentUser.password = newPw;
+      }
+
+      localStorage.setItem(STORAGE_KEY_USERS_DB, JSON.stringify(users));
+      localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(currentUser));
+
+      updateUserUI();
+      closeModal('profile-modal');
+      alert('성공적으로 변경되었습니다.');
+    }
+
+    // 3. 회원 관리 (Admin)
+    function openAdminModal() {
+      const users = JSON.parse(localStorage.getItem(STORAGE_KEY_USERS_DB) || '[]');
+      const container = document.getElementById('admin-user-list');
+      
+      let html = `
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>사용자명</th>
+              <th>역할</th>
+              <th>비밀번호</th>
+              <th>관리</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      users.forEach((u, i) => {
+        html += `
+          <tr>
+            <td><strong>${u.username}</strong></td>
+            <td>${u.role}</td>
+            <td>${u.password}</td>
+            <td>
+              ${u.role !== 'admin' ? `<button class="btn-action-sm btn-retry-wrong" onclick="resetUserPw(${i})">PW초기화</button>` : '-'}
+            </td>
+          </tr>
+        `;
+      });
+
+      html += `</tbody></table>`;
+      container.innerHTML = html;
+      document.getElementById('admin-modal').style.display = 'flex';
+    }
+
+    function resetUserPw(index) {
+      let users = JSON.parse(localStorage.getItem(STORAGE_KEY_USERS_DB) || '[]');
+      users[index].password = '123';
+      localStorage.setItem(STORAGE_KEY_USERS_DB, JSON.stringify(users));
+      openAdminModal();
+      alert(`${users[index].username}의 비밀번호가 123으로 초기화되었습니다.`);
+    }
+
+    // 4. 오류 검토 요청 및 리스트 관리
+    function openReportModal() {
+      const q = quizQuestions[currentIndex];
+      document.getElementById('report-question-preview').value = q ? q.question : '';
+      document.getElementById('report-content').value = '';
+      document.getElementById('report-modal').style.display = 'flex';
+    }
+
+    function submitReport() {
+      const content = document.getElementById('report-content').value.trim();
+      if (!content) {
+        alert('검토 요청 내용을 입력해주세요.');
+        return;
+      }
+
+      const q = quizQuestions[currentIndex];
+      const currentUser = JSON.parse(localStorage.getItem(STORAGE_KEY_USER));
+      const reports = JSON.parse(localStorage.getItem(STORAGE_KEY_REPORTS) || '[]');
+
+      reports.unshift({
+        id: Date.now(),
+        user: currentUser.username,
+        question: q.question,
+        content: content,
+        date: new Date().toLocaleString()
+      });
+
+      localStorage.setItem(STORAGE_KEY_REPORTS, JSON.stringify(reports));
+      closeModal('report-modal');
+      alert('오류 검토 요청이 접수되었습니다.');
+    }
+
+    function openReportListModal() {
+      const reports = JSON.parse(localStorage.getItem(STORAGE_KEY_REPORTS) || '[]');
+      const container = document.getElementById('report-list-container');
+      
+      if (reports.length === 0) {
+        container.innerHTML = '<div style="color:var(--text-sub); text-align:center; padding:32px 0;">접수된 검토 요청이 없습니다.</div>';
+      } else {
+        let html = '';
+        reports.forEach(r => {
+          html += `
+            <div style="background-color:var(--card-inner); border:1px solid var(--border-color); border-radius:8px; padding:12px; margin-bottom:10px;">
+              <div style="font-size:0.8rem; color:var(--text-sub); margin-bottom:4px;">${r.date} • 작성자: ${r.user}</div>
+              <div style="font-size:0.9rem; font-weight:600; margin-bottom:6px; color:#93c5fd;">[문제] ${r.question}</div>
+              <div style="font-size:0.88rem; color:var(--text-main); white-space:pre-wrap;">${r.content}</div>
+            </div>
+          `;
+        });
+        container.innerHTML = html;
+      }
+
+      document.getElementById('report-list-modal').style.display = 'flex';
+    }
+
+    // 5. 과목 목록 렌더링 (1교시 / 2교시 분리)
     function renderSubjectList() {
-      const container = document.getElementById('subject-list-container');
+      const p1Container = document.getElementById('subject-list-period-1');
+      const p2Container = document.getElementById('subject-list-period-2');
       const periodVal = document.getElementById('period-filter').value;
       const searchVal = document.getElementById('subject-search').value.trim().toLowerCase();
       const db = window.quizDatabase || {};
       const history = getHistory();
 
-      container.innerHTML = '';
+      p1Container.innerHTML = '';
+      p2Container.innerHTML = '';
+
+      // 교시 섹션 표시 여부
+      document.getElementById('section-period-1').style.display = (periodVal === 'all' || periodVal === '1') ? 'block' : 'none';
+      document.getElementById('section-period-2').style.display = (periodVal === 'all' || periodVal === '2') ? 'block' : 'none';
 
       subjectMeta.forEach(meta => {
-        // 필터 조건 체크
         if (periodVal !== 'all' && meta.period !== parseInt(periodVal)) return;
         if (searchVal && !meta.name.toLowerCase().includes(searchVal)) return;
 
         const subData = db[meta.key];
         const count = subData && subData.questions ? subData.questions.length : 0;
 
-        // 해당 과목의 가장 최근 풀이 이력 가져오기
         const subjectHistories = history.filter(h => h.subjectKey === meta.key);
         const latestRecord = subjectHistories.length > 0 ? subjectHistories[0] : null;
 
-        const card = document.createElement('div');
-        card.className = 'subject-card';
-        card.onclick = () => startQuiz(meta.key);
+        const wrapper = document.createElement('div');
+        wrapper.className = 'subject-card-wrapper';
 
         let recentWrongBadgeHtml = '';
         if (latestRecord && latestRecord.wrongIds && latestRecord.wrongIds.length > 0) {
           recentWrongBadgeHtml = `
-            <div class="recent-wrong-badge" title="최근 회차에서 틀린 문제 수">
+            <div class="recent-wrong-badge" title="최근 회차 오답 수">
               <i class="fa-solid fa-triangle-exclamation"></i>
               최근 오답 ${latestRecord.wrongIds.length}
             </div>
           `;
         }
+
+        const card = document.createElement('div');
+        card.className = 'subject-card';
+        card.onclick = () => startQuiz(meta.key);
 
         card.innerHTML = `
           <div class="subject-card-left">
@@ -826,21 +1172,53 @@
             </div>
             <div>
               <div class="subject-info-title">${meta.name}</div>
-              <div class="subject-info-sub">
-                <span>낱말카드 세트</span>
-                <span>${count} 문항</span>
-                <span>${meta.period}교시</span>
-              </div>
+              <div class="subject-info-sub">${count} 문항</div>
             </div>
           </div>
           <div class="subject-card-right">
             ${recentWrongBadgeHtml}
-            <button class="card-more-btn" onclick="event.stopPropagation(); openSubjectHistory('${meta.key}')" title="이력 보기">
+            <button class="card-more-btn" onclick="event.stopPropagation(); toggleSubjectDropdown('${meta.key}')" title="회차별 이력">
               <i class="fa-solid fa-ellipsis"></i>
             </button>
           </div>
         `;
-        container.appendChild(card);
+
+        // 아코디언 드롭다운 패널 생성
+        const panel = document.createElement('div');
+        panel.className = 'history-dropdown-panel';
+        panel.id = `history-panel-${meta.key}`;
+
+        if (subjectHistories.length === 0) {
+          panel.innerHTML = '<div style="font-size:0.85rem; color:var(--text-sub); text-align:center; padding:12px;">풀이 이력이 없습니다.</div>';
+        } else {
+          subjectHistories.forEach(rec => {
+            const item = document.createElement('div');
+            item.className = 'history-card-item';
+            item.innerHTML = `
+              <div>
+                <div class="history-meta-text">${rec.date}</div>
+                <div style="font-size:0.9rem; font-weight:600;">
+                  정답: ${rec.correct} / ${rec.total} 
+                  ${rec.wrongIds.length > 0 ? `<span style="color:var(--error-orange); font-size:0.82rem;">(오답 ${rec.wrongIds.length})</span>` : '<span style="color:var(--correct-green); font-size:0.82rem;">(만점)</span>'}
+                </div>
+              </div>
+              <div class="history-action-btns">
+                <button class="btn-action-sm btn-review-expl" onclick="reviewHistoryExplanation('${meta.key}', ${rec.id})">전체 문제 해설</button>
+                ${rec.wrongIds.length > 0 ? `<button class="btn-action-sm btn-retry-wrong" onclick="retryHistoryWrong('${meta.key}',${rec.id})">오답 다시풀기</button>` : ''}
+              </div>
+            `;
+            panel.appendChild(item);
+          });
+        }
+
+        wrapper.appendChild(card);
+        wrapper.appendChild(panel);
+
+        if (meta.period === 1) {
+          p1Container.appendChild(wrapper);
+        } else {
+          p2Container.appendChild(wrapper);
+        }
       });
     }
 
@@ -848,7 +1226,15 @@
       renderSubjectList();
     }
 
-    // 3. 퀴즈 세션 시작
+    function toggleSubjectDropdown(key) {
+      const panel = document.getElementById(`history-panel-${key}`);
+      if (panel) {
+        const isShown = panel.style.display === 'flex';
+        panel.style.display = isShown ? 'none' : 'flex';
+      }
+    }
+
+    // 6. 문제 풀이 세션 시작
     function startQuiz(key, specificQuestions = null) {
       const db = window.quizDatabase || {};
       const sub = db[key];
@@ -864,7 +1250,6 @@
       currentSessionWrongItems = [];
       isAnswerChecked = false;
 
-      // 뷰 전환
       document.getElementById('subject-view').style.display = 'none';
       document.getElementById('quiz-view').style.display = 'block';
       document.getElementById('bottom-feedback-bar').style.display = 'none';
@@ -873,7 +1258,6 @@
       renderCurrentQuestion();
     }
 
-    // 홈 화면 복귀
     function goHome() {
       document.getElementById('quiz-view').style.display = 'none';
       document.getElementById('bottom-feedback-bar').style.display = 'none';
@@ -881,7 +1265,6 @@
       renderSubjectList();
     }
 
-    // 4. 진행바 초기화
     function initProgressBar() {
       const barContainer = document.getElementById('segmented-bar');
       barContainer.innerHTML = '';
@@ -895,11 +1278,12 @@
       document.getElementById('quiz-badge-total').innerText = quizQuestions.length;
     }
 
-    // 5. 단일 카드 문제 렌더링
+    // 7. 문제 및 선택지 렌더링
     function renderCurrentQuestion() {
       isAnswerChecked = false;
       document.getElementById('bottom-feedback-bar').style.display = 'none';
       document.getElementById('status-msg-banner').style.display = 'none';
+      document.getElementById('common-explanation-box').style.display = 'none';
 
       const q = quizQuestions[currentIndex];
       document.getElementById('quiz-question-text').innerText = `${currentIndex + 1}. ${q.question}`;
@@ -908,18 +1292,26 @@
       optContainer.innerHTML = '';
 
       q.options.forEach((optText, idx) => {
-        const btn = document.createElement('button');
+        const optNum = idx + 1;
+        const btn = document.createElement('div');
         btn.className = 'option-btn';
-        btn.onclick = () => selectAnswer(idx + 1);
+        btn.onclick = () => selectAnswer(optNum);
+
+        // 개별 해설 텍스트 확보
+        const individualExpl = (q.optionExplanations && q.optionExplanations[optNum]) ? q.optionExplanations[optNum] : '';
+
         btn.innerHTML = `
-          <span class="option-idx">${idx + 1}</span>
-          <span>${optText}</span>
+          <div class="option-top-row">
+            <span class="option-idx" id="opt-icon-${optNum}">${optNum}</span>
+            <span>${optText}</span>
+          </div>
+          <div class="option-explanation-inline" id="opt-expl-${optNum}">${individualExpl}</div>
         `;
         optContainer.appendChild(btn);
       });
     }
 
-    // 6. 답안 선택 및 판정 처리
+    // 8. 답안 선택 및 판정 (상세 해설 펼침)
     function selectAnswer(userPick) {
       if (isAnswerChecked) return;
       isAnswerChecked = true;
@@ -929,87 +1321,87 @@
       const optButtons = document.querySelectorAll('.option-btn');
       const segment = document.getElementById(`seg-${currentIndex}`);
 
-      // 모든 버튼 비활성화
+      // 버튼 비활성화 (클릭 방지)
       optButtons.forEach(btn => btn.classList.add('disabled'));
+
+      // 모든 선택지 내부 개별 해설 노출
+      q.options.forEach((_, idx) => {
+        const optNum = idx + 1;
+        const explElem = document.getElementById(`opt-expl-${optNum}`);
+        if (explElem && explElem.innerText.trim() !== '') {
+          explElem.style.display = 'block';
+        }
+      });
+
+      // 공통 해설 및 팁 노출
+      const commonExplText = (q.commonExplanations && q.commonExplanations.length > 0) ? q.commonExplanations.join('<br>') : '';
+      if (commonExplText) {
+        document.getElementById('common-explanation-text').innerHTML = commonExplText;
+        document.getElementById('common-explanation-box').style.display = 'block';
+      }
 
       if (isCorrect) {
         correctCount++;
         document.getElementById('quiz-badge-correct').innerText = correctCount;
         if (segment) segment.classList.add('passed');
 
-        // 정답 버튼 강조
         optButtons[userPick - 1].classList.add('correct-choice');
-        optButtons[userPick - 1].innerHTML = `
-          <span class="option-idx"><i class="fa-solid fa-check"></i></span>
-          <span>${q.options[userPick - 1]}</span>
-        `;
-
-        // 0.6초 후 다음 문제 자동 진행
-        setTimeout(() => {
-          nextQuestion();
-        }, 650);
-
+        document.getElementById(`opt-icon-${userPick}`).innerHTML = '<i class="fa-solid fa-check"></i>';
       } else {
-        // 오답 처리
         currentSessionWrongItems.push(q);
         if (segment) segment.classList.add('failed');
 
-        // 사용자가 고른 오답 표시
         if (userPick > 0 && userPick <= optButtons.length) {
           optButtons[userPick - 1].classList.add('wrong-choice');
-          optButtons[userPick - 1].innerHTML = `
-            <span class="option-idx"><i class="fa-solid fa-xmark"></i></span>
-            <span>${q.options[userPick - 1]}</span>
-          `;
+          document.getElementById(`opt-icon-${userPick}`).innerHTML = '<i class="fa-solid fa-xmark"></i>';
         }
 
-        // 실제 정답 점선 하이라이트
+        // 실제 정답 강조
         optButtons[q.answer - 1].classList.add('correct-highlight');
 
-        // 안내 배너 및 하단 액션바 등장
         document.getElementById('status-msg-banner').style.display = 'block';
-        document.getElementById('bottom-feedback-bar').style.display = 'flex';
       }
+
+      // 정답이든 오답이든 해설을 충분히 볼 수 있도록 하단 액션바 띄움
+      document.getElementById('bottom-feedback-bar').style.display = 'flex';
     }
 
-    // '모르시겠어요?' 클릭 시 오답으로 처리
     function handleDontKnow() {
       if (isAnswerChecked) return;
-      selectAnswer(-1); // 없는 번호 전달
+      selectAnswer(-1);
     }
 
-    // 7. 다음 문항 이동
     function nextQuestion() {
       currentIndex++;
       if (currentIndex < quizQuestions.length) {
         renderCurrentQuestion();
+        // 스크롤 맨 위로 부드럽게 이동
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       } else {
         finishQuizSession();
       }
     }
 
-    // 8. 퀴즈 세션 종료 및 이력 저장
+    // 9. 퀴즈 종료 및 회차 이력 보관
     function finishQuizSession() {
       document.getElementById('bottom-feedback-bar').style.display = 'none';
 
-      // 풀이 이력 저장 (회차별)
       const wrongIds = currentSessionWrongItems.map(item => item.id);
       saveSessionHistory(currentSubjectKey, quizQuestions.length, correctCount, wrongIds);
 
-      // 세션 완료 화면
       const cardBox = document.getElementById('quiz-card-box');
       cardBox.innerHTML = `
-        <div class="complete-card">
-          <div class="complete-icon"><i class="fa-solid fa-circle-check"></i></div>
-          <h2 style="font-size: 1.5rem; margin-bottom: 12px;">학습을 완료했습니다!</h2>
-          <p style="color: var(--text-sub); margin-bottom: 28px;">
-            총 ${quizQuestions.length}문항 중 <strong style="color: var(--correct-green);">${correctCount}문항</strong> 정답
-            ${wrongIds.length > 0 ? `<br><span style="color: var(--error-orange);">오답 ${wrongIds.length}문항</span>` : ''}
+        <div style="text-align:center; padding:40px 16px;">
+          <div style="font-size:3rem; color:var(--correct-green); margin-bottom:16px;"><i class="fa-solid fa-circle-check"></i></div>
+          <h2 style="font-size:1.5rem; margin-bottom:12px;">학습을 완료했습니다!</h2>
+          <p style="color:var(--text-sub); margin-bottom:28px;">
+            총 ${quizQuestions.length}문항 중 <strong style="color:var(--correct-green);">${correctCount}문항</strong> 정답
+            ${wrongIds.length > 0 ? `<br><span style="color:var(--error-orange);">오답 ${wrongIds.length}문항</span>` : ''}
           </p>
-          <div style="display: flex; gap: 12px; justify-content: center;">
-            <button class="continue-btn" onclick="goHome()">세트 목록으로</button>
+          <div style="display:flex; gap:12px; justify-content:center;">
+            <button class="continue-btn" onclick="goHome()">과목 목록으로</button>
             ${wrongIds.length > 0 ? `
-              <button class="history-retry-btn" style="padding: 12px 24px; font-size: 0.95rem;" onclick="retryWrongQuestions()">
+              <button class="btn-action-sm btn-retry-wrong" style="padding:12px 24px; font-size:0.95rem;" onclick="retryWrongQuestions()">
                 오답 ${wrongIds.length}문제 다시 풀기
               </button>
             ` : ''}
@@ -1018,12 +1410,64 @@
       `;
     }
 
-    // 틀린 문제만 다시 풀기
     function retryWrongQuestions() {
       startQuiz(currentSubjectKey, currentSessionWrongItems);
     }
 
-    // 키보드 인터랙션 (1~5 숫자키, Enter, Space)
+    // 10. 이력 기반 다시 풀기 & 전체 해설 모달 확인
+    function retryHistoryWrong(subjectKey, historyId) {
+      const history = getHistory();
+      const rec = history.find(h => h.id === historyId);
+      if (!rec || !rec.wrongIds || rec.wrongIds.length === 0) return;
+
+      const db = window.quizDatabase || {};
+      const sub = db[subjectKey];
+      if (!sub) return;
+
+      const wrongQuestions = sub.questions.filter(q => rec.wrongIds.includes(q.id));
+      startQuiz(subjectKey, wrongQuestions);
+    }
+
+    function reviewHistoryExplanation(subjectKey, historyId) {
+      const db = window.quizDatabase || {};
+      const sub = db[subjectKey];
+      if (!sub) return;
+
+      document.getElementById('expl-modal-title').innerText = `${sub.title || '과목'} - 전체 문제 및 해설`;
+      const container = document.getElementById('expl-modal-content');
+      container.innerHTML = '';
+
+      sub.questions.forEach((q, idx) => {
+        const itemDiv = document.createElement('div');
+        itemDiv.style.cssText = 'background:var(--card-inner); border:1px solid var(--border-color); border-radius:10px; padding:16px; margin-bottom:14px;';
+
+        let optionsHtml = '';
+        q.options.forEach((opt, optIdx) => {
+          const optNum = optIdx + 1;
+          const isAns = (optNum === q.answer);
+          const expl = (q.optionExplanations && q.optionExplanations[optNum]) ? q.optionExplanations[optNum] : '';
+          optionsHtml += `
+            <div style="margin-top:6px; font-size:0.88rem; color:${isAns ? 'var(--correct-green)' : 'var(--text-sub)'}; font-weight:${isAns ? '700' : '400'};">
+              ${optNum}. ${opt} ${isAns ? '✓ (정답)' : ''}
+              ${expl ? `<div style="font-size:0.8rem; color:#cbd5e1; margin-left:14px; margin-top:2px;">↳ ${expl}</div>` : ''}
+            </div>
+          `;
+        });
+
+        const commonExpl = (q.commonExplanations && q.commonExplanations.length > 0) ? q.commonExplanations.join('<br>') : '';
+
+        itemDiv.innerHTML = `
+          <div style="font-weight:700; margin-bottom:8px; font-size:0.95rem;">${idx + 1}. ${q.question}</div>
+          <div style="margin-bottom:10px;">${optionsHtml}</div>
+          ${commonExpl ? `<div style="background:rgba(96,165,250,0.1); border-left:3px solid #60a5fa; padding:8px 12px; font-size:0.82rem; color:#93c5fd;"><strong>[핵심 TIP]</strong> ${commonExpl}</div>` : ''}
+        `;
+        container.appendChild(itemDiv);
+      });
+
+      document.getElementById('explanation-modal').style.display = 'flex';
+    }
+
+    // 11. 키보드 인터랙션 (1~5 단축키 및 Enter 계속)
     function handleGlobalKeydown(e) {
       if (document.getElementById('quiz-view').style.display !== 'block') return;
 
@@ -1036,7 +1480,6 @@
           }
         }
       } else {
-        // 이미 답변 체크된 상태에서 하단 바가 열려있을 때 계속 진행
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
           nextQuestion();
@@ -1044,13 +1487,15 @@
       }
     }
 
-    // =========================================================
-    // 회차별 풀이 이력 (Local Storage) 관리
-    // =========================================================
+    // 12. 공통 모달 닫기
+    function closeModal(id) {
+      document.getElementById(id).style.display = 'none';
+    }
+
+    // 로컬 스토리지 헬퍼
     function getHistory() {
       try {
-        const data = localStorage.getItem(STORAGE_KEY_HISTORY);
-        return data ? JSON.parse(data) : [];
+        return JSON.parse(localStorage.getItem(STORAGE_KEY_HISTORY) || '[]');
       } catch (e) {
         return [];
       }
@@ -1069,87 +1514,8 @@
         wrongIds: wrongIds
       };
       history.unshift(newEntry);
-      // 최근 30개 이력만 보관
-      if (history.length > 30) history.pop();
+      if (history.length > 50) history.pop();
       localStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(history));
-    }
-
-    // 이력 모달 토글
-    function toggleHistoryModal() {
-      const modal = document.getElementById('history-modal');
-      const isVisible = modal.style.display === 'flex';
-      modal.style.display = isVisible ? 'none' : 'flex';
-      if (!isVisible) {
-        renderHistoryList();
-      }
-    }
-
-    function openSubjectHistory(targetKey) {
-      toggleHistoryModal();
-      renderHistoryList(targetKey);
-    }
-
-    function closeModalOnOverlay(e) {
-      if (e.target.id === 'history-modal') {
-        toggleHistoryModal();
-      }
-    }
-
-    // 이력 모달 내부 리스트 렌더링
-    function renderHistoryList(filterKey = null) {
-      const container = document.getElementById('history-list-container');
-      const history = getHistory();
-      const filtered = filterKey ? history.filter(h => h.subjectKey === filterKey) : history;
-
-      if (filtered.length === 0) {
-        container.innerHTML = '<div style="color: var(--text-sub); text-align: center; padding: 32px 0;">풀이 이력이 없습니다.</div>';
-        return;
-      }
-
-      container.innerHTML = '';
-      filtered.forEach(item => {
-        const div = document.createElement('div');
-        div.className = 'history-item';
-        div.innerHTML = `
-          <div>
-            <div class="history-item-date">${item.date}</div>
-            <div style="font-weight: 600; margin-bottom: 2px;">${item.subjectName}</div>
-            <div style="font-size: 0.82rem; color: var(--text-sub);">
-              점수: ${item.correct} / ${item.total}
-              ${item.wrongIds && item.wrongIds.length > 0 ? `<span style="color: var(--error-orange); margin-left: 6px;">(오답 ${item.wrongIds.length})</span>` : '<span style="color: var(--correct-green); margin-left: 6px;">(만점)</span>'}
-            </div>
-          </div>
-          <div>
-            ${item.wrongIds && item.wrongIds.length > 0 ? `
-              <button class="history-retry-btn" onclick="retrySpecificHistory(${item.id})">
-                오답 풀기
-              </button>
-            ` : ''}
-          </div>
-        `;
-        container.appendChild(div);
-      });
-    }
-
-    // 특정 회차의 오답만 모아서 풀기
-    function retrySpecificHistory(historyId) {
-      const history = getHistory();
-      const record = history.find(h => h.id === historyId);
-      if (!record || !record.wrongIds || record.wrongIds.length === 0) return;
-
-      const db = window.quizDatabase || {};
-      const sub = db[record.subjectKey];
-      if (!sub) return;
-
-      // 해당 회차의 틀린 id와 일치하는 문제 추출
-      const wrongQuestions = sub.questions.filter(q => record.wrongIds.includes(q.id));
-      if (wrongQuestions.length === 0) {
-        alert('문제를 찾을 수 없습니다.');
-        return;
-      }
-
-      toggleHistoryModal();
-      startQuiz(record.subjectKey, wrongQuestions);
     }
   </script>
 </body>
