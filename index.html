@@ -150,14 +150,14 @@
     }
 
     /* =========================================================
-       [화면 0] 사용자 선택 화면 (User Select View)
+       [화면 0] 사용자 선택 화면 (6개 그리드 배치)
        ========================================================= */
     #user-select-view {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      min-height: 60vh;
+      min-height: 70vh;
       text-align: center;
     }
 
@@ -170,23 +170,29 @@
     .user-select-sub {
       color: var(--text-sub);
       font-size: 0.95rem;
-      margin-bottom: 36px;
+      margin-bottom: 40px;
     }
 
     .user-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      grid-template-columns: repeat(3, 1fr);
       gap: 20px;
       width: 100%;
-      max-width: 520px;
+      max-width: 760px;
       margin-bottom: 32px;
+    }
+
+    @media (max-width: 680px) {
+      .user-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
     }
 
     .user-card-btn {
       background-color: var(--card-bg);
       border: 1px solid var(--border-color);
       border-radius: 16px;
-      padding: 24px 16px;
+      padding: 28px 16px;
       cursor: pointer;
       display: flex;
       flex-direction: column;
@@ -202,9 +208,13 @@
       transform: translateY(-4px);
     }
 
+    .user-card-btn.is-empty {
+      border-style: dashed;
+    }
+
     .user-avatar-circle {
-      width: 64px;
-      height: 64px;
+      width: 68px;
+      height: 68px;
       border-radius: 50%;
       background-color: var(--card-inner);
       border: 2px solid var(--border-color);
@@ -215,18 +225,23 @@
       color: var(--accent-blue);
     }
 
+    .user-card-btn.is-empty .user-avatar-circle {
+      color: var(--text-sub);
+      border-color: var(--border-color);
+    }
+
     .user-name-text {
-      font-size: 1.05rem;
+      font-size: 1.1rem;
       font-weight: 700;
       color: var(--text-main);
     }
 
     .user-role-text {
-      font-size: 0.75rem;
+      font-size: 0.78rem;
       color: var(--text-sub);
       background-color: rgba(255, 255, 255, 0.05);
-      padding: 2px 8px;
-      border-radius: 10px;
+      padding: 3px 10px;
+      border-radius: 12px;
     }
 
     /* =========================================================
@@ -824,12 +839,12 @@
     <div class="header-right" id="header-user-controls" style="display:none;">
       <div class="user-profile-badge">
         <i class="fa-solid fa-circle-user"></i>
-        <span id="current-username">사용자</span>
+        <span id="current-username">준영</span>
       </div>
       <button class="header-btn" onclick="openProfileModal()"><i class="fa-solid fa-key"></i> 이름/PW 변경</button>
       <button class="header-btn" onclick="openReportListModal()"><i class="fa-solid fa-list-check"></i> 오류 검토 리스트</button>
       <button class="header-btn" id="admin-btn" style="display:none;" onclick="openAdminModal()"><i class="fa-solid fa-users-gear"></i> 회원 관리</button>
-      <button class="header-btn header-btn-logout" onclick="logout()" title="사용자 선택으로 돌아가기"><i class="fa-solid fa-arrow-right-from-bracket"></i> 로그아웃</button>
+      <button class="header-btn header-btn-logout" onclick="logout()" title="프로필 선택으로 돌아가기"><i class="fa-solid fa-arrow-right-from-bracket"></i> 로그아웃</button>
       <button class="header-icon-btn" onclick="goHome()" title="나가기"><i class="fa-solid fa-xmark"></i></button>
     </div>
   </header>
@@ -837,12 +852,12 @@
   <!-- 메인 뷰 컨테이너 -->
   <main class="main-container">
     
-    <!-- [화면 0] 사용자 선택 화면 (복구됨) -->
+    <!-- [화면 0] 사용자 선택 화면 (준영 + 게스트 A~E 6개 배치) -->
     <div id="user-select-view">
       <div class="user-select-title">학습할 프로필을 선택하세요</div>
-      <div class="user-select-sub">계정을 선택하여 맞춤형 오답 기록과 학습을 시작합니다.</div>
+      <div class="user-select-sub">계정을 선택하거나 신규 등록하여 맞춤형 오답 학습을 시작합니다.</div>
       <div class="user-grid" id="user-grid-container">
-        <!-- 동적 사용자 카드 생성 -->
+        <!-- 6개 프로필 카드 동적 생성 -->
       </div>
     </div>
 
@@ -917,6 +932,40 @@
     <button class="continue-btn" id="continue-btn" onclick="nextQuestion()">계속</button>
   </div>
 
+  <!-- [모달: 신규 게스트 등록 모달] -->
+  <div class="modal-overlay" id="register-guest-modal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div class="modal-title" id="register-modal-title">새 사용자 등록</div>
+        <button class="modal-close-btn" onclick="closeModal('register-guest-modal')"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="form-group">
+        <label>사용자 이름 (게스트 이름을 대체합니다)</label>
+        <input type="text" class="form-control" id="reg-username" placeholder="예: 홍길동">
+      </div>
+      <div class="form-group">
+        <label>비밀번호 설정</label>
+        <input type="password" class="form-control" id="reg-password" placeholder="비밀번호 입력">
+      </div>
+      <button class="continue-btn" style="width:100%;" onclick="submitGuestRegister()">등록하고 학습 시작</button>
+    </div>
+  </div>
+
+  <!-- [모달: 기존 프로필 로그인 비밀번호 입력 모달] -->
+  <div class="modal-overlay" id="login-password-modal">
+    <div class="modal-box" style="max-width:440px;">
+      <div class="modal-header">
+        <div class="modal-title" id="login-modal-title">비밀번호 입력</div>
+        <button class="modal-close-btn" onclick="closeModal('login-password-modal')"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="form-group">
+        <label id="login-modal-sublabel">계정 비밀번호</label>
+        <input type="password" class="form-control" id="login-input-password" placeholder="비밀번호 입력" onkeyup="if(event.key==='Enter') submitProfileLogin()">
+      </div>
+      <button class="continue-btn" style="width:100%;" onclick="submitProfileLogin()">확인</button>
+    </div>
+  </div>
+
   <!-- [모달 1] 오류 검토 요청 모달 -->
   <div class="modal-overlay" id="report-modal">
     <div class="modal-box">
@@ -968,9 +1017,9 @@
 
   <!-- [모달 4] 회원 관리 모달 (admin 전용) -->
   <div class="modal-overlay" id="admin-modal">
-    <div class="modal-box" style="max-width:700px;">
+    <div class="modal-box" style="max-width:720px;">
       <div class="modal-header">
-        <div class="modal-title"><i class="fa-solid fa-users-gear"></i> 회원 계정 관리 (Admin)</div>
+        <div class="modal-title"><i class="fa-solid fa-users-gear"></i> 슬롯 및 회원 관리 (Admin)</div>
         <button class="modal-close-btn" onclick="closeModal('admin-modal')"><i class="fa-solid fa-xmark"></i></button>
       </div>
       <div id="admin-user-list"></div>
@@ -1049,27 +1098,32 @@
     let correctCount = 0;
     let currentSessionWrongItems = [];
     let isAnswerChecked = false;
+    let pendingLoginUserIndex = null;
+    let registeringSlotIndex = null;
 
-    const STORAGE_KEY_HISTORY = 'quizlet_exam_history_v3';
-    const STORAGE_KEY_USER = 'quizlet_current_user_v3';
-    const STORAGE_KEY_USERS_DB = 'quizlet_users_db_v3';
-    const STORAGE_KEY_REPORTS = 'quizlet_reports_db_v3';
+    const STORAGE_KEY_HISTORY = 'quizlet_exam_history_v4';
+    const STORAGE_KEY_USER = 'quizlet_current_user_v4';
+    const STORAGE_KEY_USERS_DB = 'quizlet_users_db_v4';
+    const STORAGE_KEY_REPORTS = 'quizlet_reports_db_v4';
 
-    // 1. 초기 로드
+    // 1. 초기 실행
     window.addEventListener('DOMContentLoaded', () => {
       initUserDatabase();
       checkAutoLogin();
       window.addEventListener('keydown', handleGlobalKeydown);
     });
 
-    // 2. 계정 데이터베이스 초기화
+    // 2. 6개 고정 슬롯 (준영 + 게스트 A~E)
     function initUserDatabase() {
-      let users = JSON.parse(localStorage.getItem(STORAGE_KEY_USERS_DB) || '[]');
-      if (users.length === 0) {
+      let users = JSON.parse(localStorage.getItem(STORAGE_KEY_USERS_DB) || 'null');
+      if (!users || users.length !== 6) {
         users = [
-          { username: 'admin', password: '123', role: 'admin' },
-          { username: '박준영', password: '123', role: 'user' },
-          { username: '학생', password: '123', role: 'user' }
+          { id: 'admin', slotName: '준영', username: '준영', password: '123', role: 'admin', isRegistered: true },
+          { id: 'guestA', slotName: '게스트A', username: '게스트A', password: '', role: 'user', isRegistered: false },
+          { id: 'guestB', slotName: '게스트B', username: '게스트B', password: '', role: 'user', isRegistered: false },
+          { id: 'guestC', slotName: '게스트C', username: '게스트C', password: '', role: 'user', isRegistered: false },
+          { id: 'guestD', slotName: '게스트D', username: '게스트D', password: '', role: 'user', isRegistered: false },
+          { id: 'guestE', slotName: '게스트E', username: '게스트E', password: '', role: 'user', isRegistered: false }
         ];
         localStorage.setItem(STORAGE_KEY_USERS_DB, JSON.stringify(users));
       }
@@ -1078,57 +1132,119 @@
     function checkAutoLogin() {
       const currentUser = JSON.parse(localStorage.getItem(STORAGE_KEY_USER) || 'null');
       if (currentUser) {
-        // 이미 로그인된 상태
         showMainView(currentUser);
       } else {
-        // 사용자 선택 화면 표시
         showUserSelectView();
       }
     }
 
-    // 사용자 선택 화면 렌더링
+    // [화면 0] 6개 프로필 카드 렌더링
     function showUserSelectView() {
       document.getElementById('user-select-view').style.display = 'flex';
       document.getElementById('subject-view').style.display = 'none';
       document.getElementById('quiz-view').style.display = 'none';
       document.getElementById('header-user-controls').style.display = 'none';
 
-      const users = JSON.parse(localStorage.getItem(STORAGE_KEY_USERS_DB) || '[]');
+      const users = JSON.parse(localStorage.getItem(STORAGE_KEY_USERS_DB));
       const container = document.getElementById('user-grid-container');
       container.innerHTML = '';
 
-      users.forEach(u => {
+      users.forEach((u, idx) => {
         const btn = document.createElement('div');
-        btn.className = 'user-card-btn';
-        btn.onclick = () => loginUser(u.username);
+        btn.className = `user-card-btn ${!u.isRegistered ? 'is-empty' : ''}`;
+        btn.onclick = () => handleProfileClick(idx);
+
+        let iconClass = 'fa-user-graduate';
+        if (u.role === 'admin') iconClass = 'fa-user-shield';
+        else if (!u.isRegistered) iconClass = 'fa-user-plus';
+
         btn.innerHTML = `
           <div class="user-avatar-circle">
-            <i class="fa-solid ${u.role === 'admin' ? 'fa-user-shield' : 'fa-user-graduate'}"></i>
+            <i class="fa-solid ${iconClass}"></i>
           </div>
           <div class="user-name-text">${u.username}</div>
-          <div class="user-role-text">${u.role === 'admin' ? '관리자' : '학습자'}</div>
+          <div class="user-role-text">${u.role === 'admin' ? '관리자' : (u.isRegistered ? '학습자' : '신규 등록')}</div>
         `;
         container.appendChild(btn);
       });
     }
 
-    // 로그인 실행
-    function loginUser(username) {
-      const users = JSON.parse(localStorage.getItem(STORAGE_KEY_USERS_DB) || '[]');
-      const target = users.find(u => u.username === username);
-      if (!target) return;
+    // 프로필 클릭 핸들러 (신규 등록 or 비밀번호 입력)
+    function handleProfileClick(userIndex) {
+      const users = JSON.parse(localStorage.getItem(STORAGE_KEY_USERS_DB));
+      const target = users[userIndex];
+
+      if (!target.isRegistered) {
+        // 게스트 상태: 이름 & 비밀번호 입력 받아 등록
+        registeringSlotIndex = userIndex;
+        document.getElementById('register-modal-title').innerText = `${target.slotName} 슬롯 등록`;
+        document.getElementById('reg-username').value = '';
+        document.getElementById('reg-password').value = '';
+        document.getElementById('register-guest-modal').style.display = 'flex';
+        setTimeout(() => document.getElementById('reg-username').focus(), 100);
+      } else {
+        // 이미 등록된 상태: 비밀번호 확인 후 로그인
+        pendingLoginUserIndex = userIndex;
+        document.getElementById('login-modal-title').innerText = `${target.username} 계정 로그인`;
+        document.getElementById('login-modal-sublabel').innerText = `${target.username}님의 비밀번호`;
+        document.getElementById('login-input-password').value = '';
+        document.getElementById('login-password-modal').style.display = 'flex';
+        setTimeout(() => document.getElementById('login-input-password').focus(), 100);
+      }
+    }
+
+    // 신규 게스트 등록 제출
+    function submitGuestRegister() {
+      const name = document.getElementById('reg-username').value.trim();
+      const pw = document.getElementById('reg-password').value.trim();
+
+      if (!name) {
+        alert('이름을 입력해주세요.');
+        return;
+      }
+      if (!pw) {
+        alert('비밀번호를 입력해주세요.');
+        return;
+      }
+
+      const users = JSON.parse(localStorage.getItem(STORAGE_KEY_USERS_DB));
+      users[registeringSlotIndex].username = name;
+      users[registeringSlotIndex].password = pw;
+      users[registeringSlotIndex].isRegistered = true;
+
+      localStorage.setItem(STORAGE_KEY_USERS_DB, JSON.stringify(users));
+      localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(users[registeringSlotIndex]));
+
+      closeModal('register-guest-modal');
+      alert(`${name}님으로 등록되었습니다.`);
+      showMainView(users[registeringSlotIndex]);
+    }
+
+    // 기존 프로필 비밀번호 확인 로그인
+    function submitProfileLogin() {
+      const pw = document.getElementById('login-input-password').value.trim();
+      const users = JSON.parse(localStorage.getItem(STORAGE_KEY_USERS_DB));
+      const target = users[pendingLoginUserIndex];
+
+      if (target.password !== pw) {
+        alert('비밀번호가 올바르지 않습니다.');
+        document.getElementById('login-input-password').value = '';
+        document.getElementById('login-input-password').focus();
+        return;
+      }
 
       localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(target));
+      closeModal('login-password-modal');
       showMainView(target);
     }
 
-    // 로그아웃 (사용자 선택 화면 복귀)
+    // 로그아웃 버튼 (프로필 선택 화면으로 복귀)
     function logout() {
       localStorage.removeItem(STORAGE_KEY_USER);
       showUserSelectView();
     }
 
-    // 메인 화면 활성화
+    // 메인 화면 노출
     function showMainView(user) {
       document.getElementById('user-select-view').style.display = 'none';
       document.getElementById('quiz-view').style.display = 'none';
@@ -1141,7 +1257,7 @@
       renderSubjectList();
     }
 
-    // 3. 프로필 변경 모달
+    // 3. 프로필 변경 모달 (로그인 상태에서 이름/PW 변경)
     function openProfileModal() {
       const currentUser = JSON.parse(localStorage.getItem(STORAGE_KEY_USER));
       document.getElementById('input-username').value = currentUser.username;
@@ -1157,10 +1273,10 @@
         return;
       }
 
-      let users = JSON.parse(localStorage.getItem(STORAGE_KEY_USERS_DB) || '[]');
+      let users = JSON.parse(localStorage.getItem(STORAGE_KEY_USERS_DB));
       let currentUser = JSON.parse(localStorage.getItem(STORAGE_KEY_USER));
 
-      const idx = users.findIndex(u => u.username === currentUser.username);
+      const idx = users.findIndex(u => u.id === currentUser.id);
       if (idx !== -1) {
         users[idx].username = newName;
         users[idx].password = newPw;
@@ -1176,18 +1292,19 @@
       alert('성공적으로 변경되었습니다.');
     }
 
-    // 4. Admin 관리
+    // 4. Admin 관리 (게스트 슬롯 초기화 기능 포함)
     function openAdminModal() {
-      const users = JSON.parse(localStorage.getItem(STORAGE_KEY_USERS_DB) || '[]');
+      const users = JSON.parse(localStorage.getItem(STORAGE_KEY_USERS_DB));
       const container = document.getElementById('admin-user-list');
       
       let html = `
         <table class="admin-table">
           <thead>
             <tr>
-              <th>사용자명</th>
-              <th>역할</th>
+              <th>슬롯</th>
+              <th>현재 이름</th>
               <th>비밀번호</th>
+              <th>상태</th>
               <th>관리</th>
             </tr>
           </thead>
@@ -1197,11 +1314,14 @@
       users.forEach((u, i) => {
         html += `
           <tr>
+            <td>${u.slotName}</td>
             <td><strong>${u.username}</strong></td>
-            <td>${u.role}</td>
-            <td>${u.password}</td>
+            <td>${u.password || '-'}</td>
+            <td>${u.isRegistered ? '등록됨' : '미등록(게스트)'}</td>
             <td>
-              ${u.role !== 'admin' ? `<button class="btn-action-sm btn-retry-wrong" onclick="resetUserPw(${i})">PW초기화</button>` : '-'}
+              ${u.role !== 'admin' && u.isRegistered ? `
+                <button class="btn-action-sm btn-retry-wrong" onclick="resetSlotToGuest(${i})">슬롯 초기화</button>
+              ` : (u.role === 'admin' ? '<button class="btn-action-sm btn-review-expl" onclick="resetAdminPw()">PW 123초기화</button>' : '-')}
             </td>
           </tr>
         `;
@@ -1212,12 +1332,26 @@
       document.getElementById('admin-modal').style.display = 'flex';
     }
 
-    function resetUserPw(index) {
-      let users = JSON.parse(localStorage.getItem(STORAGE_KEY_USERS_DB) || '[]');
-      users[index].password = '123';
+    function resetSlotToGuest(index) {
+      let users = JSON.parse(localStorage.getItem(STORAGE_KEY_USERS_DB));
+      const slot = users[index];
+      if (!confirm(`${slot.username} 계정을 초기화하고 [${slot.slotName}]으로 되돌리시겠습니까?`)) return;
+
+      users[index].username = slot.slotName;
+      users[index].password = '';
+      users[index].isRegistered = false;
+
       localStorage.setItem(STORAGE_KEY_USERS_DB, JSON.stringify(users));
       openAdminModal();
-      alert(`${users[index].username}의 비밀번호가 123으로 초기화되었습니다.`);
+      alert(`[${slot.slotName}] 슬롯이 초기화되었습니다.`);
+    }
+
+    function resetAdminPw() {
+      let users = JSON.parse(localStorage.getItem(STORAGE_KEY_USERS_DB));
+      users[0].password = '123';
+      localStorage.setItem(STORAGE_KEY_USERS_DB, JSON.stringify(users));
+      openAdminModal();
+      alert('관리자(준영) 비밀번호가 123으로 초기화되었습니다.');
     }
 
     // 5. 오류 검토 요청
@@ -1279,7 +1413,7 @@
       document.getElementById(id).style.display = 'none';
     }
 
-    // 6. 메인 과목 목록 렌더링 (1교시/2교시 분류)
+    // 6. 메인 과목 목록 (1교시 / 2교시 분리)
     function renderSubjectList() {
       const p1Container = document.getElementById('subject-list-period-1');
       const p2Container = document.getElementById('subject-list-period-2');
@@ -1390,7 +1524,7 @@
       }
     }
 
-    // 7. 퀴즈 실행 로직
+    // 7. 문제 풀이 세션
     function startQuiz(key, specificQuestions = null) {
       const db = window.quizDatabase || {};
       const sub = db[key];
@@ -1465,7 +1599,6 @@
       });
     }
 
-    // 답안 선택 및 상세 해설/팁 동시 노출
     function selectAnswer(userPick) {
       if (isAnswerChecked) return;
       isAnswerChecked = true;
@@ -1513,13 +1646,12 @@
         document.getElementById('status-msg-banner').style.display = 'block';
       }
 
-      // 정답이든 오답이든 해설을 꼼꼼히 확인한 후 '계속'을 누를 수 있도록 하단 액션바 팝업
       document.getElementById('bottom-feedback-bar').style.display = 'flex';
     }
 
     function handleDontKnow() {
       if (isAnswerChecked) return;
-      selectAnswer(-1); // 오답 처리
+      selectAnswer(-1);
     }
 
     function nextQuestion() {
@@ -1585,18 +1717,26 @@
     // 8. 풀이 이력(History) 및 해설 확인
     function getHistory() {
       try {
-        const data = localStorage.getItem(STORAGE_KEY_HISTORY);
-        return data ? JSON.parse(data) : [];
+        const currentUser = JSON.parse(localStorage.getItem(STORAGE_KEY_USER));
+        const allHistories = JSON.parse(localStorage.getItem(STORAGE_KEY_HISTORY) || '[]');
+        if (!currentUser) return [];
+        // 현재 로그인된 사용자의 이력만 필터링
+        return allHistories.filter(h => h.userId === currentUser.id);
       } catch (e) {
         return [];
       }
     }
 
     function saveSessionHistory(subjectKey, total, correct, wrongIds) {
-      const history = getHistory();
+      const currentUser = JSON.parse(localStorage.getItem(STORAGE_KEY_USER));
+      if (!currentUser) return;
+
+      const allHistories = JSON.parse(localStorage.getItem(STORAGE_KEY_HISTORY) || '[]');
       const meta = subjectMeta.find(m => m.key === subjectKey);
+
       const newEntry = {
         id: Date.now(),
+        userId: currentUser.id,
         subjectKey: subjectKey,
         subjectName: meta ? meta.name : subjectKey,
         date: new Date().toLocaleString('ko-KR', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }),
@@ -1604,9 +1744,10 @@
         correct: correct,
         wrongIds: wrongIds
       };
-      history.unshift(newEntry);
-      if (history.length > 40) history.pop();
-      localStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(history));
+
+      allHistories.unshift(newEntry);
+      if (allHistories.length > 100) allHistories.pop();
+      localStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(allHistories));
     }
 
     function retryHistoryWrong(subjectKey, historyId) {
