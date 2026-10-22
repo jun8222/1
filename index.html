@@ -415,7 +415,6 @@
       flex-shrink: 0;
     }
 
-    /* 과목 카드 우측에 바로 배치된 전체 풀기 버튼 */
     .btn-start-badge {
       background-color: var(--accent-blue);
       color: #fff;
@@ -512,10 +511,19 @@
       color: var(--error-orange);
     }
 
+    .btn-retry-wrong:hover {
+      background-color: var(--error-orange);
+      color: #fff;
+    }
+
     .btn-review-expl {
       background-color: var(--card-inner);
       border-color: var(--border-color);
       color: var(--text-main);
+    }
+
+    .btn-review-expl:hover {
+      border-color: var(--accent-blue);
     }
 
     /* =========================================================
@@ -631,7 +639,7 @@
     /* 선택지 레이아웃 (PC: 2열 / 모바일: 무조건 1행 1선택지) */
     .options-grid {
       display: grid;
-      grid-template-columns: 1fr; /* 모바일 기본: 한 행에 한 개 */
+      grid-template-columns: 1fr;
       gap: 10px;
       margin-bottom: 20px;
     }
@@ -1279,11 +1287,11 @@
     </div>
   </div>
 
-  <!-- [모달 5] 회차 전체 문제 해설 확인 모달 -->
+  <!-- [모달 5] 오답 문제 해설 확인 모달 (전체 해설에서 오답 해설로 변경) -->
   <div class="modal-overlay" id="explanation-modal">
     <div class="modal-box" style="max-width:750px;">
       <div class="modal-header">
-        <div class="modal-title" id="expl-modal-title">전체 문제 및 정답 해설</div>
+        <div class="modal-title" id="expl-modal-title">오답 문제 해설</div>
         <button class="modal-close-btn" onclick="closeModal('explanation-modal')"><i class="fa-solid fa-xmark"></i></button>
       </div>
       <div id="expl-modal-content"></div>
@@ -1387,7 +1395,7 @@
       }
     }
 
-    // 프로필 선택 화면 표시 (하단 바 강제 숨김)
+    // 프로필 선택 화면 표시
     function showUserSelectView() {
       document.getElementById('user-select-view').style.display = 'flex';
       document.getElementById('subject-view').style.display = 'none';
@@ -1484,7 +1492,7 @@
       showUserSelectView();
     }
 
-    // 메인 화면 노출 (하단 바 강제 숨김)
+    // 메인 화면 노출
     function showMainView(user) {
       document.getElementById('user-select-view').style.display = 'none';
       document.getElementById('quiz-view').style.display = 'none';
@@ -1576,7 +1584,7 @@
     function resetSlotToGuest(index) {
       let users = JSON.parse(localStorage.getItem(STORAGE_KEY_USERS_DB));
       const slot = users[index];
-      if (!confirm(`${slot.username} 계정을 초기화하고 [${slot.slotName}]으로 되돌리시겠습니까?`)) return;
+      if (!confirm(`${slot.username} 계정을 초기화하고 [${slot.slotName}]으로 되돌리시겠습니까? (해당 사용자의 풀이 이력도 함께 정리됩니다)`)) return;
 
       let allHistories = JSON.parse(localStorage.getItem(STORAGE_KEY_HISTORY) || '[]');
       allHistories = allHistories.filter(h => h.userId !== slot.id);
@@ -1655,7 +1663,7 @@
     }
 
     // =========================================================
-    // ★ 과목 목록 렌더링 (과목명 우측에 바로 [학습 시작] 버튼 배치)
+    // 과목 목록 렌더링 (과목명 우측 [학습 시작] 버튼 + 풀이 이력 드롭다운)
     // =========================================================
     function renderSubjectList() {
       const p1Container = document.getElementById('subject-list-period-1');
@@ -1697,7 +1705,6 @@
 
         const card = document.createElement('div');
         card.className = 'subject-card';
-        // 카드 본체를 누르면 드롭다운 토글
         card.onclick = () => toggleSubjectDropdown(meta.key);
 
         card.innerHTML = `
@@ -1712,7 +1719,6 @@
           </div>
           <div class="subject-card-right">
             ${recentWrongBadgeHtml}
-            <!-- 드롭다운 안에 숨기지 않고 과목명 우측에 바로 배치한 전체 문제 풀기 버튼 -->
             <button class="btn-start-badge" onclick="event.stopPropagation(); startQuiz('${meta.key}')" title="전체 ${count}문제 바로 풀기">
               <i class="fa-solid fa-play"></i> 학습 시작
             </button>
@@ -1733,17 +1739,25 @@
           subjectHistories.forEach(rec => {
             const item = document.createElement('div');
             item.className = 'history-card-item';
+            
+            const hasWrong = rec.wrongIds && rec.wrongIds.length > 0;
+            
             item.innerHTML = `
               <div>
                 <div class="history-meta-text">${rec.date}</div>
                 <div style="font-size:0.85rem; font-weight:600;">
                   정답: ${rec.correct} / ${rec.total} 
-                  ${rec.wrongIds.length > 0 ? `<span style="color:var(--error-orange); font-size:0.75rem;">(오답 ${rec.wrongIds.length})</span>` : '<span style="color:var(--correct-green); font-size:0.75rem;">(만점)</span>'}
+                  ${hasWrong ? `<span style="color:var(--error-orange); font-size:0.75rem;">(오답 ${rec.wrongIds.length})</span>` : '<span style="color:var(--correct-green); font-size:0.75rem;">(만점)</span>'}
                 </div>
               </div>
               <div class="history-action-btns">
-                <button class="btn-action-sm btn-review-expl" onclick="reviewHistoryExplanation('${meta.key}', ${rec.id})">전체 문제 해설</button>
-                ${rec.wrongIds.length > 0 ? `<button class="btn-action-sm btn-retry-wrong" onclick="retryHistoryWrong('${meta.key}', ${rec.id})">오답 다시풀기</button>` : ''}
+                <!-- 전체 해설에서 [오답 문제 해설]로 수정됨 -->
+                ${hasWrong ? `
+                  <button class="btn-action-sm btn-review-expl" onclick="reviewHistoryExplanation('${meta.key}', ${rec.id})">오답 문제 해설</button>
+                  <button class="btn-action-sm btn-retry-wrong" onclick="retryHistoryWrong('${meta.key}', ${rec.id})">오답 다시풀기</button>
+                ` : `
+                  <span style="font-size:0.75rem; color:var(--correct-green); padding:5px 8px;">오답 없음</span>
+                `}
               </div>
             `;
             panel.appendChild(item);
@@ -1782,7 +1796,7 @@
       return arr;
     }
 
-    // 7. 문제 풀이 세션 시작 (하단 바 강제 숨김)
+    // 7. 문제 풀이 세션 시작
     function startQuiz(key, specificQuestions = null) {
       const db = window.quizDatabase || {};
       const sub = db[key];
@@ -1846,13 +1860,12 @@
       document.getElementById('subject-view').style.display = 'none';
       document.getElementById('quiz-result-view').style.display = 'none';
       document.getElementById('quiz-view').style.display = 'block';
-      document.getElementById('bottom-feedback-bar').style.display = 'none'; // 하단 바 끄기
+      document.getElementById('bottom-feedback-bar').style.display = 'none';
 
       initProgressBar();
       renderCurrentQuestion();
     }
 
-    // 홈 복귀 (하단 바 숨김)
     function goHome() {
       document.getElementById('quiz-view').style.display = 'none';
       document.getElementById('quiz-result-view').style.display = 'none';
@@ -1906,7 +1919,7 @@
         restoreQuestionState(previousAnswer);
       } else {
         isAnswerChecked = false;
-        document.getElementById('bottom-feedback-bar').style.display = 'none'; // 문제 푸는 중에는 하단 바 숨김
+        document.getElementById('bottom-feedback-bar').style.display = 'none';
         const banner = document.getElementById('status-msg-banner');
         banner.className = 'status-msg-banner';
         banner.style.display = 'none';
@@ -1922,7 +1935,6 @@
       restoreQuestionState(userPick);
       updateProgressStats();
 
-      // 보기를 선택했을 때만 하단 피드백 바 노출
       document.getElementById('bottom-feedback-bar').style.display = 'flex';
     }
 
@@ -2016,7 +2028,7 @@
     }
 
     function finishQuizSession() {
-      document.getElementById('bottom-feedback-bar').style.display = 'none'; // 하단 바 숨김
+      document.getElementById('bottom-feedback-bar').style.display = 'none';
       document.getElementById('quiz-view').style.display = 'none';
 
       currentSessionWrongItems = [];
@@ -2160,16 +2172,27 @@
       startQuiz(subjectKey, wrongQuestions);
     }
 
+    // ★ 오답 문제들에 대한 해설 모달 열기 (틀린 문제만 추출)
     function reviewHistoryExplanation(subjectKey, historyId) {
+      const history = getUserSpecificHistory();
+      const rec = history.find(h => h.id === historyId);
+      if (!rec || !rec.wrongIds || rec.wrongIds.length === 0) {
+        alert('이 회차에는 오답 문제가 없습니다.');
+        return;
+      }
+
       const db = window.quizDatabase || {};
       const sub = db[subjectKey];
       if (!sub) return;
 
-      document.getElementById('expl-modal-title').innerText = `${sub.title || '과목'} - 전체 문제 및 해설`;
+      // 해당 회차에서 틀렸던 문제만 필터링
+      const wrongQuestions = sub.questions.filter(q => rec.wrongIds.includes(q.id));
+
+      document.getElementById('expl-modal-title').innerText = `${sub.title || '과목'} - 오답 문제 해설 (${wrongQuestions.length}문항)`;
       const container = document.getElementById('expl-modal-content');
       container.innerHTML = '';
 
-      sub.questions.forEach((q, idx) => {
+      wrongQuestions.forEach((q, idx) => {
         const itemDiv = document.createElement('div');
         itemDiv.style.cssText = 'background:var(--card-inner); border:1px solid var(--border-color); border-radius:10px; padding:14px; margin-bottom:12px;';
 
@@ -2189,7 +2212,7 @@
         const commonExpl = (q.commonExplanations && q.commonExplanations.length > 0) ? q.commonExplanations.join('<br>') : '';
 
         itemDiv.innerHTML = `
-          <div style="font-weight:700; margin-bottom:6px; font-size:0.92rem;">${idx + 1}. ${q.question}</div>
+          <div style="font-weight:700; margin-bottom:6px; font-size:0.92rem; color:#f87171;">[오답 ${idx + 1}] ${q.question}</div>
           <div style="margin-bottom:8px;">${optionsHtml}</div>
           ${commonExpl ? `<div style="background:rgba(96,165,250,0.1); border-left:3px solid #60a5fa; padding:6px 10px; font-size:0.78rem; color:#93c5fd;"><strong>[핵심 TIP]</strong> ${commonExpl}</div>` : ''}
         `;
