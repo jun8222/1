@@ -1112,19 +1112,30 @@
     </div>
   </div>
 
-  <!-- 11개 기본 과목 + 기출 과목 스크립트 연결 -->
+  <!-- 11개 기본 과목 + 11개 기출 과목 스크립트 연결 (총 22개 파일) -->
+  <!-- 1교시 -->
   <script src="./data/anatomy.js"></script>
   <script src="./data/anatomy_past.js"></script>
   <script src="./data/morphology.js"></script>
+  <script src="./data/morphology_past.js"></script>
   <script src="./data/hygiene.js"></script>
   <script src="./data/hygiene_past.js"></script>
   <script src="./data/materials.js"></script>
+  <script src="./data/materials_past.js"></script>
   <script src="./data/law.js"></script>
+  <script src="./data/law_past.js"></script>
+
+  <!-- 2교시 -->
   <script src="./data/crown_bridge.js"></script>
+  <script src="./data/crown_bridge_past.js"></script>
   <script src="./data/porcelain.js"></script>
+  <script src="./data/porcelain_past.js"></script>
   <script src="./data/complete_denture.js"></script>
+  <script src="./data/complete_denture_past.js"></script>
   <script src="./data/partial_denture.js"></script>
+  <script src="./data/partial_denture_past.js"></script>
   <script src="./data/restorative.js"></script>
+  <script src="./data/restorative_past.js"></script>
   <script src="./data/orthodontics.js"></script>
   <script src="./data/orthodontics_past.js"></script>
 
@@ -1170,20 +1181,31 @@
     const labels = ["A", "B", "C", "D", "E"];
 
     const subjectMeta = [
-      { key: 'anatomy', name: '구강해부학 (1교시 1~12)', period: 1 },
-      { key: 'anatomy_past', name: '구강해부학 국시기출 (19~25년)', period: 1 },
-      { key: 'morphology', name: '치아형태학 (1교시 13~28)', period: 1 },
-      { key: 'hygiene', name: '구강보건학 (1교시 29~40)', period: 1 },
-      { key: 'hygiene_past', name: '구강보건학 국시기출 (19~25년)', period: 1 },
-      { key: 'materials', name: '치과재료학 (1교시 41~75)', period: 1 },
-      { key: 'law', name: '의료관계법규 (1교시 76~95)', period: 1 },
-      { key: 'crown_bridge', name: '관교 (2교시 1~19)', period: 2 },
-      { key: 'porcelain', name: '도재기공학 (2교시 20~34)', period: 2 },
-      { key: 'complete_denture', name: '총의치기공학 (2교시 35~58)', period: 2 },
-      { key: 'partial_denture', name: '국소의치기공학 (2교시 59~82)', period: 2 },
-      { key: 'restorative', name: '충전기공학 (2교시 83~96)', period: 2 },
-      { key: 'orthodontics', name: '교정기공학 (2교시 97~110)', period: 2 },
-      { key: 'orthodontics_past', name: '교정기공학 국시기출 (19~25년)', period: 2 }
+        // 1교시 (총 10개 항목: 기본 5개 + 기출 5개)
+        { key: 'anatomy', name: '구강해부학 (1교시 1~12)', period: 1 },
+        { key: 'anatomy_past', name: '구강해부학 국시기출 (19~25년)', period: 1 },
+        { key: 'morphology', name: '치아형태학 (1교시 13~28)', period: 1 },
+        { key: 'morphology_past', name: '치아형태학 국시기출 (19~25년)', period: 1 },
+        { key: 'hygiene', name: '구강보건학 (1교시 29~40)', period: 1 },
+        { key: 'hygiene_past', name: '구강보건학 국시기출 (19~25년)', period: 1 },
+        { key: 'materials', name: '치과재료학 (1교시 41~75)', period: 1 },
+        { key: 'materials_past', name: '치과재료학 국시기출 (19~25년)', period: 1 },
+        { key: 'law', name: '의료관계법규 (1교시 76~95)', period: 1 },
+        { key: 'law_past', name: '의료관계법규 국시기출 (19~25년)', period: 1 },
+  
+        // 2교시 (총 12개 항목: 기본 6개 + 기출 6개)
+        { key: 'crown_bridge', name: '관교 (2교시 1~19)', period: 2 },
+        { key: 'crown_bridge_past', name: '관교의치기공학 국시기출 (19~25년)', period: 2 },
+        { key: 'porcelain', name: '도재기공학 (2교시 20~34)', period: 2 },
+        { key: 'porcelain_past', name: '도재기공학 국시기출 (19~25년)', period: 2 },
+        { key: 'complete_denture', name: '총의치기공학 (2교시 35~58)', period: 2 },
+        { key: 'complete_denture_past', name: '총의치기공학 국시기출 (19~25년)', period: 2 },
+        { key: 'partial_denture', name: '국소의치기공학 (2교시 59~82)', period: 2 },
+        { key: 'partial_denture_past', name: '국소의치기공학 국시기출 (19~25년)', period: 2 },
+        { key: 'restorative', name: '충전기공학 (2교시 83~96)', period: 2 },
+        { key: 'restorative_past', name: '충전기공학 국시기출 (19~25년)', period: 2 },
+        { key: 'orthodontics', name: '교정기공학 (2교시 97~110)', period: 2 },
+        { key: 'orthodontics_past', name: '교정기공학 국시기출 (19~25년)', period: 2 }
     ];
 
     let currentSubjectKey = "anatomy";
