@@ -75,7 +75,7 @@
     .header-right {
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: 12px;
     }
 
     .user-profile-badge {
@@ -110,6 +110,16 @@
       border-color: var(--accent-blue);
     }
 
+    .header-btn-logout {
+      border-color: rgba(255, 120, 66, 0.4);
+      color: var(--error-orange);
+    }
+
+    .header-btn-logout:hover {
+      background-color: rgba(255, 120, 66, 0.15);
+      border-color: var(--error-orange);
+    }
+
     .header-icon-btn {
       background: none;
       border: none;
@@ -140,8 +150,92 @@
     }
 
     /* =========================================================
+       [화면 0] 사용자 선택 화면 (User Select View)
+       ========================================================= */
+    #user-select-view {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 60vh;
+      text-align: center;
+    }
+
+    .user-select-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .user-select-sub {
+      color: var(--text-sub);
+      font-size: 0.95rem;
+      margin-bottom: 36px;
+    }
+
+    .user-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 20px;
+      width: 100%;
+      max-width: 520px;
+      margin-bottom: 32px;
+    }
+
+    .user-card-btn {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 24px 16px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      transition: all 0.2s;
+      outline: none;
+    }
+
+    .user-card-btn:hover {
+      background-color: var(--card-hover);
+      border-color: var(--accent-blue);
+      transform: translateY(-4px);
+    }
+
+    .user-avatar-circle {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background-color: var(--card-inner);
+      border: 2px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      color: var(--accent-blue);
+    }
+
+    .user-name-text {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .user-role-text {
+      font-size: 0.75rem;
+      color: var(--text-sub);
+      background-color: rgba(255, 255, 255, 0.05);
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+
+    /* =========================================================
        [화면 1] 메인 과목 목록 화면
        ========================================================= */
+    #subject-view {
+      display: none;
+    }
+
     .filter-bar {
       display: flex;
       align-items: center;
@@ -296,7 +390,7 @@
       background-color: var(--card-inner);
     }
 
-    /* 과목별 회차 이력 아코디언 드롭다운 */
+    /* 회차 이력 아코디언 드롭다운 패널 */
     .history-dropdown-panel {
       display: none;
       background-color: #0d0e2e;
@@ -502,7 +596,6 @@
       min-width: 18px;
     }
 
-    /* 선택지 내 개별 오답/정답 해설 박스 */
     .option-explanation-inline {
       display: none;
       font-size: 0.82rem;
@@ -532,7 +625,6 @@
       cursor: default;
     }
 
-    /* 카드 하단 공통 해설 및 핵심 팁 박스 */
     .common-explanation-box {
       display: none;
       background-color: var(--card-inner);
@@ -700,7 +792,6 @@
       border-color: var(--accent-blue);
     }
 
-    /* 테이블 스타일 (회원 관리용) */
     .admin-table {
       width: 100%;
       border-collapse: collapse;
@@ -730,14 +821,15 @@
         <span>학습하기</span>
       </div>
     </div>
-    <div class="header-right">
-      <div class="user-profile-badge" id="user-display">
+    <div class="header-right" id="header-user-controls" style="display:none;">
+      <div class="user-profile-badge">
         <i class="fa-solid fa-circle-user"></i>
         <span id="current-username">사용자</span>
       </div>
       <button class="header-btn" onclick="openProfileModal()"><i class="fa-solid fa-key"></i> 이름/PW 변경</button>
       <button class="header-btn" onclick="openReportListModal()"><i class="fa-solid fa-list-check"></i> 오류 검토 리스트</button>
       <button class="header-btn" id="admin-btn" style="display:none;" onclick="openAdminModal()"><i class="fa-solid fa-users-gear"></i> 회원 관리</button>
+      <button class="header-btn header-btn-logout" onclick="logout()" title="사용자 선택으로 돌아가기"><i class="fa-solid fa-arrow-right-from-bracket"></i> 로그아웃</button>
       <button class="header-icon-btn" onclick="goHome()" title="나가기"><i class="fa-solid fa-xmark"></i></button>
     </div>
   </header>
@@ -745,6 +837,15 @@
   <!-- 메인 뷰 컨테이너 -->
   <main class="main-container">
     
+    <!-- [화면 0] 사용자 선택 화면 (복구됨) -->
+    <div id="user-select-view">
+      <div class="user-select-title">학습할 프로필을 선택하세요</div>
+      <div class="user-select-sub">계정을 선택하여 맞춤형 오답 기록과 학습을 시작합니다.</div>
+      <div class="user-grid" id="user-grid-container">
+        <!-- 동적 사용자 카드 생성 -->
+      </div>
+    </div>
+
     <!-- [화면 1] 메인 과목 목록 화면 -->
     <div id="subject-view">
       <div class="filter-bar">
@@ -913,7 +1014,7 @@
   <script src="./data/orthodontics_past.js"></script>
 
   <script>
-    // 과목 메타데이터 (1교시/2교시 분류)
+    // 과목 메타데이터
     const subjectMeta = [
       // 1교시
       { key: 'anatomy', name: '구강해부학 (1~12)', period: 1 },
@@ -942,7 +1043,6 @@
       { key: 'orthodontics_past', name: '교정기공학 국시기출 (19~25년)', period: 2 }
     ];
 
-    // 상태 변수
     let currentSubjectKey = null;
     let quizQuestions = [];
     let currentIndex = 0;
@@ -950,45 +1050,98 @@
     let currentSessionWrongItems = [];
     let isAnswerChecked = false;
 
-    // 로컬 스토리지 키
-    const STORAGE_KEY_HISTORY = 'quizlet_exam_history_v2';
-    const STORAGE_KEY_USER = 'quizlet_current_user_v2';
-    const STORAGE_KEY_USERS_DB = 'quizlet_users_db_v2';
-    const STORAGE_KEY_REPORTS = 'quizlet_reports_db_v2';
+    const STORAGE_KEY_HISTORY = 'quizlet_exam_history_v3';
+    const STORAGE_KEY_USER = 'quizlet_current_user_v3';
+    const STORAGE_KEY_USERS_DB = 'quizlet_users_db_v3';
+    const STORAGE_KEY_REPORTS = 'quizlet_reports_db_v3';
 
-    // 1. 초기화
+    // 1. 초기 로드
     window.addEventListener('DOMContentLoaded', () => {
-      initUserSystem();
-      renderSubjectList();
+      initUserDatabase();
+      checkAutoLogin();
       window.addEventListener('keydown', handleGlobalKeydown);
     });
 
-    // 2. 계정 및 권한 시스템
-    function initUserSystem() {
+    // 2. 계정 데이터베이스 초기화
+    function initUserDatabase() {
       let users = JSON.parse(localStorage.getItem(STORAGE_KEY_USERS_DB) || '[]');
       if (users.length === 0) {
         users = [
           { username: 'admin', password: '123', role: 'admin' },
+          { username: '박준영', password: '123', role: 'user' },
           { username: '학생', password: '123', role: 'user' }
         ];
         localStorage.setItem(STORAGE_KEY_USERS_DB, JSON.stringify(users));
       }
+    }
 
-      let currentUser = JSON.parse(localStorage.getItem(STORAGE_KEY_USER) || 'null');
-      if (!currentUser) {
-        currentUser = users[1]; // 기본 '학생'
-        localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(currentUser));
+    function checkAutoLogin() {
+      const currentUser = JSON.parse(localStorage.getItem(STORAGE_KEY_USER) || 'null');
+      if (currentUser) {
+        // 이미 로그인된 상태
+        showMainView(currentUser);
+      } else {
+        // 사용자 선택 화면 표시
+        showUserSelectView();
       }
-
-      updateUserUI();
     }
 
-    function updateUserUI() {
-      const currentUser = JSON.parse(localStorage.getItem(STORAGE_KEY_USER));
-      document.getElementById('current-username').innerText = currentUser.username;
-      document.getElementById('admin-btn').style.display = (currentUser.role === 'admin') ? 'flex' : 'none';
+    // 사용자 선택 화면 렌더링
+    function showUserSelectView() {
+      document.getElementById('user-select-view').style.display = 'flex';
+      document.getElementById('subject-view').style.display = 'none';
+      document.getElementById('quiz-view').style.display = 'none';
+      document.getElementById('header-user-controls').style.display = 'none';
+
+      const users = JSON.parse(localStorage.getItem(STORAGE_KEY_USERS_DB) || '[]');
+      const container = document.getElementById('user-grid-container');
+      container.innerHTML = '';
+
+      users.forEach(u => {
+        const btn = document.createElement('div');
+        btn.className = 'user-card-btn';
+        btn.onclick = () => loginUser(u.username);
+        btn.innerHTML = `
+          <div class="user-avatar-circle">
+            <i class="fa-solid ${u.role === 'admin' ? 'fa-user-shield' : 'fa-user-graduate'}"></i>
+          </div>
+          <div class="user-name-text">${u.username}</div>
+          <div class="user-role-text">${u.role === 'admin' ? '관리자' : '학습자'}</div>
+        `;
+        container.appendChild(btn);
+      });
     }
 
+    // 로그인 실행
+    function loginUser(username) {
+      const users = JSON.parse(localStorage.getItem(STORAGE_KEY_USERS_DB) || '[]');
+      const target = users.find(u => u.username === username);
+      if (!target) return;
+
+      localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(target));
+      showMainView(target);
+    }
+
+    // 로그아웃 (사용자 선택 화면 복귀)
+    function logout() {
+      localStorage.removeItem(STORAGE_KEY_USER);
+      showUserSelectView();
+    }
+
+    // 메인 화면 활성화
+    function showMainView(user) {
+      document.getElementById('user-select-view').style.display = 'none';
+      document.getElementById('quiz-view').style.display = 'none';
+      document.getElementById('subject-view').style.display = 'block';
+      document.getElementById('header-user-controls').style.display = 'flex';
+
+      document.getElementById('current-username').innerText = user.username;
+      document.getElementById('admin-btn').style.display = (user.role === 'admin') ? 'flex' : 'none';
+
+      renderSubjectList();
+    }
+
+    // 3. 프로필 변경 모달
     function openProfileModal() {
       const currentUser = JSON.parse(localStorage.getItem(STORAGE_KEY_USER));
       document.getElementById('input-username').value = currentUser.username;
@@ -1018,12 +1171,12 @@
       localStorage.setItem(STORAGE_KEY_USERS_DB, JSON.stringify(users));
       localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(currentUser));
 
-      updateUserUI();
+      document.getElementById('current-username').innerText = newName;
       closeModal('profile-modal');
       alert('성공적으로 변경되었습니다.');
     }
 
-    // 3. 회원 관리 (Admin)
+    // 4. Admin 관리
     function openAdminModal() {
       const users = JSON.parse(localStorage.getItem(STORAGE_KEY_USERS_DB) || '[]');
       const container = document.getElementById('admin-user-list');
@@ -1067,7 +1220,7 @@
       alert(`${users[index].username}의 비밀번호가 123으로 초기화되었습니다.`);
     }
 
-    // 4. 오류 검토 요청 및 리스트 관리
+    // 5. 오류 검토 요청
     function openReportModal() {
       const q = quizQuestions[currentIndex];
       document.getElementById('report-question-preview').value = q ? q.question : '';
@@ -1078,7 +1231,7 @@
     function submitReport() {
       const content = document.getElementById('report-content').value.trim();
       if (!content) {
-        alert('검토 요청 내용을 입력해주세요.');
+        alert('내용을 입력해주세요.');
         return;
       }
 
@@ -1088,7 +1241,7 @@
 
       reports.unshift({
         id: Date.now(),
-        user: currentUser.username,
+        user: currentUser ? currentUser.username : '익명',
         question: q.question,
         content: content,
         date: new Date().toLocaleString()
@@ -1122,7 +1275,11 @@
       document.getElementById('report-list-modal').style.display = 'flex';
     }
 
-    // 5. 과목 목록 렌더링 (1교시 / 2교시 분리)
+    function closeModal(id) {
+      document.getElementById(id).style.display = 'none';
+    }
+
+    // 6. 메인 과목 목록 렌더링 (1교시/2교시 분류)
     function renderSubjectList() {
       const p1Container = document.getElementById('subject-list-period-1');
       const p2Container = document.getElementById('subject-list-period-2');
@@ -1134,7 +1291,6 @@
       p1Container.innerHTML = '';
       p2Container.innerHTML = '';
 
-      // 교시 섹션 표시 여부
       document.getElementById('section-period-1').style.display = (periodVal === 'all' || periodVal === '1') ? 'block' : 'none';
       document.getElementById('section-period-2').style.display = (periodVal === 'all' || periodVal === '2') ? 'block' : 'none';
 
@@ -1154,7 +1310,7 @@
         let recentWrongBadgeHtml = '';
         if (latestRecord && latestRecord.wrongIds && latestRecord.wrongIds.length > 0) {
           recentWrongBadgeHtml = `
-            <div class="recent-wrong-badge" title="최근 회차 오답 수">
+            <div class="recent-wrong-badge" title="최근 회차 오답">
               <i class="fa-solid fa-triangle-exclamation"></i>
               최근 오답 ${latestRecord.wrongIds.length}
             </div>
@@ -1177,13 +1333,13 @@
           </div>
           <div class="subject-card-right">
             ${recentWrongBadgeHtml}
-            <button class="card-more-btn" onclick="event.stopPropagation(); toggleSubjectDropdown('${meta.key}')" title="회차별 이력">
+            <button class="card-more-btn" onclick="event.stopPropagation(); toggleSubjectDropdown('${meta.key}')" title="회차별 풀이 이력 열기">
               <i class="fa-solid fa-ellipsis"></i>
             </button>
           </div>
         `;
 
-        // 아코디언 드롭다운 패널 생성
+        // 회차별 풀이 이력 아코디언 드롭다운 패널
         const panel = document.createElement('div');
         panel.className = 'history-dropdown-panel';
         panel.id = `history-panel-${meta.key}`;
@@ -1204,7 +1360,7 @@
               </div>
               <div class="history-action-btns">
                 <button class="btn-action-sm btn-review-expl" onclick="reviewHistoryExplanation('${meta.key}', ${rec.id})">전체 문제 해설</button>
-                ${rec.wrongIds.length > 0 ? `<button class="btn-action-sm btn-retry-wrong" onclick="retryHistoryWrong('${meta.key}',${rec.id})">오답 다시풀기</button>` : ''}
+                ${rec.wrongIds.length > 0 ? `<button class="btn-action-sm btn-retry-wrong" onclick="retryHistoryWrong('${meta.key}', ${rec.id})">오답 다시풀기</button>` : ''}
               </div>
             `;
             panel.appendChild(item);
@@ -1234,7 +1390,7 @@
       }
     }
 
-    // 6. 문제 풀이 세션 시작
+    // 7. 퀴즈 실행 로직
     function startQuiz(key, specificQuestions = null) {
       const db = window.quizDatabase || {};
       const sub = db[key];
@@ -1278,7 +1434,6 @@
       document.getElementById('quiz-badge-total').innerText = quizQuestions.length;
     }
 
-    // 7. 문제 및 선택지 렌더링
     function renderCurrentQuestion() {
       isAnswerChecked = false;
       document.getElementById('bottom-feedback-bar').style.display = 'none';
@@ -1297,7 +1452,6 @@
         btn.className = 'option-btn';
         btn.onclick = () => selectAnswer(optNum);
 
-        // 개별 해설 텍스트 확보
         const individualExpl = (q.optionExplanations && q.optionExplanations[optNum]) ? q.optionExplanations[optNum] : '';
 
         btn.innerHTML = `
@@ -1311,7 +1465,7 @@
       });
     }
 
-    // 8. 답안 선택 및 판정 (상세 해설 펼침)
+    // 답안 선택 및 상세 해설/팁 동시 노출
     function selectAnswer(userPick) {
       if (isAnswerChecked) return;
       isAnswerChecked = true;
@@ -1321,10 +1475,9 @@
       const optButtons = document.querySelectorAll('.option-btn');
       const segment = document.getElementById(`seg-${currentIndex}`);
 
-      // 버튼 비활성화 (클릭 방지)
       optButtons.forEach(btn => btn.classList.add('disabled'));
 
-      // 모든 선택지 내부 개별 해설 노출
+      // 1) 모든 선택지 박스 내부 개별 해설 펼치기
       q.options.forEach((_, idx) => {
         const optNum = idx + 1;
         const explElem = document.getElementById(`opt-expl-${optNum}`);
@@ -1333,7 +1486,7 @@
         }
       });
 
-      // 공통 해설 및 팁 노출
+      // 2) 하단 공통 해설 및 핵심 팁 박스 노출
       const commonExplText = (q.commonExplanations && q.commonExplanations.length > 0) ? q.commonExplanations.join('<br>') : '';
       if (commonExplText) {
         document.getElementById('common-explanation-text').innerHTML = commonExplText;
@@ -1356,33 +1509,29 @@
           document.getElementById(`opt-icon-${userPick}`).innerHTML = '<i class="fa-solid fa-xmark"></i>';
         }
 
-        // 실제 정답 강조
         optButtons[q.answer - 1].classList.add('correct-highlight');
-
         document.getElementById('status-msg-banner').style.display = 'block';
       }
 
-      // 정답이든 오답이든 해설을 충분히 볼 수 있도록 하단 액션바 띄움
+      // 정답이든 오답이든 해설을 꼼꼼히 확인한 후 '계속'을 누를 수 있도록 하단 액션바 팝업
       document.getElementById('bottom-feedback-bar').style.display = 'flex';
     }
 
     function handleDontKnow() {
       if (isAnswerChecked) return;
-      selectAnswer(-1);
+      selectAnswer(-1); // 오답 처리
     }
 
     function nextQuestion() {
       currentIndex++;
       if (currentIndex < quizQuestions.length) {
         renderCurrentQuestion();
-        // 스크롤 맨 위로 부드럽게 이동
         window.scrollTo({ top: 0, behavior: 'smooth' });
       } else {
         finishQuizSession();
       }
     }
 
-    // 9. 퀴즈 종료 및 회차 이력 보관
     function finishQuizSession() {
       document.getElementById('bottom-feedback-bar').style.display = 'none';
 
@@ -1414,7 +1563,52 @@
       startQuiz(currentSubjectKey, currentSessionWrongItems);
     }
 
-    // 10. 이력 기반 다시 풀기 & 전체 해설 모달 확인
+    function handleGlobalKeydown(e) {
+      if (document.getElementById('quiz-view').style.display !== 'block') return;
+
+      if (!isAnswerChecked) {
+        if (['1', '2', '3', '4', '5'].includes(e.key)) {
+          const pick = parseInt(e.key);
+          const q = quizQuestions[currentIndex];
+          if (q && pick <= q.options.length) {
+            selectAnswer(pick);
+          }
+        }
+      } else {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          nextQuestion();
+        }
+      }
+    }
+
+    // 8. 풀이 이력(History) 및 해설 확인
+    function getHistory() {
+      try {
+        const data = localStorage.getItem(STORAGE_KEY_HISTORY);
+        return data ? JSON.parse(data) : [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function saveSessionHistory(subjectKey, total, correct, wrongIds) {
+      const history = getHistory();
+      const meta = subjectMeta.find(m => m.key === subjectKey);
+      const newEntry = {
+        id: Date.now(),
+        subjectKey: subjectKey,
+        subjectName: meta ? meta.name : subjectKey,
+        date: new Date().toLocaleString('ko-KR', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }),
+        total: total,
+        correct: correct,
+        wrongIds: wrongIds
+      };
+      history.unshift(newEntry);
+      if (history.length > 40) history.pop();
+      localStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(history));
+    }
+
     function retryHistoryWrong(subjectKey, historyId) {
       const history = getHistory();
       const rec = history.find(h => h.id === historyId);
@@ -1465,57 +1659,6 @@
       });
 
       document.getElementById('explanation-modal').style.display = 'flex';
-    }
-
-    // 11. 키보드 인터랙션 (1~5 단축키 및 Enter 계속)
-    function handleGlobalKeydown(e) {
-      if (document.getElementById('quiz-view').style.display !== 'block') return;
-
-      if (!isAnswerChecked) {
-        if (['1', '2', '3', '4', '5'].includes(e.key)) {
-          const pick = parseInt(e.key);
-          const q = quizQuestions[currentIndex];
-          if (q && pick <= q.options.length) {
-            selectAnswer(pick);
-          }
-        }
-      } else {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          nextQuestion();
-        }
-      }
-    }
-
-    // 12. 공통 모달 닫기
-    function closeModal(id) {
-      document.getElementById(id).style.display = 'none';
-    }
-
-    // 로컬 스토리지 헬퍼
-    function getHistory() {
-      try {
-        return JSON.parse(localStorage.getItem(STORAGE_KEY_HISTORY) || '[]');
-      } catch (e) {
-        return [];
-      }
-    }
-
-    function saveSessionHistory(subjectKey, total, correct, wrongIds) {
-      const history = getHistory();
-      const meta = subjectMeta.find(m => m.key === subjectKey);
-      const newEntry = {
-        id: Date.now(),
-        subjectKey: subjectKey,
-        subjectName: meta ? meta.name : subjectKey,
-        date: new Date().toLocaleString('ko-KR', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }),
-        total: total,
-        correct: correct,
-        wrongIds: wrongIds
-      };
-      history.unshift(newEntry);
-      if (history.length > 50) history.pop();
-      localStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(history));
     }
   </script>
 </body>
