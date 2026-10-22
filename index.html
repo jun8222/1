@@ -150,7 +150,7 @@
     }
 
     /* =========================================================
-       [화면 0] 사용자 선택 화면 (6개 그리드 배치)
+       [화면 0] 사용자 선택 화면
        ========================================================= */
     #user-select-view {
       display: flex;
@@ -1027,7 +1027,7 @@
       </div>
     </div>
 
-    <!-- [화면 3] 학습 완료 및 오답 리스트 화면 (복구됨) -->
+    <!-- [화면 3] 학습 완료 및 오답 리스트 화면 -->
     <div id="quiz-result-view">
       <div class="result-summary-card">
         <div class="result-summary-icon"><i class="fa-solid fa-circle-check"></i></div>
@@ -1228,10 +1228,10 @@
     let pendingLoginUserIndex = null;
     let registeringSlotIndex = null;
 
-    const STORAGE_KEY_HISTORY = 'quizlet_exam_history_v4';
-    const STORAGE_KEY_USER = 'quizlet_current_user_v4';
-    const STORAGE_KEY_USERS_DB = 'quizlet_users_db_v4';
-    const STORAGE_KEY_REPORTS = 'quizlet_reports_db_v4';
+    const STORAGE_KEY_HISTORY = 'quizlet_exam_history_per_user_v5';
+    const STORAGE_KEY_USER = 'quizlet_current_user_v5';
+    const STORAGE_KEY_USERS_DB = 'quizlet_users_db_v5';
+    const STORAGE_KEY_REPORTS = 'quizlet_reports_db_v5';
 
     // 1. 초기 실행
     window.addEventListener('DOMContentLoaded', () => {
@@ -1240,7 +1240,7 @@
       window.addEventListener('keydown', handleGlobalKeydown);
     });
 
-    // 2. 6개 고정 슬롯 (준영 + 게스트 A~E)
+    // 2. 6개 고정 슬롯 초기화
     function initUserDatabase() {
       let users = JSON.parse(localStorage.getItem(STORAGE_KEY_USERS_DB) || 'null');
       if (!users || users.length !== 6) {
@@ -1265,7 +1265,7 @@
       }
     }
 
-    // [화면 0] 6개 프로필 카드 렌더링
+    // [화면 0] 사용자 프로필 선택 화면
     function showUserSelectView() {
       document.getElementById('user-select-view').style.display = 'flex';
       document.getElementById('subject-view').style.display = 'none';
@@ -1373,7 +1373,6 @@
       renderSubjectList();
     }
 
-    // 3. 프로필 변경 모달
     function openProfileModal() {
       const currentUser = JSON.parse(localStorage.getItem(STORAGE_KEY_USER));
       document.getElementById('input-username').value = currentUser.username;
@@ -1406,9 +1405,9 @@
       document.getElementById('current-username').innerText = newName;
       closeModal('profile-modal');
       alert('성공적으로 변경되었습니다.');
+      renderSubjectList();
     }
 
-    // 4. Admin 관리
     function openAdminModal() {
       const users = JSON.parse(localStorage.getItem(STORAGE_KEY_USERS_DB));
       const container = document.getElementById('admin-user-list');
@@ -1453,6 +1452,10 @@
       const slot = users[index];
       if (!confirm(`${slot.username} 계정을 초기화하고 [${slot.slotName}]으로 되돌리시겠습니까?`)) return;
 
+      let allHistories = JSON.parse(localStorage.getItem(STORAGE_KEY_HISTORY) || '[]');
+      allHistories = allHistories.filter(h => h.userId !== slot.id);
+      localStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(allHistories));
+
       users[index].username = slot.slotName;
       users[index].password = '';
       users[index].isRegistered = false;
@@ -1470,7 +1473,6 @@
       alert('관리자(준영) 비밀번호가 123으로 초기화되었습니다.');
     }
 
-    // 5. 오류 검토 요청
     function openReportModal() {
       const q = quizQuestions[currentIndex];
       document.getElementById('report-question-preview').value = q ? q.question : '';
@@ -1526,14 +1528,15 @@
       document.getElementById(id).style.display = 'none';
     }
 
-    // 6. 메인 과목 목록 (1교시 / 2교시 분리)
+    // 6. 메인 과목 목록 렌더링
     function renderSubjectList() {
       const p1Container = document.getElementById('subject-list-period-1');
       const p2Container = document.getElementById('subject-list-period-2');
       const periodVal = document.getElementById('period-filter').value;
       const searchVal = document.getElementById('subject-search').value.trim().toLowerCase();
       const db = window.quizDatabase || {};
-      const history = getHistory();
+      
+      const userHistory = getUserSpecificHistory();
 
       p1Container.innerHTML = '';
       p2Container.innerHTML = '';
@@ -1548,7 +1551,7 @@
         const subData = db[meta.key];
         const count = subData && subData.questions ? subData.questions.length : 0;
 
-        const subjectHistories = history.filter(h => h.subjectKey === meta.key);
+        const subjectHistories = userHistory.filter(h => h.subjectKey === meta.key);
         const latestRecord = subjectHistories.length > 0 ? subjectHistories[0] : null;
 
         const wrapper = document.createElement('div');
@@ -1557,7 +1560,7 @@
         let recentWrongBadgeHtml = '';
         if (latestRecord && latestRecord.wrongIds && latestRecord.wrongIds.length > 0) {
           recentWrongBadgeHtml = `
-            <div class="recent-wrong-badge" title="최근 회차 오답">
+            <div class="recent-wrong-badge" title="현재 사용자의 최근 회차 오답">
               <i class="fa-solid fa-triangle-exclamation"></i>
               최근 오답 ${latestRecord.wrongIds.length}
             </div>
@@ -1591,7 +1594,7 @@
         panel.id = `history-panel-${meta.key}`;
 
         if (subjectHistories.length === 0) {
-          panel.innerHTML = '<div style="font-size:0.85rem; color:var(--text-sub); text-align:center; padding:12px;">풀이 이력이 없습니다.</div>';
+          panel.innerHTML = '<div style="font-size:0.85rem; color:var(--text-sub); text-align:center; padding:12px;">이 사용자의 풀이 이력이 없습니다.</div>';
         } else {
           subjectHistories.forEach(rec => {
             const item = document.createElement('div');
@@ -1636,7 +1639,7 @@
       }
     }
 
-    // 7. 문제 풀이 세션
+    // 7. 문제 풀이 세션 (★ 배열 깊은 복사로 오답 세션 안정성 보장)
     function startQuiz(key, specificQuestions = null) {
       const db = window.quizDatabase || {};
       const sub = db[key];
@@ -1646,7 +1649,8 @@
       }
 
       currentSubjectKey = key;
-      quizQuestions = specificQuestions ? [...specificQuestions] : [...sub.questions];
+      // 특정 문항이 넘어왔을 때 완벽하게 독립된 새 배열로 할당
+      quizQuestions = specificQuestions ? specificQuestions.map(item => ({ ...item })) : sub.questions.map(item => ({ ...item }));
       currentIndex = 0;
       correctCount = 0;
       currentSessionWrongItems = [];
@@ -1749,7 +1753,8 @@
         optButtons[userPick - 1].classList.add('correct-choice');
         document.getElementById(`opt-icon-${userPick}`).innerHTML = '<i class="fa-solid fa-check"></i>';
       } else {
-        currentSessionWrongItems.push(q);
+        // 객체 복사본을 안전하게 오답 목록에 보관
+        currentSessionWrongItems.push({ ...q });
         if (segment) segment.classList.add('failed');
 
         if (userPick > 0 && userPick <= optButtons.length) {
@@ -1787,7 +1792,6 @@
       const wrongIds = currentSessionWrongItems.map(item => item.id);
       saveSessionHistory(currentSubjectKey, quizQuestions.length, correctCount, wrongIds);
 
-      // 통계 텍스트 업데이트
       document.getElementById('result-summary-stats-text').innerHTML = `
         총 ${quizQuestions.length}문항 중 <strong style="color:var(--correct-green);">${correctCount}문항</strong> 정답<br>
         <span style="color:var(--error-orange); font-weight:600;">오답 ${currentSessionWrongItems.length}문항</span>
@@ -1844,10 +1848,11 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // 오답 목록으로 세션 다시 시작
+    // ★ 오답 다시 풀기 (깊은 복사본을 넘겨서 재시작 문제 완벽 해결)
     function retryWrongQuestions() {
       if (!currentSessionWrongItems || currentSessionWrongItems.length === 0) return;
-      startQuiz(currentSubjectKey, currentSessionWrongItems);
+      const wrongListToRetry = currentSessionWrongItems.map(item => ({ ...item }));
+      startQuiz(currentSubjectKey, wrongListToRetry);
     }
 
     function handleGlobalKeydown(e) {
@@ -1869,12 +1874,13 @@
       }
     }
 
-    // 9. 풀이 이력(History) 및 해설 확인
-    function getHistory() {
+    // 9. 사용자별 독립 풀이 이력(History) 관리
+    function getUserSpecificHistory() {
       try {
         const currentUser = JSON.parse(localStorage.getItem(STORAGE_KEY_USER));
+        if (!currentUser || !currentUser.id) return [];
+
         const allHistories = JSON.parse(localStorage.getItem(STORAGE_KEY_HISTORY) || '[]');
-        if (!currentUser) return [];
         return allHistories.filter(h => h.userId === currentUser.id);
       } catch (e) {
         return [];
@@ -1905,7 +1911,7 @@
     }
 
     function retryHistoryWrong(subjectKey, historyId) {
-      const history = getHistory();
+      const history = getUserSpecificHistory();
       const rec = history.find(h => h.id === historyId);
       if (!rec || !rec.wrongIds || rec.wrongIds.length === 0) return;
 
