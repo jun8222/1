@@ -888,6 +888,9 @@ function renderCurrentQuestion() {
   const q = quizQuestions[currentIndex];
   $('quiz-card-header').textContent = quizHeaderText(q);
   $('quiz-question-text').innerText = (currentIndex + 1) + '. ' + q.question;
+  const ctx = $('quiz-context-box');
+  ctx.textContent = q.contextBox || '';
+  ctx.style.display = q.contextBox ? 'block' : 'none';
 
   const optContainer = $('quiz-options-container');
   optContainer.innerHTML = '';
@@ -1100,6 +1103,7 @@ function finishQuizSession() {
       const commonExpl = (q.commonExplanations && q.commonExplanations.length > 0) ? q.commonExplanations.join('<br>') : '';
       itemBox.innerHTML =
         '<div class="wrong-item-qtitle">[오답 ' + (idx + 1) + '] ' + esc(q.question) + '</div>' +
+        (q.contextBox ? '<div class="context-box">' + esc(q.contextBox) + '</div>' : '') +
         '<div class="wrong-item-optlist">' + optionsHtml + '</div>' +
         (commonExpl ? '<div class="wrong-item-expl"><strong>[핵심 TIP]</strong> ' + commonExpl + '</div>' : '');
       wrongContainer.appendChild(itemBox);
@@ -1196,6 +1200,7 @@ function reviewHistoryExplanation(sessionId) {
     const commonExpl = (q.commonExplanations && q.commonExplanations.length > 0) ? q.commonExplanations.join('<br>') : '';
     itemDiv.innerHTML =
       '<div style="font-weight:700; margin-bottom:6px; font-size:0.92rem; color:#f87171;">[오답 ' + (idx + 1) + '] ' + esc(q.question) + '</div>' +
+      (q.contextBox ? '<div class="context-box" style="margin-bottom:8px;">' + esc(q.contextBox) + '</div>' : '') +
       '<div style="margin-bottom:8px;">' + optionsHtml + '</div>' +
       (commonExpl ? '<div style="background:rgba(96,165,250,0.1); border-left:3px solid #60a5fa; padding:6px 10px; font-size:0.78rem; color:#93c5fd;"><strong>[핵심 TIP]</strong> ' + commonExpl + '</div>' : '');
     container.appendChild(itemDiv);

@@ -1259,6 +1259,20 @@
     .admin-table td { vertical-align: middle; }
     .admin-btn-col { display: flex; flex-wrap: wrap; gap: 4px; }
 
+    /* 문제에 딸린 <보기> 박스 (ㄱ, ㄴ, ㄷ ... 목록) */
+    .context-box {
+      margin-top: 12px;
+      padding: 12px 14px;
+      background-color: var(--card-inner);
+      border: 1px solid var(--border-color);
+      border-left: 3px solid var(--accent-blue);
+      border-radius: 8px;
+      font-size: 0.92rem;
+      line-height: 1.7;
+      white-space: pre-wrap;
+      word-break: keep-all;
+    }
+
     /* 폰: 헤더가 넘치지 않도록 이름 배지를 숨기고 버튼을 줄임 */
     @media (max-width: 600px) {
       .header-right { max-width: none; flex: 1; justify-content: flex-end; gap: 5px; }
@@ -1376,6 +1390,7 @@
         <div>
           <div class="quiz-card-header" id="quiz-card-header"></div>
           <div class="quiz-question-title" id="quiz-question-text">문제가 여기에 표시됩니다.</div>
+          <div class="context-box" id="quiz-context-box" style="display:none;"></div>
           <div class="status-msg-banner" id="status-msg-banner"></div>
         </div>
 
