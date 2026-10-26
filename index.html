@@ -160,8 +160,8 @@
       padding: 20px 16px 80px;
     }
 
-    /* [화면 0] 사용자 선택 화면 */
-    #user-select-view {
+    /* [화면 0] 로그인 화면 */
+    #auth-view {
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -1047,6 +1047,241 @@
       background-color: var(--card-inner);
       color: var(--text-sub);
     }
+
+    /* =========================================================
+       v2: 로그인 / 오늘의 문제 / 설정 / 관리자
+       ========================================================= */
+    .auth-card {
+      width: 100%;
+      max-width: 420px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .auth-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 18px;
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      color: var(--accent-blue);
+      font-size: 1.8rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 18px;
+    }
+
+    #auth-body {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .google-btn {
+      width: 100%;
+      background: #fff;
+      color: #1f1f1f;
+      border: none;
+      border-radius: 10px;
+      padding: 13px 16px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .google-btn:hover { background: #e9ecf5; }
+
+    .auth-hint {
+      color: var(--text-sub);
+      font-size: 0.8rem;
+      margin-top: 12px;
+    }
+
+    .auth-note {
+      width: 100%;
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 14px;
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: var(--text-main);
+    }
+
+    .auth-note.is-error { border-color: var(--error-orange); color: var(--error-orange); }
+
+    .sync-chip {
+      align-items: center;
+      gap: 5px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--text-sub);
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      padding: 4px 9px;
+      border-radius: 14px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .sync-chip.is-error { color: var(--error-orange); border-color: rgba(255, 120, 66, 0.5); }
+
+    .badge-dot {
+      background-color: var(--error-orange);
+      color: #fff;
+      border-radius: 10px;
+      padding: 0 6px;
+      font-size: 0.7rem;
+      line-height: 16px;
+      min-width: 16px;
+      text-align: center;
+    }
+
+    /* 오늘의 문제 카드 */
+    .daily-card {
+      background: linear-gradient(135deg, #17195a 0%, #131436 100%);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 22px;
+    }
+
+    .daily-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .daily-title { font-size: 1rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+    .daily-title i { color: var(--accent-blue); }
+    .daily-date { font-size: 0.75rem; color: var(--text-sub); font-weight: 500; margin-left: 4px; }
+    .daily-head-btns { display: flex; gap: 2px; }
+
+    .daily-progress-row { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+    .daily-count { font-size: 1.05rem; white-space: nowrap; }
+    .daily-count b { font-size: 1.5rem; color: var(--text-main); }
+
+    .daily-bar {
+      flex: 1;
+      height: 10px;
+      background-color: var(--card-inner);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .daily-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent-blue), #22c55e);
+      border-radius: 6px;
+      transition: width 0.4s;
+    }
+
+    .daily-sub { font-size: 0.8rem; color: var(--text-sub); }
+    .daily-actions { margin-top: 12px; display: flex; gap: 8px; align-items: center; }
+    .daily-actions .btn-start-badge { padding: 9px 16px; font-size: 0.88rem; }
+
+    .daily-history {
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    /* 내 설정 */
+    .set-subject-box {
+      max-height: 280px;
+      overflow-y: auto;
+      background-color: var(--card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 10px;
+    }
+
+    .set-period { font-size: 0.78rem; color: var(--text-sub); font-weight: 700; margin: 6px 0; }
+    .set-period:first-child { margin-top: 0; }
+    .set-subject-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+
+    @media (max-width: 520px) {
+      .set-subject-grid { grid-template-columns: 1fr; }
+    }
+
+    .set-subject-item {
+      display: flex !important;
+      align-items: center;
+      gap: 7px;
+      font-size: 0.82rem !important;
+      color: var(--text-main) !important;
+      cursor: pointer;
+      margin-bottom: 0 !important;
+    }
+
+    /* 오류 신고 목록 */
+    .report-item {
+      background-color: var(--card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 10px;
+    }
+
+    .report-item.is-resolved { opacity: 0.6; }
+    .report-meta { font-size: 0.78rem; color: var(--text-sub); margin-bottom: 4px; }
+    .report-q { font-size: 0.9rem; font-weight: 600; margin-bottom: 6px; color: #93c5fd; white-space: pre-wrap; }
+    .report-content { font-size: 0.88rem; color: var(--text-main); white-space: pre-wrap; }
+    .report-actions { display: flex; gap: 6px; margin-top: 10px; }
+
+    .status-pill {
+      display: inline-block;
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 1px 7px;
+      border-radius: 10px;
+      margin-left: 4px;
+      vertical-align: middle;
+    }
+
+    .status-pill.ok   { background: rgba(34, 197, 94, 0.15); color: var(--correct-green); }
+    .status-pill.open { background: rgba(66, 85, 255, 0.18); color: #93a0ff; }
+    .status-pill.bad  { background: rgba(255, 120, 66, 0.15); color: var(--error-orange); }
+
+    /* 회원 관리 */
+    .admin-table-wrap { overflow-x: auto; }
+    .admin-table td { vertical-align: middle; }
+    .admin-btn-col { display: flex; flex-wrap: wrap; gap: 4px; }
+
+    /* 폰: 헤더가 넘치지 않도록 이름 배지를 숨기고 버튼을 줄임 */
+    @media (max-width: 600px) {
+      .header-right { max-width: none; flex: 1; justify-content: flex-end; gap: 5px; }
+      .header-right .user-profile-badge { display: none; }
+      .header-right .header-btn { padding: 5px 7px; font-size: 0.74rem; }
+      .header-right .sync-chip { font-size: 0.66rem; padding: 3px 6px; }
+    }
+
+    .toast-box {
+      position: fixed;
+      left: 50%;
+      bottom: 90px;
+      transform: translateX(-50%);
+      background-color: #232654;
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 10px 16px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      max-width: 90vw;
+      z-index: 2000;
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
+    }
   </style>
 </head>
 <body>
@@ -1060,14 +1295,15 @@
       </div>
     </div>
     <div class="header-right" id="header-user-controls" style="display:none;">
+      <span class="sync-chip" id="sync-chip" style="display:none;"></span>
       <div class="user-profile-badge">
         <i class="fa-solid fa-circle-user"></i>
-        <span id="current-username">준영</span>
+        <span id="current-username"></span>
       </div>
-      <button class="header-btn" onclick="openProfileModal()"><i class="fa-solid fa-key"></i> 이름/PW 변경</button>
-      <button class="header-btn" onclick="openReportListModal()"><i class="fa-solid fa-list-check"></i> 오류 검토 리스트</button>
-      <button class="header-btn" id="admin-btn" style="display:none;" onclick="openAdminModal()"><i class="fa-solid fa-users-gear"></i> 회원 관리</button>
-      <button class="header-btn header-btn-logout" onclick="logout()" title="프로필 선택으로 돌아가기"><i class="fa-solid fa-arrow-right-from-bracket"></i> 로그아웃</button>
+      <button class="header-btn" onclick="openSettingsModal()"><i class="fa-solid fa-sliders"></i> 내 설정</button>
+      <button class="header-btn" onclick="openReportListModal()"><i class="fa-solid fa-list-check"></i> 오류 검토</button>
+      <button class="header-btn" id="admin-btn" style="display:none;" onclick="openAdminModal()"><i class="fa-solid fa-users-gear"></i> 회원 관리 <span class="badge-dot" id="admin-pending-badge" style="display:none;"></span></button>
+      <button class="header-btn header-btn-logout" onclick="logout()" title="로그아웃"><i class="fa-solid fa-arrow-right-from-bracket"></i> 로그아웃</button>
       <button class="header-icon-btn" onclick="goHome()" title="나가기"><i class="fa-solid fa-xmark"></i></button>
     </div>
   </header>
@@ -1075,15 +1311,21 @@
   <!-- 메인 뷰 컨테이너 -->
   <main class="main-container">
     
-    <!-- [화면 0] 사용자 선택 화면 -->
-    <div id="user-select-view">
-      <div class="user-select-title">학습할 프로필을 선택하세요</div>
-      <div class="user-select-sub">계정을 선택하거나 신규 등록하여 맞춤형 오답 학습을 시작합니다.</div>
-      <div class="user-grid" id="user-grid-container"></div>
+    <!-- [화면 0] 로그인 / 승인 대기 화면 -->
+    <div id="auth-view">
+      <div class="auth-card">
+        <div class="auth-icon"><i class="fa-solid fa-tooth"></i></div>
+        <div class="user-select-title">치과기공사 국가시험 퀴즈</div>
+        <div class="user-select-sub" id="auth-sub"></div>
+        <div id="auth-body"><div class="auth-hint"><i class="fa-solid fa-rotate fa-spin"></i> 불러오는 중...</div></div>
+      </div>
     </div>
 
     <!-- [화면 1] 메인 과목 목록 화면 -->
     <div id="subject-view">
+      <!-- 오늘의 문제 -->
+      <div class="daily-card" id="daily-card"></div>
+
       <div class="filter-bar">
         <div class="filter-bar-left">
           <select class="select-dropdown" id="period-filter" onchange="filterSubjects()">
@@ -1132,7 +1374,7 @@
 
       <div class="quiz-card" id="quiz-card-box">
         <div>
-          <div class="quiz-card-header">단어 • 문제</div>
+          <div class="quiz-card-header" id="quiz-card-header"></div>
           <div class="quiz-question-title" id="quiz-question-text">문제가 여기에 표시됩니다.</div>
           <div class="status-msg-banner" id="status-msg-banner"></div>
         </div>
@@ -1165,7 +1407,8 @@
         <div class="result-summary-title">학습을 완료했습니다!</div>
         <div class="result-summary-stats" id="result-summary-stats-text"></div>
         <div class="result-btn-group">
-          <button class="continue-btn" onclick="goHome()">과목 목록으로</button>
+          <button class="continue-btn" id="result-continue-daily-btn" style="display:none;" onclick="continueDailyFromResult()">오늘의 문제 이어서 풀기</button>
+          <button class="continue-btn" onclick="goHome()">홈으로</button>
           <button class="btn-action-sm btn-retry-wrong" id="result-retry-wrong-btn" style="padding:10px 20px; font-size:0.9rem; display:none;" onclick="retryWrongQuestions()">
             오답 다시 풀기
           </button>
@@ -1193,40 +1436,6 @@
     </div>
   </div>
 
-  <!-- [모달: 신규 게스트 등록 모달] -->
-  <div class="modal-overlay" id="register-guest-modal">
-    <div class="modal-box">
-      <div class="modal-header">
-        <div class="modal-title" id="register-modal-title">새 사용자 등록</div>
-        <button class="modal-close-btn" onclick="closeModal('register-guest-modal')"><i class="fa-solid fa-xmark"></i></button>
-      </div>
-      <div class="form-group">
-        <label>사용자 이름 (게스트 이름을 대체합니다)</label>
-        <input type="text" class="form-control" id="reg-username" placeholder="예: 홍길동">
-      </div>
-      <div class="form-group">
-        <label>비밀번호 설정</label>
-        <input type="password" class="form-control" id="reg-password" placeholder="비밀번호 입력">
-      </div>
-      <button class="continue-btn" style="width:100%; max-width:none;" onclick="submitGuestRegister()">등록하고 학습 시작</button>
-    </div>
-  </div>
-
-  <!-- [모달: 기존 프로필 로그인 비밀번호 입력 모달] -->
-  <div class="modal-overlay" id="login-password-modal">
-    <div class="modal-box" style="max-width:400px;">
-      <div class="modal-header">
-        <div class="modal-title" id="login-modal-title">비밀번호 입력</div>
-        <button class="modal-close-btn" onclick="closeModal('login-password-modal')"><i class="fa-solid fa-xmark"></i></button>
-      </div>
-      <div class="form-group">
-        <label id="login-modal-sublabel">계정 비밀번호</label>
-        <input type="password" class="form-control" id="login-input-password" placeholder="비밀번호 입력" onkeyup="if(event.key==='Enter') submitProfileLogin()">
-      </div>
-      <button class="continue-btn" style="width:100%; max-width:none;" onclick="submitProfileLogin()">확인</button>
-    </div>
-  </div>
-
   <!-- [모달 1] 오류 검토 요청 모달 -->
   <div class="modal-overlay" id="report-modal">
     <div class="modal-box">
@@ -1246,22 +1455,29 @@
     </div>
   </div>
 
-  <!-- [모달 2] 이름/PW 변경 모달 -->
-  <div class="modal-overlay" id="profile-modal">
-    <div class="modal-box">
+  <!-- [모달 2] 내 설정 모달 -->
+  <div class="modal-overlay" id="settings-modal">
+    <div class="modal-box" style="max-width:560px;">
       <div class="modal-header">
-        <div class="modal-title">이름 / 비밀번호 변경</div>
-        <button class="modal-close-btn" onclick="closeModal('profile-modal')"><i class="fa-solid fa-xmark"></i></button>
+        <div class="modal-title"><i class="fa-solid fa-sliders"></i> 내 설정</div>
+        <button class="modal-close-btn" onclick="closeModal('settings-modal')"><i class="fa-solid fa-xmark"></i></button>
       </div>
       <div class="form-group">
-        <label>사용자 이름</label>
-        <input type="text" class="form-control" id="input-username">
+        <label>이름</label>
+        <input type="text" class="form-control" id="set-name" maxlength="20">
       </div>
       <div class="form-group">
-        <label>새 비밀번호</label>
-        <input type="password" class="form-control" id="input-password" placeholder="변경할 새 비밀번호">
+        <label>하루 목표 문항 수 (5~200)</label>
+        <input type="number" class="form-control" id="set-goal" min="5" max="200" step="1">
       </div>
-      <button class="continue-btn" style="width:100%; max-width:none;" onclick="saveProfile()">저장하기</button>
+      <div class="form-group">
+        <label>오늘의 문제에 포함할 과목</label>
+        <label class="set-subject-item" style="margin-bottom:8px;">
+          <input type="checkbox" id="set-all-subjects" onchange="toggleAllSubjects(this.checked)"> <span><b>전체 선택/해제</b></span>
+        </label>
+        <div id="set-subject-list" class="set-subject-box"></div>
+      </div>
+      <button class="continue-btn" style="width:100%; max-width:none;" onclick="saveSettings()">저장하기</button>
     </div>
   </div>
 
@@ -1269,7 +1485,7 @@
   <div class="modal-overlay" id="report-list-modal">
     <div class="modal-box" style="max-width:680px;">
       <div class="modal-header">
-        <div class="modal-title">접수된 오류 검토 리스트</div>
+        <div class="modal-title" id="report-modal-title">접수된 오류 검토 리스트</div>
         <button class="modal-close-btn" onclick="closeModal('report-list-modal')"><i class="fa-solid fa-xmark"></i></button>
       </div>
       <div id="report-list-container"></div>
@@ -1278,9 +1494,9 @@
 
   <!-- [모달 4] 회원 관리 모달 (admin 전용) -->
   <div class="modal-overlay" id="admin-modal">
-    <div class="modal-box" style="max-width:680px;">
+    <div class="modal-box" style="max-width:820px;">
       <div class="modal-header">
-        <div class="modal-title"><i class="fa-solid fa-users-gear"></i> 슬롯 및 회원 관리 (Admin)</div>
+        <div class="modal-title"><i class="fa-solid fa-users-gear"></i> 회원 관리 (관리자)</div>
         <button class="modal-close-btn" onclick="closeModal('admin-modal')"><i class="fa-solid fa-xmark"></i></button>
       </div>
       <div id="admin-user-list"></div>
@@ -1297,6 +1513,12 @@
       <div id="expl-modal-content"></div>
     </div>
   </div>
+
+  <div class="toast-box" id="toast-box" style="display:none;"></div>
+
+  <!-- Supabase (구글 로그인 + 클라우드 DB) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="./js/config.js"></script>
 
   <!-- 11개 기본 과목 + 11개 기출 과목 스크립트 연결 -->
   <script src="./data/anatomy.js"></script>
@@ -1323,904 +1545,9 @@
   <script src="./data/orthodontics.js"></script>
   <script src="./data/orthodontics_past.js"></script>
 
-  <script>
-    const subjectMeta = [
-      // 1교시
-      { key: 'anatomy', name: '구강해부학 (1~12)', period: 1 },
-      { key: 'anatomy_past', name: '구강해부학 국시기출 (19~25년)', period: 1 },
-      { key: 'morphology', name: '치아형태학 (13~28)', period: 1 },
-      { key: 'morphology_past', name: '치아형태학 국시기출 (19~25년)', period: 1 },
-      { key: 'hygiene', name: '구강보건학 (29~40)', period: 1 },
-      { key: 'hygiene_past', name: '구강보건학 국시기출 (19~25년)', period: 1 },
-      { key: 'materials', name: '치과재료학 (41~75)', period: 1 },
-      { key: 'materials_past', name: '치과재료학 국시기출 (19~25년)', period: 1 },
-      { key: 'law', name: '의료관계법규 (76~95)', period: 1 },
-      { key: 'law_past', name: '의료관계법규 국시기출 (19~25년)', period: 1 },
-
-      // 2교시
-      { key: 'crown_bridge', name: '관교의치기공학 (1~19)', period: 2 },
-      { key: 'crown_bridge_past', name: '관교의치기공학 국시기출 (19~25년)', period: 2 },
-      { key: 'porcelain', name: '도재기공학 (20~34)', period: 2 },
-      { key: 'porcelain_past', name: '도재기공학 국시기출 (19~25년)', period: 2 },
-      { key: 'complete_denture', name: '총의치기공학 (35~58)', period: 2 },
-      { key: 'complete_denture_past', name: '총의치기공학 국시기출 (19~25년)', period: 2 },
-      { key: 'partial_denture', name: '국소의치기공학 (59~82)', period: 2 },
-      { key: 'partial_denture_past', name: '국소의치기공학 국시기출 (19~25년)', period: 2 },
-      { key: 'restorative', name: '충전기공학 (83~96)', period: 2 },
-      { key: 'restorative_past', name: '충전기공학 국시기출 (19~25년)', period: 2 },
-      { key: 'orthodontics', name: '교정기공학 (97~110)', period: 2 },
-      { key: 'orthodontics_past', name: '교정기공학 국시기출 (19~25년)', period: 2 }
-    ];
-
-    let currentSubjectKey = null;
-    let quizQuestions = [];
-    let currentIndex = 0;
-    let userAnswersRecord = [];
-    let isAnswerChecked = false;
-    let pendingLoginUserIndex = null;
-    let registeringSlotIndex = null;
-
-    const STORAGE_KEY_HISTORY = 'quizlet_exam_history_per_user_v5';
-    const STORAGE_KEY_USER = 'quizlet_current_user_v5';
-    const STORAGE_KEY_USERS_DB = 'quizlet_users_db_v5';
-    const STORAGE_KEY_REPORTS = 'quizlet_reports_db_v5';
-
-    window.addEventListener('DOMContentLoaded', () => {
-      initUserDatabase();
-      checkAutoLogin();
-      window.addEventListener('keydown', handleGlobalKeydown);
-    });
-
-    function initUserDatabase() {
-      let users = JSON.parse(localStorage.getItem(STORAGE_KEY_USERS_DB) || 'null');
-      if (!users || users.length !== 6) {
-        users = [
-          { id: 'admin', slotName: '준영', username: '준영', password: '123', role: 'admin', isRegistered: true },
-          { id: 'guestA', slotName: '게스트A', username: '게스트A', password: '', role: 'user', isRegistered: false },
-          { id: 'guestB', slotName: '게스트B', username: '게스트B', password: '', role: 'user', isRegistered: false },
-          { id: 'guestC', slotName: '게스트C', username: '게스트C', password: '', role: 'user', isRegistered: false },
-          { id: 'guestD', slotName: '게스트D', username: '게스트D', password: '', role: 'user', isRegistered: false },
-          { id: 'guestE', slotName: '게스트E', username: '게스트E', password: '', role: 'user', isRegistered: false }
-        ];
-        localStorage.setItem(STORAGE_KEY_USERS_DB, JSON.stringify(users));
-      }
-    }
-
-    function checkAutoLogin() {
-      const currentUser = JSON.parse(localStorage.getItem(STORAGE_KEY_USER) || 'null');
-      if (currentUser) {
-        showMainView(currentUser);
-      } else {
-        showUserSelectView();
-      }
-    }
-
-    // 프로필 선택 화면 표시
-    function showUserSelectView() {
-      document.getElementById('user-select-view').style.display = 'flex';
-      document.getElementById('subject-view').style.display = 'none';
-      document.getElementById('quiz-view').style.display = 'none';
-      document.getElementById('quiz-result-view').style.display = 'none';
-      document.getElementById('bottom-feedback-bar').style.display = 'none';
-      document.getElementById('header-user-controls').style.display = 'none';
-
-      const users = JSON.parse(localStorage.getItem(STORAGE_KEY_USERS_DB));
-      const container = document.getElementById('user-grid-container');
-      container.innerHTML = '';
-
-      users.forEach((u, idx) => {
-        const btn = document.createElement('div');
-        btn.className = `user-card-btn ${!u.isRegistered ? 'is-empty' : ''}`;
-        btn.onclick = () => handleProfileClick(idx);
-
-        let iconClass = 'fa-user-graduate';
-        if (u.role === 'admin') iconClass = 'fa-user-shield';
-        else if (!u.isRegistered) iconClass = 'fa-user-plus';
-
-        btn.innerHTML = `
-          <div class="user-avatar-circle">
-            <i class="fa-solid ${iconClass}"></i>
-          </div>
-          <div class="user-name-text">${u.username}</div>
-          <div class="user-role-text">${u.role === 'admin' ? '관리자' : (u.isRegistered ? '학습자' : '신규 등록')}</div>
-        `;
-        container.appendChild(btn);
-      });
-    }
-
-    function handleProfileClick(userIndex) {
-      const users = JSON.parse(localStorage.getItem(STORAGE_KEY_USERS_DB));
-      const target = users[userIndex];
-
-      if (!target.isRegistered) {
-        registeringSlotIndex = userIndex;
-        document.getElementById('register-modal-title').innerText = `${target.slotName} 슬롯 등록`;
-        document.getElementById('reg-username').value = '';
-        document.getElementById('reg-password').value = '';
-        document.getElementById('register-guest-modal').style.display = 'flex';
-        setTimeout(() => document.getElementById('reg-username').focus(), 100);
-      } else {
-        pendingLoginUserIndex = userIndex;
-        document.getElementById('login-modal-title').innerText = `${target.username} 계정 로그인`;
-        document.getElementById('login-modal-sublabel').innerText = `${target.username}님의 비밀번호`;
-        document.getElementById('login-input-password').value = '';
-        document.getElementById('login-password-modal').style.display = 'flex';
-        setTimeout(() => document.getElementById('login-input-password').focus(), 100);
-      }
-    }
-
-    function submitGuestRegister() {
-      const name = document.getElementById('reg-username').value.trim();
-      const pw = document.getElementById('reg-password').value.trim();
-
-      if (!name) { alert('이름을 입력해주세요.'); return; }
-      if (!pw) { alert('비밀번호를 입력해주세요.'); return; }
-
-      const users = JSON.parse(localStorage.getItem(STORAGE_KEY_USERS_DB));
-      users[registeringSlotIndex].username = name;
-      users[registeringSlotIndex].password = pw;
-      users[registeringSlotIndex].isRegistered = true;
-
-      localStorage.setItem(STORAGE_KEY_USERS_DB, JSON.stringify(users));
-      localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(users[registeringSlotIndex]));
-
-      closeModal('register-guest-modal');
-      alert(`${name}님으로 등록되었습니다.`);
-      showMainView(users[registeringSlotIndex]);
-    }
-
-    function submitProfileLogin() {
-      const pw = document.getElementById('login-input-password').value.trim();
-      const users = JSON.parse(localStorage.getItem(STORAGE_KEY_USERS_DB));
-      const target = users[pendingLoginUserIndex];
-
-      if (target.password !== pw) {
-        alert('비밀번호가 올바르지 않습니다.');
-        document.getElementById('login-input-password').value = '';
-        document.getElementById('login-input-password').focus();
-        return;
-      }
-
-      localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(target));
-      closeModal('login-password-modal');
-      showMainView(target);
-    }
-
-    function logout() {
-      localStorage.removeItem(STORAGE_KEY_USER);
-      document.getElementById('bottom-feedback-bar').style.display = 'none';
-      showUserSelectView();
-    }
-
-    // 메인 화면 노출
-    function showMainView(user) {
-      document.getElementById('user-select-view').style.display = 'none';
-      document.getElementById('quiz-view').style.display = 'none';
-      document.getElementById('quiz-result-view').style.display = 'none';
-      document.getElementById('bottom-feedback-bar').style.display = 'none';
-      document.getElementById('subject-view').style.display = 'block';
-      document.getElementById('header-user-controls').style.display = 'flex';
-
-      document.getElementById('current-username').innerText = user.username;
-      document.getElementById('admin-btn').style.display = (user.role === 'admin') ? 'flex' : 'none';
-
-      renderSubjectList();
-    }
-
-    function openProfileModal() {
-      const currentUser = JSON.parse(localStorage.getItem(STORAGE_KEY_USER));
-      document.getElementById('input-username').value = currentUser.username;
-      document.getElementById('input-password').value = currentUser.password;
-      document.getElementById('profile-modal').style.display = 'flex';
-    }
-
-    function saveProfile() {
-      const newName = document.getElementById('input-username').value.trim();
-      const newPw = document.getElementById('input-password').value.trim();
-      if (!newName || !newPw) {
-        alert('이름과 비밀번호를 모두 입력해주세요.');
-        return;
-      }
-
-      let users = JSON.parse(localStorage.getItem(STORAGE_KEY_USERS_DB));
-      let currentUser = JSON.parse(localStorage.getItem(STORAGE_KEY_USER));
-
-      const idx = users.findIndex(u => u.id === currentUser.id);
-      if (idx !== -1) {
-        users[idx].username = newName;
-        users[idx].password = newPw;
-        currentUser.username = newName;
-        currentUser.password = newPw;
-      }
-
-      localStorage.setItem(STORAGE_KEY_USERS_DB, JSON.stringify(users));
-      localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(currentUser));
-
-      document.getElementById('current-username').innerText = newName;
-      closeModal('profile-modal');
-      alert('성공적으로 변경되었습니다.');
-      renderSubjectList();
-    }
-
-    function openAdminModal() {
-      const users = JSON.parse(localStorage.getItem(STORAGE_KEY_USERS_DB));
-      const container = document.getElementById('admin-user-list');
-      
-      let html = `
-        <table class="admin-table">
-          <thead>
-            <tr>
-              <th>슬롯</th>
-              <th>현재 이름</th>
-              <th>비밀번호</th>
-              <th>상태</th>
-              <th>관리</th>
-            </tr>
-          </thead>
-          <tbody>
-      `;
-
-      users.forEach((u, i) => {
-        html += `
-          <tr>
-            <td>${u.slotName}</td>
-            <td><strong>${u.username}</strong></td>
-            <td>${u.password || '-'}</td>
-            <td>${u.isRegistered ? '등록됨' : '미등록(게스트)'}</td>
-            <td>
-              ${u.role !== 'admin' && u.isRegistered ? `
-                <button class="btn-action-sm btn-retry-wrong" onclick="resetSlotToGuest(${i})">슬롯 초기화</button>
-              ` : (u.role === 'admin' ? '<button class="btn-action-sm btn-review-expl" onclick="resetAdminPw()">PW 123초기화</button>' : '-')}
-            </td>
-          </tr>
-        `;
-      });
-
-      html += `</tbody></table>`;
-      container.innerHTML = html;
-      document.getElementById('admin-modal').style.display = 'flex';
-    }
-
-    function resetSlotToGuest(index) {
-      let users = JSON.parse(localStorage.getItem(STORAGE_KEY_USERS_DB));
-      const slot = users[index];
-      if (!confirm(`${slot.username} 계정을 초기화하고 [${slot.slotName}]으로 되돌리시겠습니까? (해당 사용자의 풀이 이력도 함께 정리됩니다)`)) return;
-
-      let allHistories = JSON.parse(localStorage.getItem(STORAGE_KEY_HISTORY) || '[]');
-      allHistories = allHistories.filter(h => h.userId !== slot.id);
-      localStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(allHistories));
-
-      users[index].username = slot.slotName;
-      users[index].password = '';
-      users[index].isRegistered = false;
-
-      localStorage.setItem(STORAGE_KEY_USERS_DB, JSON.stringify(users));
-      openAdminModal();
-      alert(`[${slot.slotName}] 슬롯이 초기화되었습니다.`);
-    }
-
-    function resetAdminPw() {
-      let users = JSON.parse(localStorage.getItem(STORAGE_KEY_USERS_DB));
-      users[0].password = '123';
-      localStorage.setItem(STORAGE_KEY_USERS_DB, JSON.stringify(users));
-      openAdminModal();
-      alert('관리자(준영) 비밀번호가 123으로 초기화되었습니다.');
-    }
-
-    function openReportModal() {
-      const q = quizQuestions[currentIndex];
-      document.getElementById('report-question-preview').value = q ? q.question : '';
-      document.getElementById('report-content').value = '';
-      document.getElementById('report-modal').style.display = 'flex';
-    }
-
-    function submitReport() {
-      const content = document.getElementById('report-content').value.trim();
-      if (!content) { alert('내용을 입력해주세요.'); return; }
-
-      const q = quizQuestions[currentIndex];
-      const currentUser = JSON.parse(localStorage.getItem(STORAGE_KEY_USER));
-      const reports = JSON.parse(localStorage.getItem(STORAGE_KEY_REPORTS) || '[]');
-
-      reports.unshift({
-        id: Date.now(),
-        user: currentUser ? currentUser.username : '익명',
-        question: q.question,
-        content: content,
-        date: new Date().toLocaleString()
-      });
-
-      localStorage.setItem(STORAGE_KEY_REPORTS, JSON.stringify(reports));
-      closeModal('report-modal');
-      alert('오류 검토 요청이 접수되었습니다.');
-    }
-
-    function openReportListModal() {
-      const reports = JSON.parse(localStorage.getItem(STORAGE_KEY_REPORTS) || '[]');
-      const container = document.getElementById('report-list-container');
-      
-      if (reports.length === 0) {
-        container.innerHTML = '<div style="color:var(--text-sub); text-align:center; padding:32px 0;">접수된 검토 요청이 없습니다.</div>';
-      } else {
-        let html = '';
-        reports.forEach(r => {
-          html += `
-            <div style="background-color:var(--card-inner); border:1px solid var(--border-color); border-radius:8px; padding:12px; margin-bottom:10px;">
-              <div style="font-size:0.8rem; color:var(--text-sub); margin-bottom:4px;">${r.date} • 작성자: ${r.user}</div>
-              <div style="font-size:0.9rem; font-weight:600; margin-bottom:6px; color:#93c5fd;">[문제] ${r.question}</div>
-              <div style="font-size:0.88rem; color:var(--text-main); white-space:pre-wrap;">${r.content}</div>
-            </div>
-          `;
-        });
-        container.innerHTML = html;
-      }
-
-      document.getElementById('report-list-modal').style.display = 'flex';
-    }
-
-    function closeModal(id) {
-      document.getElementById(id).style.display = 'none';
-    }
-
-    // =========================================================
-    // 과목 목록 렌더링 (과목명 우측 [학습 시작] 버튼 + 풀이 이력 드롭다운)
-    // =========================================================
-    function renderSubjectList() {
-      const p1Container = document.getElementById('subject-list-period-1');
-      const p2Container = document.getElementById('subject-list-period-2');
-      const periodVal = document.getElementById('period-filter').value;
-      const searchVal = document.getElementById('subject-search').value.trim().toLowerCase();
-      const db = window.quizDatabase || {};
-      
-      const userHistory = getUserSpecificHistory();
-
-      p1Container.innerHTML = '';
-      p2Container.innerHTML = '';
-
-      document.getElementById('section-period-1').style.display = (periodVal === 'all' || periodVal === '1') ? 'block' : 'none';
-      document.getElementById('section-period-2').style.display = (periodVal === 'all' || periodVal === '2') ? 'block' : 'none';
-
-      subjectMeta.forEach(meta => {
-        if (periodVal !== 'all' && meta.period !== parseInt(periodVal)) return;
-        if (searchVal && !meta.name.toLowerCase().includes(searchVal)) return;
-
-        const subData = db[meta.key];
-        const count = subData && subData.questions ? subData.questions.length : 0;
-
-        const subjectHistories = userHistory.filter(h => h.subjectKey === meta.key);
-        const latestRecord = subjectHistories.length > 0 ? subjectHistories[0] : null;
-
-        const wrapper = document.createElement('div');
-        wrapper.className = 'subject-card-wrapper';
-
-        let recentWrongBadgeHtml = '';
-        if (latestRecord && latestRecord.wrongIds && latestRecord.wrongIds.length > 0) {
-          recentWrongBadgeHtml = `
-            <div class="recent-wrong-badge" title="현재 사용자의 최근 회차 오답">
-              <i class="fa-solid fa-triangle-exclamation"></i>
-              ${latestRecord.wrongIds.length}
-            </div>
-          `;
-        }
-
-        const card = document.createElement('div');
-        card.className = 'subject-card';
-        card.onclick = () => toggleSubjectDropdown(meta.key);
-
-        card.innerHTML = `
-          <div class="subject-card-left">
-            <div class="card-icon-box">
-              <i class="fa-regular fa-clone"></i>
-            </div>
-            <div class="subject-title-area">
-              <div class="subject-info-title">${meta.name}</div>
-              <div class="subject-info-sub">${count} 문항</div>
-            </div>
-          </div>
-          <div class="subject-card-right">
-            ${recentWrongBadgeHtml}
-            <button class="btn-start-badge" onclick="event.stopPropagation(); startQuiz('${meta.key}')" title="전체 ${count}문제 바로 풀기">
-              <i class="fa-solid fa-play"></i> 학습 시작
-            </button>
-            <button class="card-more-btn" onclick="event.stopPropagation(); toggleSubjectDropdown('${meta.key}')" title="회차별 이력 열기">
-              <i class="fa-solid fa-ellipsis"></i>
-            </button>
-          </div>
-        `;
-
-        // 회차별 풀이 이력 드롭다운 패널
-        const panel = document.createElement('div');
-        panel.className = 'history-dropdown-panel';
-        panel.id = `history-panel-${meta.key}`;
-
-        if (subjectHistories.length === 0) {
-          panel.innerHTML = '<div style="font-size:0.8rem; color:var(--text-sub); text-align:center; padding:8px;">이 사용자의 풀이 이력이 없습니다.</div>';
-        } else {
-          subjectHistories.forEach(rec => {
-            const item = document.createElement('div');
-            item.className = 'history-card-item';
-            
-            const hasWrong = rec.wrongIds && rec.wrongIds.length > 0;
-            
-            item.innerHTML = `
-              <div>
-                <div class="history-meta-text">${rec.date}</div>
-                <div style="font-size:0.85rem; font-weight:600;">
-                  정답: ${rec.correct} / ${rec.total} 
-                  ${hasWrong ? `<span style="color:var(--error-orange); font-size:0.75rem;">(오답 ${rec.wrongIds.length})</span>` : '<span style="color:var(--correct-green); font-size:0.75rem;">(만점)</span>'}
-                </div>
-              </div>
-              <div class="history-action-btns">
-                <!-- 전체 해설에서 [오답 문제 해설]로 수정됨 -->
-                ${hasWrong ? `
-                  <button class="btn-action-sm btn-review-expl" onclick="reviewHistoryExplanation('${meta.key}', ${rec.id})">오답 문제 해설</button>
-                  <button class="btn-action-sm btn-retry-wrong" onclick="retryHistoryWrong('${meta.key}', ${rec.id})">오답 다시풀기</button>
-                ` : `
-                  <span style="font-size:0.75rem; color:var(--correct-green); padding:5px 8px;">오답 없음</span>
-                `}
-              </div>
-            `;
-            panel.appendChild(item);
-          });
-        }
-
-        wrapper.appendChild(card);
-        wrapper.appendChild(panel);
-
-        if (meta.period === 1) {
-          p1Container.appendChild(wrapper);
-        } else {
-          p2Container.appendChild(wrapper);
-        }
-      });
-    }
-
-    function filterSubjects() {
-      renderSubjectList();
-    }
-
-    function toggleSubjectDropdown(key) {
-      const panel = document.getElementById(`history-panel-${key}`);
-      if (panel) {
-        const isShown = panel.style.display === 'flex';
-        panel.style.display = isShown ? 'none' : 'flex';
-      }
-    }
-
-    function shuffleArray(array) {
-      const arr = [...array];
-      for (let i = arr.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [arr[i], arr[j]] = [arr[j], arr[i]];
-      }
-      return arr;
-    }
-
-    // 7. 문제 풀이 세션 시작
-    function startQuiz(key, specificQuestions = null) {
-      const db = window.quizDatabase || {};
-      const sub = db[key];
-      if (!sub || !sub.questions || sub.questions.length === 0) {
-        alert('문항 데이터를 불러올 수 없습니다.');
-        return;
-      }
-
-      currentSubjectKey = key;
-      const shuffleQuestions = document.getElementById('toggle-shuffle-questions').checked;
-      const shuffleOptions = document.getElementById('toggle-shuffle-options').checked;
-
-      let baseQuestions = specificQuestions 
-        ? specificQuestions.map(item => JSON.parse(JSON.stringify(item))) 
-        : sub.questions.map(item => JSON.parse(JSON.stringify(item)));
-
-      if (shuffleQuestions) {
-        baseQuestions = shuffleArray(baseQuestions);
-      }
-
-      if (shuffleOptions) {
-        baseQuestions.forEach(q => {
-          const originalAnswerIndex = q.answer;
-          const mappedOptions = q.options.map((optText, idx) => {
-            const optNum = idx + 1;
-            return {
-              text: optText,
-              originalNum: optNum,
-              expl: (q.optionExplanations && q.optionExplanations[optNum]) ? q.optionExplanations[optNum] : ''
-            };
-          });
-
-          const shuffledMapped = shuffleArray(mappedOptions);
-
-          const newOptions = [];
-          const newExplMap = {};
-          let newAnswer = 1;
-
-          shuffledMapped.forEach((item, newIdx) => {
-            const newNum = newIdx + 1;
-            newOptions.push(item.text);
-            if (item.expl) {
-              newExplMap[newNum] = item.expl;
-            }
-            if (item.originalNum === originalAnswerIndex) {
-              newAnswer = newNum;
-            }
-          });
-
-          q.options = newOptions;
-          q.answer = newAnswer;
-          q.optionExplanations = newExplMap;
-        });
-      }
-
-      quizQuestions = baseQuestions;
-      currentIndex = 0;
-      userAnswersRecord = new Array(quizQuestions.length).fill(null);
-      isAnswerChecked = false;
-
-      document.getElementById('subject-view').style.display = 'none';
-      document.getElementById('quiz-result-view').style.display = 'none';
-      document.getElementById('quiz-view').style.display = 'block';
-      document.getElementById('bottom-feedback-bar').style.display = 'none';
-
-      initProgressBar();
-      renderCurrentQuestion();
-    }
-
-    function goHome() {
-      document.getElementById('quiz-view').style.display = 'none';
-      document.getElementById('quiz-result-view').style.display = 'none';
-      document.getElementById('bottom-feedback-bar').style.display = 'none';
-      document.getElementById('subject-view').style.display = 'block';
-      renderSubjectList();
-    }
-
-    function initProgressBar() {
-      const barContainer = document.getElementById('segmented-bar');
-      barContainer.innerHTML = '';
-      quizQuestions.forEach((_, idx) => {
-        const seg = document.createElement('div');
-        seg.className = 'progress-segment';
-        seg.id = `seg-${idx}`;
-        barContainer.appendChild(seg);
-      });
-      document.getElementById('quiz-badge-correct').innerText = '0';
-      document.getElementById('quiz-badge-total').innerText = quizQuestions.length;
-    }
-
-    function renderCurrentQuestion() {
-      const q = quizQuestions[currentIndex];
-      document.getElementById('quiz-question-text').innerText = `${currentIndex + 1}. ${q.question}`;
-
-      const optContainer = document.getElementById('quiz-options-container');
-      optContainer.innerHTML = '';
-
-      q.options.forEach((optText, idx) => {
-        const optNum = idx + 1;
-        const btn = document.createElement('div');
-        btn.className = 'option-btn';
-        btn.onclick = () => selectAnswer(optNum);
-
-        const individualExpl = (q.optionExplanations && q.optionExplanations[optNum]) ? q.optionExplanations[optNum] : '';
-
-        btn.innerHTML = `
-          <div class="option-top-row">
-            <span class="option-idx" id="opt-icon-${optNum}">${optNum}</span>
-            <span>${optText}</span>
-          </div>
-          <div class="option-explanation-inline" id="opt-expl-${optNum}">${individualExpl}</div>
-        `;
-        optContainer.appendChild(btn);
-      });
-
-      document.getElementById('prev-btn').disabled = (currentIndex === 0);
-
-      const previousAnswer = userAnswersRecord[currentIndex];
-      if (previousAnswer !== null) {
-        restoreQuestionState(previousAnswer);
-      } else {
-        isAnswerChecked = false;
-        document.getElementById('bottom-feedback-bar').style.display = 'none';
-        const banner = document.getElementById('status-msg-banner');
-        banner.className = 'status-msg-banner';
-        banner.style.display = 'none';
-        document.getElementById('common-explanation-box').style.display = 'none';
-      }
-    }
-
-    function selectAnswer(userPick) {
-      if (isAnswerChecked) return;
-      isAnswerChecked = true;
-
-      userAnswersRecord[currentIndex] = userPick;
-      restoreQuestionState(userPick);
-      updateProgressStats();
-
-      document.getElementById('bottom-feedback-bar').style.display = 'flex';
-    }
-
-    function restoreQuestionState(userPick) {
-      isAnswerChecked = true;
-      const q = quizQuestions[currentIndex];
-      const isCorrect = (userPick === q.answer);
-      const optButtons = document.querySelectorAll('.option-btn');
-      const segment = document.getElementById(`seg-${currentIndex}`);
-      const banner = document.getElementById('status-msg-banner');
-
-      optButtons.forEach(btn => btn.classList.add('disabled'));
-
-      q.options.forEach((_, idx) => {
-        const optNum = idx + 1;
-        const explElem = document.getElementById(`opt-expl-${optNum}`);
-        if (explElem && explElem.innerText.trim() !== '') {
-          explElem.style.display = 'block';
-        }
-      });
-
-      const commonExplText = (q.commonExplanations && q.commonExplanations.length > 0) ? q.commonExplanations.join('<br>') : '';
-      if (commonExplText) {
-        document.getElementById('common-explanation-text').innerHTML = commonExplText;
-        document.getElementById('common-explanation-box').style.display = 'block';
-      }
-
-      if (isCorrect) {
-        if (segment) {
-          segment.classList.remove('failed');
-          segment.classList.add('passed');
-        }
-
-        optButtons[userPick - 1].classList.add('correct-choice');
-        document.getElementById(`opt-icon-${userPick}`).innerHTML = '<i class="fa-solid fa-check"></i>';
-
-        banner.innerText = '잘하고 있어요!';
-        banner.className = 'status-msg-banner correct';
-      } else {
-        if (segment) {
-          segment.classList.remove('passed');
-          segment.classList.add('failed');
-        }
-
-        if (userPick > 0 && userPick <= optButtons.length) {
-          optButtons[userPick - 1].classList.add('wrong-choice');
-          document.getElementById(`opt-icon-${userPick}`).innerHTML = '<i class="fa-solid fa-xmark"></i>';
-        }
-
-        optButtons[q.answer - 1].classList.add('correct-highlight');
-
-        banner.innerText = '걱정하지 마세요, 아직 배우고 있잖아요!';
-        banner.className = 'status-msg-banner wrong';
-      }
-
-      document.getElementById('bottom-feedback-bar').style.display = 'flex';
-    }
-
-    function updateProgressStats() {
-      let count = 0;
-      userAnswersRecord.forEach((ans, idx) => {
-        if (ans !== null && ans === quizQuestions[idx].answer) {
-          count++;
-        }
-      });
-      correctCount = count;
-      document.getElementById('quiz-badge-correct').innerText = correctCount;
-    }
-
-    function handleDontKnow() {
-      if (isAnswerChecked) return;
-      selectAnswer(-1);
-    }
-
-    function prevQuestion() {
-      if (currentIndex > 0) {
-        currentIndex--;
-        renderCurrentQuestion();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
-    }
-
-    function nextQuestion() {
-      if (currentIndex < quizQuestions.length - 1) {
-        currentIndex++;
-        renderCurrentQuestion();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      } else {
-        finishQuizSession();
-      }
-    }
-
-    function finishQuizSession() {
-      document.getElementById('bottom-feedback-bar').style.display = 'none';
-      document.getElementById('quiz-view').style.display = 'none';
-
-      currentSessionWrongItems = [];
-      quizQuestions.forEach((q, idx) => {
-        const userAns = userAnswersRecord[idx];
-        if (userAns === null || userAns !== q.answer) {
-          currentSessionWrongItems.push({ ...q });
-        }
-      });
-
-      const wrongIds = currentSessionWrongItems.map(item => item.id);
-      saveSessionHistory(currentSubjectKey, quizQuestions.length, correctCount, wrongIds);
-
-      document.getElementById('result-summary-stats-text').innerHTML = `
-        총 ${quizQuestions.length}문항 중 <strong style="color:var(--correct-green);">${correctCount}문항</strong> 정답<br>
-        <span style="color:var(--error-orange); font-weight:600;">오답 ${currentSessionWrongItems.length}문항</span>
-      `;
-
-      const retryBtn = document.getElementById('result-retry-wrong-btn');
-      if (currentSessionWrongItems.length > 0) {
-        retryBtn.innerText = `오답 ${currentSessionWrongItems.length}문제 다시 풀기`;
-        retryBtn.style.display = 'inline-block';
-      } else {
-        retryBtn.style.display = 'none';
-      }
-
-      const wrongSection = document.getElementById('wrong-review-section');
-      const wrongContainer = document.getElementById('wrong-items-container');
-
-      if (currentSessionWrongItems.length > 0) {
-        wrongSection.style.display = 'block';
-        wrongContainer.innerHTML = '';
-
-        currentSessionWrongItems.forEach((q, idx) => {
-          const itemBox = document.createElement('div');
-          itemBox.className = 'wrong-item-box';
-
-          let optionsHtml = '';
-          q.options.forEach((opt, optIdx) => {
-            const optNum = optIdx + 1;
-            const isAns = (optNum === q.answer);
-            const expl = (q.optionExplanations && q.optionExplanations[optNum]) ? q.optionExplanations[optNum] : '';
-            optionsHtml += `
-              <div class="wrong-item-optline ${isAns ? 'is-answer' : ''}">
-                ${optNum}. ${opt} ${isAns ? '<i class="fa-solid fa-check" style="margin-left:4px;"></i>' : ''}
-                ${expl ? `<div style="font-size:0.75rem; color:#94a3b8; margin-top:2px; margin-left:14px;">↳ ${expl}</div>` : ''}
-              </div>
-            `;
-          });
-
-          const commonExpl = (q.commonExplanations && q.commonExplanations.length > 0) ? q.commonExplanations.join('<br>') : '';
-
-          itemBox.innerHTML = `
-            <div class="wrong-item-qtitle">[오답 ${idx + 1}] ${q.question}</div>
-            <div class="wrong-item-optlist">${optionsHtml}</div>
-            ${commonExpl ? `<div class="wrong-item-expl"><strong>[핵심 TIP]</strong> ${commonExpl}</div>` : ''}
-          `;
-          wrongContainer.appendChild(itemBox);
-        });
-      } else {
-        wrongSection.style.display = 'none';
-      }
-
-      document.getElementById('quiz-result-view').style.display = 'flex';
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    function retryWrongQuestions() {
-      if (!currentSessionWrongItems || currentSessionWrongItems.length === 0) return;
-      const wrongListToRetry = currentSessionWrongItems.map(item => ({ ...item }));
-      startQuiz(currentSubjectKey, wrongListToRetry);
-    }
-
-    function handleGlobalKeydown(e) {
-      if (document.getElementById('quiz-view').style.display !== 'block') return;
-
-      if (!isAnswerChecked) {
-        if (['1', '2', '3', '4', '5'].includes(e.key)) {
-          const pick = parseInt(e.key);
-          const q = quizQuestions[currentIndex];
-          if (q && pick <= q.options.length) {
-            selectAnswer(pick);
-          }
-        }
-      } else {
-        if (e.key === 'ArrowRight' || e.key === 'Enter') {
-          e.preventDefault();
-          nextQuestion();
-        } else if (e.key === 'ArrowLeft') {
-          e.preventDefault();
-          prevQuestion();
-        }
-      }
-    }
-
-    function getUserSpecificHistory() {
-      try {
-        const currentUser = JSON.parse(localStorage.getItem(STORAGE_KEY_USER));
-        if (!currentUser || !currentUser.id) return [];
-
-        const allHistories = JSON.parse(localStorage.getItem(STORAGE_KEY_HISTORY) || '[]');
-        return allHistories.filter(h => h.userId === currentUser.id);
-      } catch (e) {
-        return [];
-      }
-    }
-
-    function saveSessionHistory(subjectKey, total, correct, wrongIds) {
-      const currentUser = JSON.parse(localStorage.getItem(STORAGE_KEY_USER));
-      if (!currentUser) return;
-
-      const allHistories = JSON.parse(localStorage.getItem(STORAGE_KEY_HISTORY) || '[]');
-      const meta = subjectMeta.find(m => m.key === subjectKey);
-
-      const newEntry = {
-        id: Date.now(),
-        userId: currentUser.id,
-        subjectKey: subjectKey,
-        subjectName: meta ? meta.name : subjectKey,
-        date: new Date().toLocaleString('ko-KR', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }),
-        total: total,
-        correct: correct,
-        wrongIds: wrongIds
-      };
-
-      allHistories.unshift(newEntry);
-      if (allHistories.length > 100) allHistories.pop();
-      localStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(allHistories));
-    }
-
-    function retryHistoryWrong(subjectKey, historyId) {
-      const history = getUserSpecificHistory();
-      const rec = history.find(h => h.id === historyId);
-      if (!rec || !rec.wrongIds || rec.wrongIds.length === 0) return;
-
-      const db = window.quizDatabase || {};
-      const sub = db[subjectKey];
-      if (!sub) return;
-
-      const wrongQuestions = sub.questions.filter(q => rec.wrongIds.includes(q.id));
-      startQuiz(subjectKey, wrongQuestions);
-    }
-
-    // ★ 오답 문제들에 대한 해설 모달 열기 (틀린 문제만 추출)
-    function reviewHistoryExplanation(subjectKey, historyId) {
-      const history = getUserSpecificHistory();
-      const rec = history.find(h => h.id === historyId);
-      if (!rec || !rec.wrongIds || rec.wrongIds.length === 0) {
-        alert('이 회차에는 오답 문제가 없습니다.');
-        return;
-      }
-
-      const db = window.quizDatabase || {};
-      const sub = db[subjectKey];
-      if (!sub) return;
-
-      // 해당 회차에서 틀렸던 문제만 필터링
-      const wrongQuestions = sub.questions.filter(q => rec.wrongIds.includes(q.id));
-
-      document.getElementById('expl-modal-title').innerText = `${sub.title || '과목'} - 오답 문제 해설 (${wrongQuestions.length}문항)`;
-      const container = document.getElementById('expl-modal-content');
-      container.innerHTML = '';
-
-      wrongQuestions.forEach((q, idx) => {
-        const itemDiv = document.createElement('div');
-        itemDiv.style.cssText = 'background:var(--card-inner); border:1px solid var(--border-color); border-radius:10px; padding:14px; margin-bottom:12px;';
-
-        let optionsHtml = '';
-        q.options.forEach((opt, optIdx) => {
-          const optNum = optIdx + 1;
-          const isAns = (optNum === q.answer);
-          const expl = (q.optionExplanations && q.optionExplanations[optNum]) ? q.optionExplanations[optNum] : '';
-          optionsHtml += `
-            <div style="margin-top:5px; font-size:0.85rem; color:${isAns ? 'var(--correct-green)' : 'var(--text-sub)'}; font-weight:${isAns ? '700' : '400'};">
-              ${optNum}. ${opt} ${isAns ? '✓ (정답)' : ''}
-              ${expl ? `<div style="font-size:0.75rem; color:#cbd5e1; margin-left:12px; margin-top:2px;">↳ ${expl}</div>` : ''}
-            </div>
-          `;
-        });
-
-        const commonExpl = (q.commonExplanations && q.commonExplanations.length > 0) ? q.commonExplanations.join('<br>') : '';
-
-        itemDiv.innerHTML = `
-          <div style="font-weight:700; margin-bottom:6px; font-size:0.92rem; color:#f87171;">[오답 ${idx + 1}] ${q.question}</div>
-          <div style="margin-bottom:8px;">${optionsHtml}</div>
-          ${commonExpl ? `<div style="background:rgba(96,165,250,0.1); border-left:3px solid #60a5fa; padding:6px 10px; font-size:0.78rem; color:#93c5fd;"><strong>[핵심 TIP]</strong> ${commonExpl}</div>` : ''}
-        `;
-        container.appendChild(itemDiv);
-      });
-
-      document.getElementById('explanation-modal').style.display = 'flex';
-    }
-  </script>
+  <!-- 앱 로직 (클라우드 연동 / 오늘의 문제 / 화면) -->
+  <script src="./js/daily.js"></script>
+  <script src="./js/cloud.js"></script>
+  <script src="./js/app.js"></script>
 </body>
 </html>
