@@ -50,3 +50,17 @@
 
 ## 다음 단계 (예정)
 2단계: 문제별 개념 태그 + 약점 분석 · 3단계: PDF 소스 기반 개념 정리(RAG, Gemini) · 주간 리포트 · 푸시 알림
+
+## 해설 점검·갱신 (NotebookLM / Gemini 답변 반영)
+
+원본 `data/*.js` 는 건드리지 않고 `data/overlay/<과목>.json` 에만 덮어쓰는 방식입니다. 되돌리려면 overlay 파일을 지우면 됩니다.
+
+```
+node tools/notebooklm/export.js [--size 15]   # 묶음 파일 생성 → tools/notebooklm/out/
+node tools/notebooklm/apply.js 답변.txt        # NotebookLM 답변(JSON) 검증 후 반영 (--dry: 검증만)
+node tools/notebooklm/apply.js --status        # 진행 현황
+```
+
+1. `out/B###_*.txt` 내용을 NotebookLM(해당 과목 교재 등록)에 통째로 붙여넣기
+2. 나온 JSON 을 파일로 저장 → `apply.js` 실행 (오류가 있으면 아무것도 저장하지 않음)
+3. 근거 못 찾음·정답 이견은 `tools/notebooklm/review.json` 에 모입니다 (정답은 자동 변경하지 않음)

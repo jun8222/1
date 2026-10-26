@@ -133,8 +133,32 @@ function closeModal(id) { $(id).style.display = 'none'; }
 // ---------------------------------------------------------------- 시작 / 인증
 window.addEventListener('DOMContentLoaded', boot);
 
+/** 해설 보강 파일(data/overlay)을 읽어 원본 문제에 덮어쓴다. 없거나 실패해도 원본으로 동작 */
+async function loadOverlays() {
+  try {
+    const r = await fetch('data/overlay/index.json', { cache: 'no-cache' });
+    if (!r.ok) return;
+    const idx = await r.json();
+    const db = window.quizDatabase || {};
+    await Promise.all((idx.subjects || []).map(async key => {
+      try {
+        const res = await fetch('data/overlay/' + encodeURIComponent(key) + '.json', { cache: 'no-cache' });
+        if (!res.ok || !db[key]) return;
+        const ov = await res.json();
+        db[key].questions.forEach(q => {
+          const o = ov[q.id];
+          if (!o) return;
+          if (o.optionExplanations) q.optionExplanations = Object.assign({}, q.optionExplanations || {}, o.optionExplanations);
+          if (o.commonExplanations && o.commonExplanations.length) q.commonExplanations = o.commonExplanations;
+        });
+      } catch (e) { console.warn('[overlay]', key, e.message); }
+    }));
+  } catch (e) { /* 보강 파일 없음 */ }
+}
+
 async function boot() {
   window.addEventListener('keydown', handleGlobalKeydown);
+  await loadOverlays();
 
   if (!Cloud.isConfigured()) {
     showAuthView('setup');
