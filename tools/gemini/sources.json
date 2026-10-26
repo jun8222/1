@@ -1,0 +1,17 @@
+{
+  "_설명": "과목 키 → 교재 PDF 경로(내 PC). 국시기출 과목은 같은 교재를 씁니다. 경로는 본인 PC에 맞게 고치세요.",
+  "pdfDir": "C:/Users/내이름/Documents/교재",
+  "subjects": {
+    "anatomy": ["구강해부학.pdf"],
+    "morphology": ["치아형태학.pdf"],
+    "hygiene": ["구강보건학.pdf"],
+    "materials": ["치기공재료학.pdf"],
+    "law": ["의료법(법률)(제21490호)(20261002).pdf", "의료기사 등에 관한 법률(법률)(제21423호)(20260911).pdf"],
+    "crown_bridge": ["관교의치기공학.pdf"],
+    "porcelain": ["치과도재기공학.pdf"],
+    "complete_denture": ["총의치기공학.pdf"],
+    "partial_denture": ["국소의치기공학.pdf"],
+    "restorative": ["충전기공학.pdf"],
+    "orthodontics": ["치과교정기공학.pdf"]
+  }
+}

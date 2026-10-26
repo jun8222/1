@@ -211,4 +211,4 @@ if (require.main === module) {
     else { console.log('사용: node tools/notebooklm/apply.js <답변파일> [--dry] | --status'); process.exit(1); }
   } catch (e) { console.error('✖ ' + e.message); process.exit(1); }
 }
-module.exports = { extractJson, validate, clean };
+module.exports = { extractJson, validate, clean, applyFile: f => apply(f, false) };

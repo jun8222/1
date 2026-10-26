@@ -64,3 +64,12 @@ node tools/notebooklm/apply.js --status        # 진행 현황
 1. `out/B###_*.txt` 내용을 NotebookLM(해당 과목 교재 등록)에 통째로 붙여넣기
 2. 나온 JSON 을 파일로 저장 → `apply.js` 실행 (오류가 있으면 아무것도 저장하지 않음)
 3. 근거 못 찾음·정답 이견은 `tools/notebooklm/review.json` 에 모입니다 (정답은 자동 변경하지 않음)
+
+### Gemini 로 자동 점검 (붙여넣기 대신)
+```
+set GEMINI_API_KEY=키        # 키는 환경변수로만 사용, 파일에 저장 안 함
+# tools/gemini/sources.json 에서 pdfDir 과 PDF 파일명을 내 PC에 맞게 수정
+node tools/gemini/run.js --list            # 연결 확인(호출 없음)
+node tools/gemini/run.js --only B001       # 한 묶음 시험
+node tools/gemini/run.js                   # 남은 묶음 전부 (끊기면 다시 실행하면 이어서)
+```
