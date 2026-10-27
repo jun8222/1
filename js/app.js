@@ -979,7 +979,7 @@ function renderSubjectList() {
   });
   const built = [];
 
-  extraSubjects.concat(subjectMeta).forEach(function (meta) {
+  subjectMeta.concat(extraSubjects).forEach(function (meta) {
     if (periodVal !== 'all' && meta.period !== parseInt(periodVal, 10)) return;
     if (searchVal && !meta.name.toLowerCase().includes(searchVal)) return;
 
