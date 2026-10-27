@@ -117,7 +117,7 @@ function subjectName(key) {
 }
 
 function hideAllViews() {
-  ['auth-view', 'subject-view', 'quiz-view', 'quiz-result-view', 'bottom-feedback-bar'].forEach(function (id) {
+  ['auth-view', 'subject-view', 'quiz-view', 'quiz-result-view'].forEach(function (id) {
     $(id).style.display = 'none';
   });
 }
@@ -159,32 +159,31 @@ async function loadOverlays() {
 
 // ---------------------------------------------------------------- 팁 · 근거 · 플래그
 function showTipAndSource(q) {
-  const tip = $('tip-box'), src = $('source-toggle');
-  if (q.tip) { $('tip-text').textContent = q.tip; tip.style.display = 'block'; }
+  if (q.tip) { $('tipText').textContent = q.tip; $('tipBox').classList.add('show'); }
   const parts = [];
   if (q.source) parts.push('📖 ' + esc(q.source));
   if (q.flag === '정답불일치') parts.push('⚠ 교재 기준과 기출 정답이 다를 수 있어요' + (q.flagNote ? ': ' + esc(q.flagNote) : ''));
   if (q.flag === '출처외') parts.push('ℹ 교재에 명확한 근거가 없어 일반 지식으로 쓴 해설이에요' + (q.flagNote ? ': ' + esc(q.flagNote) : ''));
   if (parts.length) {
-    $('source-box').innerHTML = parts.join('<br>');
-    src.style.display = 'block';
+    $('sourceText').innerHTML = parts.join('<br>');
+    $('sourceToggle').classList.add('show');
   }
 }
 function toggleSource() {
-  const box = $('source-box'), open = box.style.display !== 'block';
-  box.style.display = open ? 'block' : 'none';
-  $('source-icon').textContent = open ? '▲' : '▼';
+  const box = $('sourceBox'), open = !box.classList.contains('show');
+  box.classList.toggle('show', open);
+  $('sourceIcon').textContent = open ? '▲' : '▼';
 }
 function flagChip(q) {
-  if (q.flag === '정답불일치') return '<span class="flag-chip mismatch">정답 확인 필요</span>';
-  if (q.flag === '출처외') return '<span class="flag-chip nosrc">교재 외</span>';
+  if (q.flag === '정답불일치') return '<span class="flag-badge flag-mismatch">정답 확인 필요</span>';
+  if (q.flag === '출처외') return '<span class="flag-badge flag-outside">교재 외</span>';
   return '';
 }
 
 // ---------------------------------------------------------------- 테마
 function applyTheme(t) {
   document.documentElement.setAttribute('data-theme', t);
-  const b = $('theme-btn'); if (b) b.textContent = t === 'light' ? '🌙' : '☀️';
+  const b = $('themeIcon'); if (b) b.textContent = t === 'light' ? '🌙' : '☀️';
 }
 function initTheme() {
   let t = 'dark';
@@ -226,12 +225,26 @@ function subjectProgress(key, total) {
 let currentTab = 'study';
 function switchTab(name) {
   currentTab = name;
-  ['study', 'wrong', 'done'].forEach(function (t) {
-    $('tab-' + t).style.display = t === name ? 'block' : 'none';
+  ['study', 'notes', 'completed'].forEach(function (t) {
+    $(t + '-tab').classList.toggle('active', t === name);
     $('tabbtn-' + t).classList.toggle('active', t === name);
   });
   if (name !== 'study') { renderNotes(); refreshStats().then(function () { if (currentTab !== 'study') renderNotes(); }); }
 }
+function openNotesTab() {
+  goHome();
+  switchTab('notes');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function toggleUserMenu(e) {
+  if (e) e.stopPropagation();
+  const m = $('user-menu');
+  m.style.display = m.style.display === 'block' ? 'none' : 'block';
+}
+function closeUserMenu() { const m = $('user-menu'); if (m) m.style.display = 'none'; }
+document.addEventListener('click', function (e) {
+  if (!e.target.closest || !e.target.closest('.user-menu-wrap')) closeUserMenu();
+});
 
 function noteEntries() {
   const wrong = [], done = [];
@@ -257,10 +270,9 @@ function fillSubjectFilter(selId, entries) {
 }
 
 function sortNotes(list, mode) {
-  const order = function (k) { return subjectMeta.findIndex(function (m) { return m.key === k; }); };
+  if (mode === 'random') return shuffleArray(list);
   list.sort(function (a, b) {
     if (mode === 'most') return (b.miss - a.miss) || (b.st.lastAt - a.st.lastAt);
-    if (mode === 'subject') return (order(a.s) - order(b.s)) || (a.id - b.id);
     return b.st.lastAt - a.st.lastAt;
   });
   return list;
@@ -268,37 +280,42 @@ function sortNotes(list, mode) {
 
 function noteItemHtml(e, resolved) {
   const q = e.q;
-  const opts = q.options.map(function (o, i) {
-    const n = i + 1, ex = q.optionExplanations && q.optionExplanations[n];
-    return '<div class="note-opt ' + (n === q.answer ? 'ans' : '') + '">' + n + '. ' + esc(o) + (n === q.answer ? ' ✓' : '') + (ex ? '<small>↳ ' + esc(ex) + '</small>' : '') + '</div>';
-  }).join('');
-  const common = (q.commonExplanations || []).length ? '<div class="wrong-item-expl"><strong>[핵심]</strong> ' + q.commonExplanations.map(esc).join('<br>') + '</div>' : '';
-  const tip = q.tip ? '<div class="tip-box" style="display:block;margin-top:8px;"><b>🎯 암기 팁</b>' + esc(q.tip) + '</div>' : '';
-  return '<div class="note-item ' + (resolved ? 'resolved' : '') + '" onclick="this.querySelector(\'.note-detail\').style.display = this.querySelector(\'.note-detail\').style.display === \'block\' ? \'none\' : \'block\'">' +
-    '<div class="note-meta"><span>' + esc(subjectName(e.s)) + '</span><span>· ' + e.id + '번</span><span>· ' + e.st.tries + '회 중 ' + e.miss + '회 오답</span>' + flagChip(q) + '</div>' +
-    '<div class="note-q">' + esc(q.question) + '</div>' +
-    '<div class="note-detail">' + (q.contextBox ? '<div class="context-box">' + esc(q.contextBox) + '</div>' : '') + opts + common + tip + '</div></div>';
+  const expl = (q.commonExplanations || []).length ? q.commonExplanations.map(esc).join('<br>') : '';
+  const ansText = esc(q.options[q.answer - 1] || '');
+  return '<div class="wrong-item" style="margin-bottom: 12px;' + (resolved ? ' opacity: 0.85;' : '') + '">' +
+    '<div class="wrong-item-header">' +
+      '<div class="wrong-question">' + esc(q.question) + '</div>' +
+      '<div style="display: flex; gap: 8px; align-items: center;">' +
+        '<div class="wrong-badge">' + esc(subjectName(e.s)) + ' · ' + e.id + '번</div>' +
+        (resolved ? '<div class="wrong-badge" style="background-color: #22c55e;">✓ 복습 완료</div>' : '<div class="wrong-badge" style="background-color: #64748b;">' + e.st.tries + '회 중 ' + e.miss + '회 오답</div>') +
+        flagChip(q) +
+      '</div>' +
+    '</div>' +
+    (q.contextBox ? '<div class="context-box" style="margin-top:10px;">' + esc(q.contextBox) + '</div>' : '') +
+    '<div class="wrong-answer-line">✓ 정답 ' + q.answer + '. ' + ansText + '</div>' +
+    (expl ? '<div class="wrong-explanation" style="margin-top: 12px;"><div class="wrong-explanation-label">💡 해설</div><div class="wrong-explanation-text">' + expl + '</div></div>' : '') +
+    (q.tip ? '<div class="wrong-tip" style="margin-top: 12px;"><div class="wrong-tip-label">🎯 팁</div><div>' + esc(q.tip) + '</div></div>' : '') +
+  '</div>';
 }
 
 function renderNotes() {
   if (!currentUser) return;
   const all = noteEntries();
   fillSubjectFilter('wrong-filter', all.wrong);
-  fillSubjectFilter('done-filter', all.done);
 
   const cnt = $('wrong-count');
   cnt.textContent = all.wrong.length; cnt.style.display = all.wrong.length ? 'inline-block' : 'none';
 
-  const wf = $('wrong-filter').value, df = $('done-filter').value;
+  const wf = $('wrong-filter').value;
   const wl = sortNotes(all.wrong.filter(function (e) { return wf === 'all' || e.s === wf; }), $('wrong-sort').value);
-  const dl = sortNotes(all.done.filter(function (e) { return df === 'all' || e.s === df; }), 'recent');
+  const dl = sortNotes(all.done.slice(), 'recent');
 
-  $('wrong-note-content').innerHTML = wl.length
-    ? wl.map(function (e) { return noteItemHtml(e, false); }).join('')
-    : '<div class="note-empty">' + (Object.keys(statsCache).length ? '🎉 지금 틀린 채로 남은 문제가 없어요.' : '아직 푼 기록이 없어요.') + '</div>';
-  $('done-note-content').innerHTML = dl.length
+  $('notesContent').innerHTML = wl.length
+    ? '<div style="margin-bottom: 16px; color: var(--text-sub); font-size: 0.9rem;">총 <strong>' + wl.length + '개</strong>의 오답이 있습니다.</div>' + wl.map(function (e) { return noteItemHtml(e, false); }).join('')
+    : '<div class="empty-state"><div class="empty-icon">' + (Object.keys(statsCache).length ? '🎉' : '📝') + '</div><p>' + (Object.keys(statsCache).length ? '지금 틀린 채로 남은 문제가 없어요.' : '아직 푼 기록이 없어요.') + '</p></div>';
+  $('completedContent').innerHTML = dl.length
     ? dl.map(function (e) { return noteItemHtml(e, true); }).join('')
-    : '<div class="note-empty">틀렸다가 다시 맞힌 문제가 여기에 모여요.</div>';
+    : '<div class="empty-state"><div class="empty-icon">📚</div><p>틀렸다가 다시 맞힌 문제가 여기에 모여요.</p></div>';
 }
 
 function currentWrongList() {
@@ -358,12 +375,13 @@ function renderBreakdown() {
     map[s].n++;
     if (userAnswersRecord[idx] !== null && userAnswersRecord[idx] === q.answer) map[s].ok++;
   });
-  $('result-breakdown').innerHTML = order.map(function (s) {
+  $('breakdownItems').innerHTML = order.map(function (s) {
     const m = map[s], pct = Math.round(m.ok / m.n * 100);
-    const cls = pct >= 80 ? 'good' : pct >= 70 ? 'mid' : 'bad';
-    return '<div class="bd-row"><span class="bd-name">' + esc(subjectName(s)) + '</span>' +
-      '<div class="bd-track"><div class="sc-fill ' + cls + '" style="width:' + pct + '%"></div></div>' +
-      '<span class="bd-val">' + m.ok + '/' + m.n + ' · ' + pct + '%</span></div>';
+    const cls = pct >= 80 ? 'good' : pct >= 70 ? 'mid' : 'low';
+    return '<div class="breakdown-item" style="padding: 12px 0; border-bottom: 1px solid var(--border-color);">' +
+      '<div style="font-weight: 600; margin-bottom: 4px;">' + esc(subjectName(s)) + '</div>' +
+      '<div style="font-size: 0.85rem; color: var(--text-sub); margin-bottom: 8px;">' + m.ok + ' / ' + m.n + '문</div>' +
+      '<div class="breakdown-bar"><div class="breakdown-fill ' + cls + '" style="width: ' + pct + '%">' + pct + '%</div></div></div>';
   }).join('');
 }
 
@@ -445,7 +463,7 @@ function showAuthView(mode, msg) {
   const sub = $('auth-sub');
   const body = $('auth-body');
   const googleBtn = '<button class="google-btn" onclick="handleGoogleLogin()"><i class="fa-brands fa-google"></i> 구글 계정으로 시작하기</button>';
-  const logoutBtn = '<button class="header-btn" style="margin-top:14px;" onclick="logout()"><i class="fa-solid fa-arrow-right-from-bracket"></i> 다른 계정으로 로그인</button>';
+  const logoutBtn = '<button class="auth-link" onclick="logout()"><i class="fa-solid fa-arrow-right-from-bracket"></i> 다른 계정으로 로그인</button>';
 
   if (mode === 'setup') {
     sub.textContent = '처음 한 번 클라우드 연결 설정이 필요해요.';
@@ -943,23 +961,16 @@ function renderHistoryItem(rec) {
 }
 
 function renderSubjectList() {
-  const p1Container = $('subject-list-period-1');
-  const p2Container = $('subject-list-period-2');
+  const grid = $('subjectGrid');
   const periodVal = $('period-filter').value;
   const searchVal = $('subject-search').value.trim().toLowerCase();
   const db = window.quizDatabase || {};
 
-  p1Container.innerHTML = '';
-  p2Container.innerHTML = '';
-
-  $('section-period-1').style.display = (periodVal === 'all' || periodVal === '1') ? 'block' : 'none';
-  $('section-period-2').style.display = (periodVal === 'all' || periodVal === '2') ? 'block' : 'none';
-
-  // 열려 있던 이력 패널은 다시 그린 뒤에도 유지
   const openPanels = {};
   document.querySelectorAll('.history-dropdown-panel').forEach(function (p) {
     if (p.style.display === 'flex') openPanels[p.id] = true;
   });
+  const built = [];
 
   subjectMeta.forEach(function (meta) {
     if (periodVal !== 'all' && meta.period !== parseInt(periodVal, 10)) return;
@@ -967,50 +978,52 @@ function renderSubjectList() {
 
     const subData = db[meta.key];
     const count = subData && subData.questions ? subData.questions.length : 0;
-
     const pr = subjectProgress(meta.key, count);
     const subjectHistories = sessionsCache.filter(function (h) { return h.subject_key === meta.key; });
-    const latest = subjectHistories.length ? subjectHistories[0] : null;
-
-    const wrapper = document.createElement('div');
-    wrapper.className = 'subject-card-wrapper';
-
-    const wrongBadge = latest && (latest.wrong_items || []).length
-      ? '<div class="recent-wrong-badge" title="최근 회차 오답"><i class="fa-solid fa-triangle-exclamation"></i> ' + latest.wrong_items.length + '</div>'
-      : '';
+    const noAcc = pr.acc === null;
+    const acc = noAcc ? 0 : pr.acc;
+    const bg = noAcc ? 'rgba(148, 163, 184, 0.12)' : acc >= 80 ? 'rgba(34, 197, 94, 0.1)' : acc >= 70 ? 'rgba(245, 158, 11, 0.1)' : 'rgba(239, 68, 68, 0.1)';
+    const bar = noAcc ? '#64748b' : acc >= 80 ? '#22c55e' : acc >= 70 ? '#f59e0b' : '#ef4444';
 
     const card = document.createElement('div');
     card.className = 'subject-card';
-    card.onclick = function () { toggleSubjectDropdown(meta.key); };
+    card.onclick = function () { onSubjectStart(meta.key); };
     card.innerHTML =
-      '<div class="subject-card-left">' +
-        '<div class="card-icon-box"><i class="fa-regular fa-clone"></i></div>' +
-        '<div class="subject-title-area">' +
-          '<div class="subject-info-title">' + esc(meta.name) + (pr.weak ? '<span class="weak-badge">취약</span>' : '') + '</div>' +
-          '<div class="subject-info-sub">' + count + ' 문항' + (pr.solved ? ' · 푼 문제 ' + pr.solved : '') + '</div>' +
-          '<div class="sc-bars">' +
-            '<div class="sc-row"><span class="sc-label">진도</span><div class="sc-track"><div class="sc-fill prog" style="width:' + pr.pct + '%"></div></div><span class="sc-val">' + pr.pct + '%</span></div>' +
-            '<div class="sc-row"><span class="sc-label">정답률</span><div class="sc-track"><div class="sc-fill ' + (pr.acc === null ? '' : pr.acc >= 80 ? 'good' : pr.acc >= 70 ? 'mid' : 'bad') + '" style="width:' + (pr.acc || 0) + '%"></div></div><span class="sc-val">' + (pr.acc === null ? '-' : pr.acc + '%') + '</span></div>' +
-          '</div>' +
-        '</div>' +
+      '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">' +
+        '<div class="subject-name" style="margin: 0; font-size: 1rem;">' + esc(meta.name) + '</div>' +
+        (pr.weak ? '<span style="background-color: #ef4444; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600;">취약</span>' : '') +
       '</div>' +
-      '<div class="subject-card-right">' + wrongBadge +
-        '<button class="btn-start-badge" onclick="event.stopPropagation(); onSubjectStart(\'' + meta.key + '\')" title="전체 ' + count + '문제 바로 풀기"><i class="fa-solid fa-play"></i> 학습 시작</button>' +
-        '<button class="card-more-btn" onclick="event.stopPropagation(); toggleSubjectDropdown(\'' + meta.key + '\')" title="회차별 이력 열기"><i class="fa-solid fa-ellipsis"></i></button>' +
-      '</div>';
+      '<div style="font-size: 0.82rem; color: var(--text-sub); margin-bottom: 6px; font-weight: 500;">기출: ' + count + ' | 진도: ' + pr.pct + '%</div>' +
+      '<div style="margin-bottom: 6px;">' +
+        '<div style="font-size: 0.7rem; color: var(--text-sub); margin-bottom: 3px; font-weight: 600;">학습 진도</div>' +
+        '<div style="height: 6px; background-color: rgba(79, 172, 254, 0.2); border-radius: 3px; overflow: hidden;"><div style="height: 100%; width: ' + pr.pct + '%; background-color: #4facfe;"></div></div>' +
+      '</div>' +
+      '<div>' +
+        '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px;">' +
+          '<div style="font-size: 0.7rem; color: var(--text-sub); font-weight: 600;">정답률</div>' +
+          '<div style="font-size: 0.85rem; font-weight: 700;">' + (noAcc ? '-' : acc + '%') + '</div>' +
+        '</div>' +
+        '<div style="height: 8px; background-color: ' + bg + '; border: 1px solid ' + bar + '; border-radius: 3px; overflow: hidden;"><div style="height: 100%; width: ' + acc + '%; background-color: ' + bar + ';"></div></div>' +
+      '</div>' +
+      '<div style="margin-top:8px; text-align:right;"><button class="tool-link" onclick="event.stopPropagation(); toggleSubjectDropdown(\'' + meta.key + '\')">🕘 이력' + (subjectHistories.length ? ' ' + subjectHistories.length : '') + '</button></div>';
 
     const panel = document.createElement('div');
     panel.className = 'history-dropdown-panel';
     panel.id = 'history-panel-' + meta.key;
+    panel.onclick = function (e) { e.stopPropagation(); };
     if (openPanels[panel.id]) panel.style.display = 'flex';
     panel.innerHTML = subjectHistories.length
       ? subjectHistories.slice(0, 20).map(renderHistoryItem).join('')
       : '<div style="font-size:0.8rem; color:var(--text-sub); text-align:center; padding:8px;">풀이 이력이 없습니다.</div>';
-
-    wrapper.appendChild(card);
-    wrapper.appendChild(panel);
-    (meta.period === 1 ? p1Container : p2Container).appendChild(wrapper);
+    card.appendChild(panel);
+    built.push(card);
   });
+  // 내용이 그대로면 다시 그리지 않음 (클릭 도중 카드가 교체되는 것 방지)
+  const sig = built.map(function (c) { return c.outerHTML; }).join('');
+  if (grid.dataset.sig === sig && grid.children.length === built.length) return;
+  grid.dataset.sig = sig;
+  grid.innerHTML = '';
+  built.forEach(function (c) { grid.appendChild(c); });
 }
 
 function filterSubjects() { renderSubjectList(); }
@@ -1106,18 +1119,7 @@ function startQuiz(key, specificQuestions, mode) {
   renderCurrentQuestion();
 }
 
-function initProgressBar() {
-  const bar = $('segmented-bar');
-  bar.innerHTML = '';
-  quizQuestions.forEach(function (_, idx) {
-    const seg = document.createElement('div');
-    seg.className = 'progress-segment';
-    seg.id = 'seg-' + idx;
-    bar.appendChild(seg);
-  });
-  $('quiz-badge-correct').innerText = '0';
-  $('quiz-badge-total').innerText = quizQuestions.length;
-}
+function initProgressBar() { updateProgressStats(); }
 
 function quizHeaderText(q) {
   const base = q._s ? subjectName(q._s) : '';
@@ -1128,48 +1130,50 @@ function quizHeaderText(q) {
 
 function renderCurrentQuestion() {
   const q = quizQuestions[currentIndex];
-  $('quiz-card-header').innerHTML = esc(quizHeaderText(q)) + flagChip(q);
-  $('quiz-question-text').innerText = (currentIndex + 1) + '. ' + q.question;
+  const total = quizQuestions.length;
+  $('questionNum').textContent = '문제 ' + (currentIndex + 1);
+  $('questionProgress').textContent = (currentIndex + 1) + ' / ' + total;
+  $('flagsContainer').innerHTML = flagChip(q);
+  $('quizSub').textContent = quizHeaderText(q);
+  $('questionText').textContent = q.question;
   const ctx = $('quiz-context-box');
   ctx.textContent = q.contextBox || '';
   ctx.style.display = q.contextBox ? 'block' : 'none';
 
-  const optContainer = $('quiz-options-container');
+  const optContainer = $('optionsContainer');
   optContainer.innerHTML = '';
-
   q.options.forEach(function (optText, idx) {
     const optNum = idx + 1;
     const btn = document.createElement('div');
     btn.className = 'option-btn';
     btn.onclick = function () { selectAnswer(optNum); };
-
     const individualExpl = (q.optionExplanations && q.optionExplanations[optNum]) ? q.optionExplanations[optNum] : '';
     btn.innerHTML =
       '<div class="option-top-row">' +
         '<span class="option-idx" id="opt-icon-' + optNum + '">' + optNum + '</span>' +
         '<span>' + optText + '</span>' +
       '</div>' +
-      '<div class="option-explanation-inline" id="opt-expl-' + optNum + '">' + individualExpl + '</div>';
+      '<div class="option-explanation" id="opt-expl-' + optNum + '">' + individualExpl + '</div>';
     optContainer.appendChild(btn);
   });
 
-  $('prev-btn').disabled = (currentIndex === 0);
+  $('prevBtn').disabled = (currentIndex === 0);
+  const last = currentIndex === total - 1;
+  $('nextBtn').style.display = last ? 'none' : '';
+  $('finishBtn').style.display = last ? '' : 'none';
+  $('dont-know-btn').disabled = false;
+
+  $('explanationAuto').classList.remove('show');
+  $('commonBox').style.display = 'none';
+  $('tipBox').classList.remove('show');
+  $('sourceToggle').classList.remove('show');
+  $('sourceBox').classList.remove('show');
+  $('sourceIcon').textContent = '▼';
 
   const previousAnswer = userAnswersRecord[currentIndex];
-  if (previousAnswer !== null) {
-    restoreQuestionState(previousAnswer);
-  } else {
-    isAnswerChecked = false;
-    $('bottom-feedback-bar').style.display = 'none';
-    const banner = $('status-msg-banner');
-    banner.className = 'status-msg-banner';
-    banner.style.display = 'none';
-    $('common-explanation-box').style.display = 'none';
-    $('tip-box').style.display = 'none';
-    $('source-toggle').style.display = 'none';
-    $('source-box').style.display = 'none';
-    $('source-icon').textContent = '▼';
-  }
+  if (previousAnswer !== null) restoreQuestionState(previousAnswer);
+  else isAnswerChecked = false;
+  updateProgressStats();
 }
 
 function selectAnswer(userPick) {
@@ -1198,49 +1202,36 @@ function selectAnswer(userPick) {
 
   restoreQuestionState(userPick);
   updateProgressStats();
-  $('bottom-feedback-bar').style.display = 'flex';
 }
 
 function restoreQuestionState(userPick) {
   isAnswerChecked = true;
   const q = quizQuestions[currentIndex];
   const isCorrect = (userPick === q.answer);
-  const optButtons = document.querySelectorAll('.option-btn');
-  const segment = $('seg-' + currentIndex);
-  const banner = $('status-msg-banner');
+  const optButtons = document.querySelectorAll('#optionsContainer .option-btn');
 
-  optButtons.forEach(function (btn) { btn.classList.add('disabled'); });
-
+  optButtons.forEach(function (btn) { btn.classList.add('disabled'); btn.style.pointerEvents = 'none'; });
   q.options.forEach(function (_, idx) {
-    const explElem = $('opt-expl-' + (idx + 1));
-    if (explElem && explElem.innerText.trim() !== '') explElem.style.display = 'block';
+    const el = $('opt-expl-' + (idx + 1));
+    if (el && el.textContent.trim() !== '') el.classList.add('show');
   });
 
-  const commonExplText = (q.commonExplanations && q.commonExplanations.length > 0) ? q.commonExplanations.join('<br>') : '';
-  if (commonExplText) {
-    $('common-explanation-text').innerHTML = commonExplText;
-    $('common-explanation-box').style.display = 'block';
-  }
+  const commonText = (q.commonExplanations && q.commonExplanations.length > 0) ? q.commonExplanations.join('<br>') : '';
+  if (commonText) { $('commonText').innerHTML = commonText; $('commonBox').style.display = 'block'; }
   showTipAndSource(q);
+  $('explanationAuto').classList.add('show');
 
   if (isCorrect) {
-    if (segment) { segment.classList.remove('failed'); segment.classList.add('passed'); }
     optButtons[userPick - 1].classList.add('correct-choice');
     $('opt-icon-' + userPick).innerHTML = '<i class="fa-solid fa-check"></i>';
-    banner.innerText = '잘하고 있어요!';
-    banner.className = 'status-msg-banner correct';
   } else {
-    if (segment) { segment.classList.remove('passed'); segment.classList.add('failed'); }
     if (userPick > 0 && userPick <= optButtons.length) {
       optButtons[userPick - 1].classList.add('wrong-choice');
       $('opt-icon-' + userPick).innerHTML = '<i class="fa-solid fa-xmark"></i>';
     }
     optButtons[q.answer - 1].classList.add('correct-highlight');
-    banner.innerText = '걱정하지 마세요, 아직 배우고 있잖아요!';
-    banner.className = 'status-msg-banner wrong';
   }
-
-  $('bottom-feedback-bar').style.display = 'flex';
+  $('dont-know-btn').disabled = true;
 }
 
 function updateProgressStats() {
@@ -1249,7 +1240,6 @@ function updateProgressStats() {
     if (ans !== null && ans === quizQuestions[idx].answer) count++;
   });
   correctCount = count;
-  $('quiz-badge-correct').innerText = correctCount;
 }
 
 function handleDontKnow() {
@@ -1276,7 +1266,6 @@ function nextQuestion() {
 }
 
 function finishQuizSession() {
-  $('bottom-feedback-bar').style.display = 'none';
   $('quiz-view').style.display = 'none';
 
   currentSessionWrongItems = [];
@@ -1307,60 +1296,31 @@ function finishQuizSession() {
   if (currentMode === 'daily' && dailyState) {
     const c = dailyCounts();
     if (c.remaining === 0) {
-      extra = '<br><span style="color:var(--correct-green); font-weight:700;"><i class="fa-solid fa-circle-check"></i> 오늘의 목표를 달성했어요!</span>';
+      extra = '<span style="color:var(--correct-green); font-weight:700;">✓ 오늘의 목표를 달성했어요!</span>';
     } else {
-      extra = '<br><span style="color:var(--text-sub);">오늘 목표까지 ' + c.remaining + '문제 남았어요.</span>';
+      extra = '오늘 목표까지 ' + c.remaining + '문제 남았어요.';
       continueDaily = true;
     }
   }
 
   renderBreakdown();
-  $('result-summary-stats-text').innerHTML =
-    '총 ' + quizQuestions.length + '문항 중 <strong style="color:var(--correct-green);">' + correctCount + '문항</strong> 정답<br>' +
-    '<span style="color:var(--error-orange); font-weight:600;">오답 ' + currentSessionWrongItems.length + '문항</span>' + extra;
+  const nTotal = quizQuestions.length;
+  $('resultPercent').textContent = (nTotal ? Math.round(correctCount / nTotal * 100) : 0) + '%';
+  $('resultTotal').textContent = nTotal;
+  $('resultCorrect').textContent = correctCount;
+  $('resultWrong').textContent = currentSessionWrongItems.length;
+  $('result-extra').innerHTML = extra;
 
   const retryBtn = $('result-retry-wrong-btn');
   if (currentSessionWrongItems.length > 0) {
-    retryBtn.innerText = '오답 ' + currentSessionWrongItems.length + '문제 다시 풀기';
-    retryBtn.style.display = 'inline-block';
+    retryBtn.textContent = '오답 ' + currentSessionWrongItems.length + '문제 다시 풀기';
+    retryBtn.style.display = '';
   } else {
     retryBtn.style.display = 'none';
   }
-  $('result-continue-daily-btn').style.display = continueDaily ? 'inline-block' : 'none';
+  $('result-continue-daily-btn').style.display = continueDaily ? '' : 'none';
 
-  const wrongSection = $('wrong-review-section');
-  const wrongContainer = $('wrong-items-container');
-  if (currentSessionWrongItems.length > 0) {
-    wrongSection.style.display = 'block';
-    wrongContainer.innerHTML = '';
-    currentSessionWrongItems.forEach(function (q, idx) {
-      const itemBox = document.createElement('div');
-      itemBox.className = 'wrong-item-box';
-
-      let optionsHtml = '';
-      q.options.forEach(function (opt, optIdx) {
-        const optNum = optIdx + 1;
-        const isAns = (optNum === q.answer);
-        const expl = (q.optionExplanations && q.optionExplanations[optNum]) ? q.optionExplanations[optNum] : '';
-        optionsHtml +=
-          '<div class="wrong-item-optline ' + (isAns ? 'is-answer' : '') + '">' +
-            optNum + '. ' + opt + ' ' + (isAns ? '<i class="fa-solid fa-check" style="margin-left:4px;"></i>' : '') +
-            (expl ? '<div style="font-size:0.75rem; color:#94a3b8; margin-top:2px; margin-left:14px;">↳ ' + expl + '</div>' : '') +
-          '</div>';
-      });
-      const commonExpl = (q.commonExplanations && q.commonExplanations.length > 0) ? q.commonExplanations.join('<br>') : '';
-      itemBox.innerHTML =
-        '<div class="wrong-item-qtitle">[오답 ' + (idx + 1) + '] ' + esc(q.question) + '</div>' +
-        (q.contextBox ? '<div class="context-box">' + esc(q.contextBox) + '</div>' : '') +
-        '<div class="wrong-item-optlist">' + optionsHtml + '</div>' +
-        (commonExpl ? '<div class="wrong-item-expl"><strong>[핵심 TIP]</strong> ' + commonExpl + '</div>' : '');
-      wrongContainer.appendChild(itemBox);
-    });
-  } else {
-    wrongSection.style.display = 'none';
-  }
-
-  $('quiz-result-view').style.display = 'flex';
+  $('quiz-result-view').style.display = 'block';
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 

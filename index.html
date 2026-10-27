@@ -6,8 +6,10 @@
   <title>치과기공사 국가시험 퀴즈</title>
   
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="./css/proto.css">
   
   <style>
+
     :root {
       --bg-dark: #0a092d;
       --card-bg: #131436;
@@ -32,205 +34,9 @@
       --text-main: #1a1a1a;
       --text-sub: #666666;
     }
-    :root[data-theme="light"] .expl-header { color: #2563eb; }
-    :root[data-theme="light"] .option-explanation-inline { color: #475569; border-top-color: rgba(0,0,0,0.14); }
-    :root[data-theme="light"] .expl-body-text { color: var(--text-main); }
-    :root[data-theme="light"] .wrong-item-expl { color: #334155; }
-    :root[data-theme="light"] .bottom-feedback-bar { background-color: var(--card-bg); }
     :root[data-theme="light"] .daily-card { background: linear-gradient(135deg, #e9ecff 0%, #f5f5f7 100%); }
-    :root[data-theme="light"] .progress-segment { background-color: rgba(0,0,0,0.1); }
-    :root[data-theme="light"] .quiz-card-footer { border-top-color: rgba(0,0,0,0.08); }
-    :root[data-theme="light"] .user-role-text { background-color: rgba(0,0,0,0.05); }
-    .subject-info-title { white-space: normal !important; overflow: visible !important; text-overflow: clip !important; line-height: 1.3; }
 
-    .theme-btn { background: transparent; border: 1px solid var(--border-color); color: var(--text-main);
-      border-radius: 8px; width: 34px; height: 34px; cursor: pointer; font-size: 1rem; margin-left: 10px; }
-
-    /* 과목 카드: 진도·정답률 바 */
-    .sc-bars { margin-top: 8px; display: flex; flex-direction: column; gap: 5px; min-width: 150px; }
-    .sc-row { display: flex; align-items: center; gap: 8px; font-size: 0.72rem; color: var(--text-sub); }
-    .sc-row .sc-label { width: 44px; flex: none; }
-    .sc-row .sc-val { width: 36px; text-align: right; flex: none; font-weight: 700; color: var(--text-main); }
-    .sc-track { flex: 1; height: 7px; border-radius: 4px; background: rgba(120,130,170,0.22); overflow: hidden; }
-    .sc-fill { height: 100%; border-radius: 4px; transition: width .3s; }
-    .sc-fill.prog { background: #4facfe; }
-    .sc-fill.good { background: #22c55e; } .sc-fill.mid { background: #f59e0b; } .sc-fill.bad { background: #ef4444; }
-    .weak-badge { background: #ef4444; color: #fff; font-size: 0.68rem; font-weight: 700; padding: 2px 7px; border-radius: 5px; margin-left: 8px; vertical-align: middle; }
-
-    /* 팁·근거·플래그 */
-    .tip-box { display: none; border-left: 3px solid #4facfe; background: rgba(79,172,254,0.10); border-radius: 8px;
-      padding: 10px 12px; margin-bottom: 12px; font-size: 0.88rem; line-height: 1.5; }
-    .tip-box b { display: block; font-size: 0.78rem; color: #4facfe; margin-bottom: 2px; }
-    .source-toggle { display: none; margin-bottom: 14px; }
-    .source-toggle button { width: 100%; text-align: left; background: var(--card-inner); border: 1px solid var(--border-color);
-      color: var(--text-main); border-radius: 8px; padding: 10px 12px; font-weight: 700; font-size: 0.85rem; cursor: pointer; }
-    .source-box { display: none; margin-top: 6px; padding: 10px 12px; border: 1px dashed var(--border-color); border-radius: 8px;
-      font-size: 0.82rem; color: var(--text-sub); line-height: 1.5; }
-    .flag-chip { display: inline-block; font-size: 0.72rem; font-weight: 700; padding: 3px 8px; border-radius: 6px; margin-left: 6px; }
-    .flag-chip.mismatch { background: rgba(245,158,11,0.18); color: #f59e0b; }
-    .flag-chip.nosrc { background: rgba(148,163,184,0.2); color: var(--text-sub); }
-
-
-    /* 탭 / 오답노트 / 복습완료 */
-    .tab-bar { display: flex; gap: 4px; border-bottom: 2px solid var(--border-color); margin-bottom: 14px; }
-    .tab-btn { background: none; border: none; color: var(--text-sub); font-weight: 700; font-size: 0.92rem; padding: 10px 14px; cursor: pointer;
-      border-bottom: 3px solid transparent; margin-bottom: -2px; }
-    .tab-btn.active { color: var(--accent-blue); border-bottom-color: var(--accent-blue); }
-    .tab-count { background: #ef4444; color: #fff; border-radius: 9px; font-size: 0.7rem; padding: 1px 6px; margin-left: 4px; }
-    .note-toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 12px; }
-    .note-item { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 12px 14px; margin-bottom: 8px; cursor: pointer; }
-    .note-item.resolved { opacity: 0.75; }
-    .note-meta { font-size: 0.72rem; color: var(--text-sub); margin-bottom: 4px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
-    .note-q { font-size: 0.92rem; line-height: 1.45; }
-    .note-detail { display: none; margin-top: 10px; border-top: 1px dashed var(--border-color); padding-top: 10px; font-size: 0.82rem; }
-    .note-opt { padding: 5px 8px; border-radius: 6px; margin-bottom: 4px; line-height: 1.4; }
-    .note-opt.ans { background: rgba(34,197,94,0.14); }
-    .note-opt small { display: block; color: var(--text-sub); margin-top: 2px; }
-    .note-empty { text-align: center; color: var(--text-sub); padding: 30px 10px; font-size: 0.9rem; }
-    .bd-row { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; margin: 6px 0; text-align: left; }
-    .bd-name { width: 120px; flex: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-sub); }
-    .bd-track { flex: 1; height: 9px; border-radius: 5px; background: rgba(120,130,170,0.22); overflow: hidden; }
-    .bd-val { width: 74px; flex: none; text-align: right; font-weight: 700; }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Pretendard", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    body {
-      background-color: var(--bg-dark);
-      color: var(--text-main);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    /* 상단 네비게이션 헤더 */
-    .top-header {
-      width: 100%;
-      height: 60px;
-      padding: 0 16px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 1px solid var(--border-color);
-      background-color: var(--bg-dark);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-
-    .header-left {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex-shrink: 0;
-    }
-
-    .brand-title {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: var(--text-main);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      cursor: pointer;
-      white-space: nowrap;
-    }
-
-    .brand-title i {
-      color: var(--accent-blue);
-    }
-
-    .header-right {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      overflow-x: auto;
-      max-width: 70%;
-      padding-bottom: 2px;
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
-
-    .header-right::-webkit-scrollbar {
-      display: none;
-    }
-
-    .user-profile-badge {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      background-color: var(--card-bg);
-      border: 1px solid var(--border-color);
-      padding: 5px 10px;
-      border-radius: 16px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
-
-    .header-btn {
-      background-color: transparent;
-      border: 1px solid var(--border-color);
-      color: var(--text-main);
-      padding: 5px 10px;
-      border-radius: 8px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      white-space: nowrap;
-      flex-shrink: 0;
-      transition: all 0.2s;
-    }
-
-    .header-btn:hover {
-      background-color: var(--card-hover);
-      border-color: var(--accent-blue);
-    }
-
-    .header-btn-logout {
-      border-color: rgba(255, 120, 66, 0.4);
-      color: var(--error-orange);
-    }
-
-    .header-btn-logout:hover {
-      background-color: rgba(255, 120, 66, 0.15);
-      border-color: var(--error-orange);
-    }
-
-    .header-icon-btn {
-      background: none;
-      border: none;
-      color: var(--text-sub);
-      font-size: 1.1rem;
-      cursor: pointer;
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-
-    /* 메인 컨테이너 */
-    .main-container {
-      flex: 1;
-      width: 100%;
-      max-width: 960px;
-      margin: 0 auto;
-      padding: 20px 16px 80px;
-    }
-
-    /* [화면 0] 로그인 화면 */
+    
     #auth-view {
       display: flex;
       flex-direction: column;
@@ -238,251 +44,6 @@
       justify-content: center;
       min-height: 70vh;
       text-align: center;
-    }
-
-    .user-select-title {
-      font-size: 1.6rem;
-      font-weight: 700;
-      margin-bottom: 8px;
-    }
-
-    .user-select-sub {
-      color: var(--text-sub);
-      font-size: 0.9rem;
-      margin-bottom: 32px;
-    }
-
-    .user-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
-      width: 100%;
-      max-width: 760px;
-      margin-bottom: 24px;
-    }
-
-    @media (max-width: 600px) {
-      .user-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-    }
-
-    .user-card-btn {
-      background-color: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 14px;
-      padding: 20px 12px;
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-      transition: all 0.2s;
-    }
-
-    .user-avatar-circle {
-      width: 56px;
-      height: 56px;
-      border-radius: 50%;
-      background-color: var(--card-inner);
-      border: 2px solid var(--border-color);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.5rem;
-      color: var(--accent-blue);
-    }
-
-    .user-name-text {
-      font-size: 1rem;
-      font-weight: 700;
-      color: var(--text-main);
-    }
-
-    .user-role-text {
-      font-size: 0.72rem;
-      color: var(--text-sub);
-      background-color: rgba(255, 255, 255, 0.05);
-      padding: 2px 8px;
-      border-radius: 10px;
-    }
-
-    /* [화면 1] 메인 과목 목록 화면 */
-    #subject-view {
-      display: none;
-    }
-
-    .filter-bar {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      margin-bottom: 20px;
-    }
-
-    @media (min-width: 680px) {
-      .filter-bar {
-        flex-direction: row;
-        align-items: center;
-        justify-content: space-between;
-      }
-    }
-
-    .filter-bar-left {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    .select-dropdown {
-      background-color: var(--card-bg);
-      border: 1px solid var(--border-color);
-      color: var(--text-main);
-      padding: 8px 14px;
-      border-radius: 8px;
-      font-size: 0.9rem;
-      font-weight: 600;
-      cursor: pointer;
-      outline: none;
-    }
-
-    .shuffle-toggle-group {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .shuffle-label {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      font-size: 0.82rem;
-      font-weight: 600;
-      color: var(--text-sub);
-      cursor: pointer;
-    }
-
-    .shuffle-label input[type="checkbox"] {
-      accent-color: var(--accent-blue);
-      width: 15px;
-      height: 15px;
-    }
-
-    .search-input-box {
-      position: relative;
-      width: 100%;
-    }
-
-    @media (min-width: 680px) {
-      .search-input-box {
-        width: 250px;
-      }
-    }
-
-    .search-input-box input {
-      width: 100%;
-      background-color: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 8px 36px 8px 14px;
-      color: var(--text-main);
-      font-size: 0.9rem;
-      outline: none;
-    }
-
-    .search-input-box i {
-      position: absolute;
-      right: 12px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--text-sub);
-    }
-
-    .period-section-title {
-      font-size: 1.05rem;
-      font-weight: 700;
-      color: var(--text-main);
-      margin: 24px 0 12px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .subject-list {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .subject-card-wrapper {
-      display: flex;
-      flex-direction: column;
-      border-radius: 12px;
-    }
-
-    .subject-card {
-      padding: 12px 14px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      cursor: pointer;
-      background-color: var(--card-bg);
-      border: 1px solid var(--border-color);
-      transition: all 0.2s;
-      gap: 8px;
-    }
-
-    .subject-card:hover {
-      background-color: var(--card-hover);
-    }
-
-    .subject-card-left {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex: 1;
-      min-width: 0;
-    }
-
-    .card-icon-box {
-      width: 38px;
-      height: 38px;
-      background-color: var(--card-inner);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #3b82f6;
-      font-size: 1.1rem;
-      flex-shrink: 0;
-    }
-
-    .subject-title-area {
-      min-width: 0;
-    }
-
-    .subject-info-title {
-      font-size: 0.95rem;
-      font-weight: 600;
-      color: var(--text-main);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      margin-bottom: 2px;
-    }
-
-    .subject-info-sub {
-      font-size: 0.8rem;
-      color: var(--text-sub);
-    }
-
-    .subject-card-right {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-shrink: 0;
     }
 
     .btn-start-badge {
@@ -503,66 +64,6 @@
 
     .btn-start-badge:hover {
       background-color: var(--accent-blue-hover);
-    }
-
-    .recent-wrong-badge {
-      background-color: rgba(255, 120, 66, 0.15);
-      border: 1px solid rgba(255, 120, 66, 0.4);
-      color: var(--error-orange);
-      padding: 3px 8px;
-      border-radius: 12px;
-      font-size: 0.72rem;
-      font-weight: 600;
-      white-space: nowrap;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .card-more-btn {
-      background: none;
-      border: none;
-      color: var(--text-sub);
-      font-size: 1rem;
-      padding: 6px 8px;
-      cursor: pointer;
-      border-radius: 6px;
-    }
-
-    /* 회차 이력 아코디언 드롭다운 패널 */
-    .history-dropdown-panel {
-      display: none;
-      background-color: #0d0e2e;
-      border: 1px solid var(--border-color);
-      border-top: none;
-      border-radius: 0 0 12px 12px;
-      padding: 12px;
-      margin-top: -2px;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .history-card-item {
-      background-color: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 10px 12px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-    }
-
-    .history-meta-text {
-      font-size: 0.75rem;
-      color: var(--text-sub);
-      margin-bottom: 2px;
-    }
-
-    .history-action-btns {
-      display: flex;
-      gap: 6px;
-      flex-shrink: 0;
     }
 
     .btn-action-sm {
@@ -596,232 +97,6 @@
       border-color: var(--accent-blue);
     }
 
-    /* =========================================================
-       [화면 2] 문제 풀이 화면
-       ========================================================= */
-    #quiz-view {
-      display: none;
-    }
-
-    .progress-wrapper {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-
-    .progress-count-badge {
-      width: 26px;
-      height: 26px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.8rem;
-      font-weight: 700;
-      flex-shrink: 0;
-    }
-
-    .badge-correct {
-      background-color: var(--correct-green);
-      color: #fff;
-    }
-
-    .badge-total {
-      background-color: var(--card-bg);
-      border: 1px solid var(--border-color);
-      color: var(--text-sub);
-    }
-
-    .segmented-progress-bar {
-      flex: 1;
-      height: 8px;
-      background-color: var(--card-bg);
-      border-radius: 4px;
-      overflow: hidden;
-      display: flex;
-      gap: 2px;
-      padding: 1px;
-    }
-
-    .progress-segment {
-      flex: 1;
-      height: 100%;
-      background-color: rgba(255, 255, 255, 0.08);
-      border-radius: 1px;
-    }
-
-    .progress-segment.passed {
-      background-color: var(--correct-green);
-    }
-
-    .progress-segment.failed {
-      background-color: var(--error-orange);
-    }
-
-    .quiz-card {
-      background-color: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 16px;
-      padding: 24px 18px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
-    }
-
-    @media (min-width: 680px) {
-      .quiz-card {
-        padding: 36px 40px;
-      }
-    }
-
-    .quiz-card-header {
-      font-size: 0.8rem;
-      font-weight: 700;
-      color: var(--text-sub);
-      letter-spacing: 0.5px;
-      margin-bottom: 10px;
-    }
-
-    .quiz-question-title {
-      font-size: 1.15rem;
-      font-weight: 600;
-      line-height: 1.55;
-      color: var(--text-main);
-      margin-bottom: 16px;
-    }
-
-    .status-msg-banner {
-      font-size: 0.95rem;
-      font-weight: 700;
-      margin-bottom: 16px;
-      display: none;
-    }
-
-    .status-msg-banner.correct {
-      color: var(--correct-green);
-      display: block;
-    }
-
-    .status-msg-banner.wrong {
-      color: var(--error-orange);
-      display: block;
-    }
-
-    /* 선택지 레이아웃 (PC: 2열 / 모바일: 무조건 1행 1선택지) */
-    .options-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-
-    @media (min-width: 680px) {
-      .options-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-      .option-btn:nth-child(5) {
-        grid-column: span 2;
-      }
-    }
-
-    .option-btn {
-      background-color: transparent;
-      border: 1px solid var(--border-color);
-      border-radius: 10px;
-      padding: 12px 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      color: var(--text-main);
-      font-size: 0.92rem;
-      text-align: left;
-      cursor: pointer;
-      outline: none;
-      transition: all 0.2s ease;
-      width: 100%;
-    }
-
-    .option-btn:hover:not(.disabled) {
-      background-color: var(--card-inner);
-      border-color: var(--accent-blue);
-    }
-
-    .option-top-row {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      line-height: 1.4;
-    }
-
-    .option-idx {
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: var(--text-sub);
-      min-width: 18px;
-    }
-
-    .option-explanation-inline {
-      display: none;
-      font-size: 0.8rem;
-      color: #cbd5e1;
-      padding-top: 8px;
-      margin-top: 4px;
-      border-top: 1px dashed rgba(255, 255, 255, 0.15);
-      line-height: 1.45;
-    }
-
-    .option-btn.correct-choice {
-      border: 2px solid var(--correct-green) !important;
-      background-color: rgba(34, 197, 94, 0.08) !important;
-    }
-
-    .option-btn.correct-highlight {
-      border: 2px dashed var(--correct-green) !important;
-      background-color: rgba(34, 197, 94, 0.05) !important;
-    }
-
-    .option-btn.wrong-choice {
-      border: 2px solid var(--error-orange) !important;
-      background-color: rgba(255, 120, 66, 0.08) !important;
-    }
-
-    .option-btn.disabled {
-      cursor: default;
-    }
-
-    .common-explanation-box {
-      display: none;
-      background-color: var(--card-inner);
-      border: 1px solid var(--border-color);
-      border-radius: 10px;
-      padding: 14px;
-      margin-top: 14px;
-      margin-bottom: 16px;
-    }
-
-    .expl-header {
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: #60a5fa;
-      margin-bottom: 6px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .expl-body-text {
-      font-size: 0.85rem;
-      line-height: 1.5;
-      color: #e2e8f0;
-    }
-
-    .quiz-card-footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding-top: 12px;
-      border-top: 1px solid rgba(255, 255, 255, 0.06);
-    }
-
     .report-issue-btn {
       background: none;
       border: none;
@@ -832,83 +107,6 @@
       display: flex;
       align-items: center;
       gap: 6px;
-    }
-
-    .dont-know-btn {
-      background-color: var(--card-inner);
-      border: 1px solid var(--border-color);
-      color: var(--text-main);
-      padding: 6px 12px;
-      border-radius: 6px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      cursor: pointer;
-    }
-
-    /* 하단 피드백 액션바 */
-    .bottom-feedback-bar {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      min-height: 64px;
-      background-color: #0d0f2b;
-      border-top: 1px solid var(--border-color);
-      display: none;
-      align-items: center;
-      justify-content: space-between;
-      padding: 10px 16px;
-      z-index: 100;
-      gap: 8px;
-    }
-
-    .feedback-hint-text {
-      color: var(--text-sub);
-      font-size: 0.8rem;
-      display: none;
-    }
-
-    @media (min-width: 680px) {
-      .feedback-hint-text {
-        display: block;
-      }
-      .bottom-feedback-bar {
-        padding: 0 40px;
-        height: 72px;
-      }
-    }
-
-    .nav-btn-group {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      width: 100%;
-      justify-content: flex-end;
-    }
-
-    @media (min-width: 680px) {
-      .nav-btn-group {
-        width: auto;
-      }
-    }
-
-    .prev-nav-btn {
-      background-color: var(--card-inner);
-      border: 1px solid var(--border-color);
-      color: var(--text-main);
-      padding: 10px 18px;
-      border-radius: 8px;
-      font-size: 0.9rem;
-      font-weight: 700;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .prev-nav-btn:disabled {
-      opacity: 0.35;
-      cursor: default;
     }
 
     .continue-btn {
@@ -928,108 +126,7 @@
       max-width: 200px;
     }
 
-    /* [화면 3] 학습 완료 화면 */
-    #quiz-result-view {
-      display: none;
-      flex-direction: column;
-      gap: 20px;
-    }
-
-    .result-summary-card {
-      background-color: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 14px;
-      padding: 32px 16px;
-      text-align: center;
-    }
-
-    .result-summary-icon {
-      font-size: 2.5rem;
-      color: var(--correct-green);
-      margin-bottom: 12px;
-    }
-
-    .result-summary-title {
-      font-size: 1.35rem;
-      font-weight: 700;
-      margin-bottom: 10px;
-    }
-
-    .result-summary-stats {
-      color: var(--text-sub);
-      font-size: 0.95rem;
-      margin-bottom: 24px;
-      line-height: 1.5;
-    }
-
-    .result-btn-group {
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-
-    .wrong-review-section {
-      margin-top: 4px;
-    }
-
-    .wrong-review-header {
-      font-size: 1.05rem;
-      font-weight: 700;
-      color: var(--text-main);
-      margin-bottom: 12px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .wrong-item-box {
-      background-color: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 10px;
-      padding: 16px;
-      margin-bottom: 12px;
-    }
-
-    .wrong-item-qtitle {
-      font-size: 0.95rem;
-      font-weight: 700;
-      color: var(--text-main);
-      margin-bottom: 10px;
-      line-height: 1.5;
-    }
-
-    .wrong-item-optlist {
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-      margin-bottom: 10px;
-    }
-
-    .wrong-item-optline {
-      font-size: 0.85rem;
-      color: var(--text-sub);
-      padding: 5px 8px;
-      border-radius: 6px;
-    }
-
-    .wrong-item-optline.is-answer {
-      background-color: rgba(34, 197, 94, 0.12);
-      color: #4ade80;
-      font-weight: 600;
-    }
-
-    .wrong-item-expl {
-      background-color: var(--card-inner);
-      border-left: 3px solid #60a5fa;
-      border-radius: 4px;
-      padding: 8px 12px;
-      font-size: 0.8rem;
-      color: #cbd5e1;
-      line-height: 1.45;
-    }
-
-    /* 모달 */
+    
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -1118,9 +215,7 @@
       color: var(--text-sub);
     }
 
-    /* =========================================================
-       v2: 로그인 / 오늘의 문제 / 설정 / 관리자
-       ========================================================= */
+    
     .auth-card {
       width: 100%;
       max-width: 420px;
@@ -1214,7 +309,7 @@
       text-align: center;
     }
 
-    /* 오늘의 문제 카드 */
+    
     .daily-card {
       background: linear-gradient(135deg, #17195a 0%, #131436 100%);
       border: 1px solid var(--border-color);
@@ -1267,7 +362,7 @@
       border-top: 1px solid var(--border-color);
     }
 
-    /* 내 설정 */
+    
     .set-subject-box {
       max-height: 280px;
       overflow-y: auto;
@@ -1295,7 +390,7 @@
       margin-bottom: 0 !important;
     }
 
-    /* 오류 신고 목록 */
+    
     .report-item {
       background-color: var(--card-inner);
       border: 1px solid var(--border-color);
@@ -1324,12 +419,12 @@
     .status-pill.open { background: rgba(66, 85, 255, 0.18); color: #93a0ff; }
     .status-pill.bad  { background: rgba(255, 120, 66, 0.15); color: var(--error-orange); }
 
-    /* 회원 관리 */
+    
     .admin-table-wrap { overflow-x: auto; }
     .admin-table td { vertical-align: middle; }
     .admin-btn-col { display: flex; flex-wrap: wrap; gap: 4px; }
 
-    /* 문제에 딸린 <보기> 박스 (ㄱ, ㄴ, ㄷ ... 목록) */
+    
     .context-box {
       margin-top: 12px;
       padding: 12px 14px;
@@ -1341,14 +436,6 @@
       line-height: 1.7;
       white-space: pre-wrap;
       word-break: keep-all;
-    }
-
-    /* 폰: 헤더가 넘치지 않도록 이름 배지를 숨기고 버튼을 줄임 */
-    @media (max-width: 600px) {
-      .header-right { max-width: none; flex: 1; justify-content: flex-end; gap: 5px; }
-      .header-right .user-profile-badge { display: none; }
-      .header-right .header-btn { padding: 5px 7px; font-size: 0.74rem; }
-      .header-right .sync-chip { font-size: 0.66rem; padding: 3px 6px; }
     }
 
     .toast-box {
@@ -1366,36 +453,105 @@
       z-index: 2000;
       box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
     }
+
+    /* 이력 패널 */
+    .card-more-btn {
+      background: none;
+      border: none;
+      color: var(--text-sub);
+      font-size: 1rem;
+      padding: 6px 8px;
+      cursor: pointer;
+      border-radius: 6px;
+    }
+    .history-dropdown-panel {
+      display: none;
+      background-color: #0d0e2e;
+      border: 1px solid var(--border-color);
+      border-top: none;
+      border-radius: 0 0 12px 12px;
+      padding: 12px;
+      margin-top: -2px;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .history-card-item {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .history-meta-text {
+      font-size: 0.75rem;
+      color: var(--text-sub);
+      margin-bottom: 2px;
+    }
+    .history-action-btns {
+      display: flex;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    /* ---- 프로토타입 위에 얹는 추가 요소 ---- */
+    body { display: block; }
+    .user-menu-wrap { position: relative; }
+    .user-badge { cursor: pointer; font-family: inherit; color: var(--text-main); display: inline-flex; align-items: center; gap: 4px; }
+    .user-menu { display: none; position: absolute; right: 0; top: 40px; min-width: 180px; background: var(--card-bg);
+      border: 1px solid var(--border-color); border-radius: 12px; padding: 6px; z-index: 200; box-shadow: 0 8px 24px rgba(0,0,0,.25); }
+    .user-menu button { display: flex; width: 100%; align-items: center; gap: 8px; text-align: left; background: none; border: none;
+      color: var(--text-main); padding: 10px 12px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; font-family: inherit; }
+    .user-menu button:hover { background: var(--card-hover); }
+    .user-menu .danger { color: #ff7842; }
+    .auth-link { display: flex; align-items: center; gap: 6px; margin: 12px auto 0; background: none; border: 1px solid var(--border-color); color: var(--text-sub); border-radius: 8px; padding: 9px 16px; font-size: 0.85rem; cursor: pointer; font-family: inherit; }
+    .menu-badge { background: #ef4444; color: #fff; border-radius: 9px; font-size: 0.7rem; padding: 1px 6px; margin-left: auto; }
+    #header-user-controls { display: none; align-items: center; gap: 12px; }
+    .sub-filter-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 14px; font-size: 0.82rem; color: var(--text-sub); }
+    .sub-filter-row label { display: inline-flex; align-items: center; gap: 4px; cursor: pointer; }
+    .sub-filter-row input[type="text"] { background: var(--card-bg); color: var(--text-main); border: 1px solid var(--border-color);
+      border-radius: 8px; padding: 7px 10px; font-size: 0.85rem; width: 130px; font-family: inherit; }
+    .quiz-sub { font-size: 0.78rem; color: var(--text-sub); margin: -6px 0 12px; }
+    .quiz-tools { display: flex; justify-content: space-between; align-items: center; margin: 2px 0 14px; }
+    .tool-link { background: none; border: 1px solid var(--border-color); color: var(--text-sub); border-radius: 8px; padding: 6px 12px;
+      font-size: 0.8rem; cursor: pointer; font-family: inherit; }
+    .tool-link:hover { background: var(--card-hover); color: var(--text-main); }
+    .context-box { margin-bottom: 14px; }
+    #quiz-view, #quiz-result-view, #subject-view { display: none; }
+    .tab-count { background: #ef4444; color: #fff; border-radius: 9px; font-size: 0.7rem; padding: 1px 6px; margin-left: 4px; }
+    .result-extra { text-align: center; font-size: 0.9rem; color: var(--text-sub); margin: -8px 0 16px; line-height: 1.6; }
+    .wrong-answer-line { font-size: 0.85rem; margin-top: 8px; font-weight: 600; color: var(--correct-green); }
+    @media (max-width: 600px) { .user-badge .nm { max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; } .sub-filter-row input[type="text"] { width: 100%; } }
   </style>
 </head>
 <body>
-
-  <!-- 상단 네비게이션 헤더 -->
-  <header class="top-header">
+  <!-- 헤더 -->
+  <div class="top-header">
     <div class="header-left">
-      <div class="brand-title" id="nav-brand" onclick="goHome()">
-        <i class="fa-solid fa-clone"></i>
-        <span>학습하기</span>
-      </div>
-      <button class="theme-btn" id="theme-btn" onclick="toggleTheme()" title="테마 전환">🌙</button>
+      <div class="brand-title" onclick="goHome()">🦷 치과기공사 퀴즈</div>
     </div>
-    <div class="header-right" id="header-user-controls" style="display:none;">
+    <div class="header-right">
       <span class="sync-chip" id="sync-chip" style="display:none;"></span>
-      <div class="user-profile-badge">
-        <i class="fa-solid fa-circle-user"></i>
-        <span id="current-username"></span>
-      </div>
-      <button class="header-btn" onclick="openSettingsModal()"><i class="fa-solid fa-sliders"></i> 내 설정</button>
-      <button class="header-btn" onclick="openReportListModal()"><i class="fa-solid fa-list-check"></i> 오류 검토</button>
-      <button class="header-btn" id="admin-btn" style="display:none;" onclick="openAdminModal()"><i class="fa-solid fa-users-gear"></i> 회원 관리 <span class="badge-dot" id="admin-pending-badge" style="display:none;"></span></button>
-      <button class="header-btn header-btn-logout" onclick="logout()" title="로그아웃"><i class="fa-solid fa-arrow-right-from-bracket"></i> 로그아웃</button>
-      <button class="header-icon-btn" onclick="goHome()" title="나가기"><i class="fa-solid fa-xmark"></i></button>
+      <button class="header-btn" onclick="toggleTheme()" title="테마 전환"><span id="themeIcon">☀️</span></button>
+      <span id="header-user-controls">
+        <button class="header-btn" id="wrongNoteBtn" onclick="openNotesTab()" title="오답노트">🔖</button>
+        <div class="user-menu-wrap">
+          <button class="user-badge" id="user-badge" onclick="toggleUserMenu(event)"><span class="nm" id="current-username"></span> ▾</button>
+          <div class="user-menu" id="user-menu">
+            <button onclick="closeUserMenu(); openSettingsModal()">⚙️ 내 설정</button>
+            <button onclick="closeUserMenu(); openReportListModal()">📋 오류 검토</button>
+            <button id="admin-btn" style="display:none;" onclick="closeUserMenu(); openAdminModal()">👥 회원 관리 <span class="menu-badge" id="admin-pending-badge" style="display:none;"></span></button>
+            <button class="danger" onclick="closeUserMenu(); logout()">↩ 로그아웃</button>
+          </div>
+        </div>
+      </span>
     </div>
-  </header>
+  </div>
 
-  <!-- 메인 뷰 컨테이너 -->
-  <main class="main-container">
-    
+  <!-- 메인 컨테이너 -->
+  <div class="main-container">
+
     <!-- [화면 0] 로그인 / 승인 대기 화면 -->
     <div id="auth-view">
       <div class="auth-card">
@@ -1406,171 +562,147 @@
       </div>
     </div>
 
-    <!-- [화면 1] 메인 과목 목록 화면 -->
+    <!-- ===== 과목 선택 ===== -->
     <div id="subject-view">
-      <div class="tab-bar">
-        <button class="tab-btn active" id="tabbtn-study" onclick="switchTab('study')">📚 학습</button>
-        <button class="tab-btn" id="tabbtn-wrong" onclick="switchTab('wrong')">📝 오답노트<span class="tab-count" id="wrong-count" style="display:none;"></span></button>
-        <button class="tab-btn" id="tabbtn-done" onclick="switchTab('done')">✔ 복습완료</button>
-      </div>
-      <div id="tab-study">
-      <!-- 오늘의 문제 -->
+      <div class="screen-title">📚 과목 선택</div>
+
       <div class="daily-card" id="daily-card"></div>
 
-      <div class="filter-bar">
-        <div class="filter-bar-left">
+      <div class="tab-bar">
+        <button class="tab-btn active" id="tabbtn-study" onclick="switchTab('study')">📚 학습</button>
+        <button class="tab-btn" id="tabbtn-notes" onclick="switchTab('notes')">📝 오답노트<span class="tab-count" id="wrong-count" style="display:none;"></span></button>
+        <button class="tab-btn" id="tabbtn-completed" onclick="switchTab('completed')">✓ 복습완료</button>
+      </div>
+
+      <div id="study-tab" class="tab-content active">
+        <div class="sub-filter-row">
           <select class="select-dropdown" id="period-filter" onchange="filterSubjects()">
             <option value="all">전체 교시</option>
-            <option value="1">1교시 과목</option>
-            <option value="2">2교시 과목</option>
+            <option value="1">1교시</option>
+            <option value="2">2교시</option>
           </select>
-          <div class="shuffle-toggle-group">
-            <label class="shuffle-label" title="문제 출제 순서를 무작위로 섞습니다">
-              <input type="checkbox" id="toggle-shuffle-questions">
-              <span><i class="fa-solid fa-shuffle"></i> 문제 섞기</span>
-            </label>
-            <label class="shuffle-label" title="1~5번 보기 순서를 무작위로 섞습니다">
-              <input type="checkbox" id="toggle-shuffle-options">
-              <span><i class="fa-solid fa-arrows-split-up-and-left"></i> 보기 섞기</span>
-            </label>
-          </div>
+          <label title="문제 출제 순서를 무작위로 섞습니다"><input type="checkbox" id="toggle-shuffle-questions"> 문제 섞기</label>
+          <label title="1~5번 보기 순서를 무작위로 섞습니다"><input type="checkbox" id="toggle-shuffle-options"> 보기 섞기</label>
+          <input type="text" id="subject-search" placeholder="과목 검색" oninput="filterSubjects()">
         </div>
-
-        <div class="search-input-box">
-          <input type="text" id="subject-search" placeholder="제목으로 필터링" oninput="filterSubjects()">
-          <i class="fa-solid fa-magnifying-glass"></i>
-        </div>
+        <div class="subject-grid" id="subjectGrid"></div>
       </div>
 
-      <!-- 1교시 섹션 -->
-      <div id="section-period-1">
-        <div class="period-section-title"><i class="fa-regular fa-clock"></i> 1교시</div>
-        <div class="subject-list" id="subject-list-period-1"></div>
-      </div>
-
-      <!-- 2교시 섹션 -->
-      <div id="section-period-2">
-        <div class="period-section-title"><i class="fa-regular fa-clock"></i> 2교시</div>
-        <div class="subject-list" id="subject-list-period-2"></div>
-      </div>
-      </div>
-
-      <div id="tab-wrong" style="display:none;">
-        <div class="note-toolbar">
+      <div id="notes-tab" class="tab-content">
+        <div class="mobile-controls-sticky">
           <select class="select-dropdown" id="wrong-filter" onchange="renderNotes()"></select>
           <select class="select-dropdown" id="wrong-sort" onchange="renderNotes()">
-            <option value="recent">최근 틀린 순</option>
+            <option value="recent">최근 순</option>
             <option value="most">많이 틀린 순</option>
-            <option value="subject">과목 순</option>
+            <option value="random">랜덤</option>
           </select>
           <select class="select-dropdown" id="wrong-count-sel">
-            <option value="10">10문제</option><option value="20">20문제</option><option value="0">전체</option>
+            <option value="5">5개</option><option value="10">10개</option><option value="all">전체</option>
           </select>
-          <button class="btn-action-sm btn-retry-wrong" onclick="startWrongFromNote()">틀린 문제 풀기</button>
-          <button class="btn-action-sm" onclick="copyWrongForAnalysis()">📋 분석용 복사</button>
+          <button class="btn-result btn-review" style="cursor: pointer; padding: 8px 16px; font-size: 0.85rem; white-space: nowrap;" onclick="startWrongFromNote()">풀기</button>
+          <button class="btn-result" style="cursor: pointer; padding: 8px 16px; font-size: 0.85rem; background-color: #4facfe; border-color: #4facfe; white-space: nowrap;" onclick="copyWrongForAnalysis()">📋 복사</button>
         </div>
-        <div id="wrong-note-content"></div>
+        <div id="notesContent"></div>
       </div>
 
-      <div id="tab-done" style="display:none;">
-        <div class="note-toolbar">
-          <select class="select-dropdown" id="done-filter" onchange="renderNotes()"></select>
-        </div>
-        <div style="font-size:0.78rem;color:var(--text-sub);margin-bottom:10px;">한 번 이상 틀렸다가 가장 최근에 맞힌 문제예요.</div>
-        <div id="done-note-content"></div>
+      <div id="completed-tab" class="tab-content">
+        <div id="completedContent"></div>
       </div>
     </div>
 
-    <!-- [화면 2] 문제 풀이 화면 -->
+    <!-- ===== 퀴즈 풀이 ===== -->
     <div id="quiz-view">
-      <div class="progress-wrapper">
-        <div class="progress-count-badge badge-correct" id="quiz-badge-correct">0</div>
-        <div class="segmented-progress-bar" id="segmented-bar"></div>
-        <div class="progress-count-badge badge-total" id="quiz-badge-total">0</div>
-      </div>
+      <div class="quiz-card">
+        <div class="question-header">
+          <div class="question-num" id="questionNum"></div>
+          <div class="question-progress" id="questionProgress"></div>
+          <div class="question-flags" id="flagsContainer"></div>
+        </div>
+        <div class="quiz-sub" id="quizSub"></div>
 
-      <div class="quiz-card" id="quiz-card-box">
-        <div>
-          <div class="quiz-card-header" id="quiz-card-header"></div>
-          <div class="quiz-question-title" id="quiz-question-text">문제가 여기에 표시됩니다.</div>
-          <div class="context-box" id="quiz-context-box" style="display:none;"></div>
-          <div class="status-msg-banner" id="status-msg-banner"></div>
+        <div class="question-text" id="questionText"></div>
+        <div class="context-box" id="quiz-context-box" style="display:none;"></div>
+        <div class="options-container" id="optionsContainer"></div>
+
+        <div class="quiz-tools">
+          <button class="tool-link" id="reportBtn" onclick="openReportModal()" title="오류 검토 요청">🚩</button>
+          <button class="tool-link" id="dont-know-btn" onclick="handleDontKnow()">모르시겠어요?</button>
         </div>
 
-        <div>
-          <div class="options-grid" id="quiz-options-container"></div>
-
-          <!-- 공통 해설 및 핵심 팁 박스 -->
-          <div class="common-explanation-box" id="common-explanation-box">
-            <div class="expl-header"><i class="fa-solid fa-lightbulb"></i> 핵심 해설 & TIP</div>
-            <div class="expl-body-text" id="common-explanation-text"></div>
+        <div class="explanation-auto" id="explanationAuto">
+          <div class="explanation-box" id="commonBox">
+            <div class="explanation-label">💡 해설</div>
+            <div class="explanation-text" id="commonText"></div>
           </div>
-
-          <div class="tip-box" id="tip-box"><b>🎯 암기 팁</b><span id="tip-text"></span></div>
-          <div class="source-toggle" id="source-toggle">
-            <button type="button" onclick="toggleSource()"><span id="source-icon">▼</span> 근거 보기</button>
-            <div class="source-box" id="source-box"></div>
-          </div>
-
-          <div class="quiz-card-footer">
-            <button class="report-issue-btn" onclick="openReportModal()" title="오류 검토 요청">
-              <i class="fa-regular fa-flag"></i> 오류 검토 요청
-            </button>
-            <button class="dont-know-btn" id="dont-know-btn" onclick="handleDontKnow()">
-              모르시겠어요?
-            </button>
+          <div class="tip-box" id="tipBox">
+            <div class="tip-label">🎯 팁</div>
+            <div id="tipText"></div>
           </div>
         </div>
-      </div>
-    </div>
 
-    <!-- [화면 3] 학습 완료 및 오답 리스트 화면 -->
-    <div id="quiz-result-view">
-      <div class="result-summary-card">
-        <div class="result-summary-icon"><i class="fa-solid fa-circle-check"></i></div>
-        <div class="result-summary-title">학습을 완료했습니다!</div>
-        <div class="result-summary-stats" id="result-summary-stats-text"></div>
-        <div id="result-breakdown" style="margin:14px 0 6px;"></div>
-        <div class="result-btn-group">
-          <button class="continue-btn" id="result-continue-daily-btn" style="display:none;" onclick="continueDailyFromResult()">오늘의 문제 이어서 풀기</button>
-          <button class="continue-btn" onclick="goHome()">홈으로</button>
-          <button class="btn-action-sm btn-retry-wrong" id="result-retry-wrong-btn" style="padding:10px 20px; font-size:0.9rem; display:none;" onclick="retryWrongQuestions()">
-            오답 다시 풀기
+        <div class="source-toggle" id="sourceToggle">
+          <button class="source-button" onclick="toggleSource()">
+            <span id="sourceIcon">▼</span> 근거 보기
           </button>
+          <div class="source-box" id="sourceBox">
+            <div class="source-label">📚 근거</div>
+            <div class="source-text" id="sourceText"></div>
+          </div>
         </div>
-      </div>
 
-      <!-- 틀린 문항 리스트 -->
-      <div class="wrong-review-section" id="wrong-review-section" style="display:none;">
-        <div class="wrong-review-header">
-          <i class="fa-solid fa-triangle-exclamation" style="color:var(--error-orange);"></i>
-          <span>틀린 문제 모아보기</span>
+        <div class="quiz-nav">
+          <button class="btn" id="prevBtn" onclick="prevQuestion()">← 이전</button>
+          <button class="btn" id="finishBtn" onclick="finishQuizSession()" style="display:none;">완료</button>
+          <button class="btn" id="nextBtn" onclick="nextQuestion()">다음 →</button>
         </div>
-        <div id="wrong-items-container"></div>
       </div>
     </div>
 
-  </main>
+    <!-- ===== 결과 ===== -->
+    <div id="quiz-result-view">
+      <div class="result-container">
+        <div class="result-title">풀이 완료!</div>
+        <div class="result-extra" id="result-extra"></div>
 
-  <!-- 하단 정답 피드백 액션바 -->
-  <div class="bottom-feedback-bar" id="bottom-feedback-bar">
-    <div class="feedback-hint-text">키보드 방향키(← 이전, → 다음) 또는 계속을 누르세요</div>
-    <div class="nav-btn-group">
-      <button class="prev-nav-btn" id="prev-btn" onclick="prevQuestion()"><i class="fa-solid fa-chevron-left"></i> 이전</button>
-      <button class="continue-btn" id="continue-btn" onclick="nextQuestion()">계속 <i class="fa-solid fa-chevron-right"></i></button>
+        <div class="result-score">
+          <div class="score-circle">
+            <div class="score-inner">
+              <div class="score-percent" id="resultPercent">0%</div>
+              <div class="score-label">정답률</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="result-stats">
+          <div class="stat-item"><div class="stat-value" id="resultTotal">0</div><div class="stat-label">총 문항</div></div>
+          <div class="stat-item"><div class="stat-value" id="resultCorrect">0</div><div class="stat-label">정답</div></div>
+          <div class="stat-item"><div class="stat-value" id="resultWrong">0</div><div class="stat-label">오답</div></div>
+        </div>
+
+        <div class="subject-breakdown">
+          <div class="breakdown-title">📊 과목별 정답률</div>
+          <div id="breakdownItems"></div>
+        </div>
+
+        <div class="result-buttons">
+          <button class="btn-result" id="result-continue-daily-btn" style="display:none;" onclick="continueDailyFromResult()">오늘의 문제 이어서</button>
+          <button class="btn-result btn-review" onclick="openNotesTab()">🔍 오답 검토</button>
+          <button class="btn-result" id="result-retry-wrong-btn" style="display:none;" onclick="retryWrongQuestions()">오답 다시 풀기</button>
+          <button class="btn-result" onclick="goHome()">과목 선택</button>
+        </div>
+      </div>
     </div>
   </div>
 
-
-  <!-- 이어서 풀기 모달 -->
+  <!-- 퀴즈 시작 선택 모달 -->
   <div class="modal-overlay" id="resume-modal">
-    <div class="modal-box" style="max-width:380px; text-align:center;">
-      <div class="modal-title" id="resume-title" style="margin-bottom:6px;"></div>
-      <div id="resume-info" style="font-size:0.88rem; color:var(--text-sub); margin-bottom:18px;"></div>
-      <div style="display:flex; flex-direction:column; gap:8px;">
-        <button class="continue-btn" id="resume-continue-btn">이어서 풀기</button>
-        <button class="btn-action-sm" id="resume-restart-btn" style="padding:10px;">처음부터 풀기</button>
-        <button class="btn-action-sm" onclick="closeModal('resume-modal')" style="padding:10px;">취소</button>
+    <div style="background-color: var(--card-bg); border-radius: 16px; padding: 32px; max-width: 320px; width: 90%; text-align: center; box-shadow: 0 8px 32px rgba(0,0,0,0.2);">
+      <div id="resume-title" style="font-size: 1.2rem; font-weight: 700; margin-bottom: 8px; color: var(--text-main);"></div>
+      <div id="resume-info" style="font-size: 0.9rem; color: var(--text-sub); margin-bottom: 24px;"></div>
+      <div class="modal-btn-col" style="display:flex; gap:12px; flex-direction:column;">
+        <button id="resume-continue-btn" class="btn" style="background-color: #4facfe; border-color: #4facfe; cursor: pointer;">📖 이어서 풀기</button>
+        <button id="resume-restart-btn" class="btn" style="background-color: var(--card-inner); border-color: var(--border-color); cursor: pointer; color: var(--text-main);">🔄 처음부터 풀기</button>
+        <button class="btn" style="background-color: var(--card-inner); border-color: var(--border-color); cursor: pointer; color: var(--text-main);" onclick="closeModal('resume-modal')">✕ 취소</button>
       </div>
     </div>
   </div>
