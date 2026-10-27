@@ -468,6 +468,8 @@
       flex-shrink: 0;
     }
 
+    .option-idx { line-height: 1; padding: 0 0 1px 0; box-sizing: border-box; font-variant-numeric: lining-nums; }
+
     .option-btn.correct-choice .option-idx {
       background-color: var(--correct-green);
     }
