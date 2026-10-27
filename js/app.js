@@ -611,9 +611,22 @@ async function showMainView() {
   await Promise.all([refreshSessions(), refreshDaily(), updateAdminBadge(), refreshStats()]);
 }
 
+let quitArmed = null;
 function quitQuiz() {
-  if (!confirm('풀이를 그만두고 나갈까요?\n(이미 푼 문제는 기록됩니다)')) return;
+  const btn = $('quit-btn');
+  if (!quitArmed) {   // 첫 번째 탭: 확인 상태로 전환 (브라우저 확인창 대신)
+    btn.textContent = '한 번 더 누르면 나가요';
+    btn.style.color = '#ef4444'; btn.style.borderColor = '#ef4444';
+    quitArmed = setTimeout(resetQuit, 3000);
+    return;
+  }
+  resetQuit();
   goHome();
+}
+function resetQuit() {
+  clearTimeout(quitArmed); quitArmed = null;
+  const btn = $('quit-btn');
+  btn.textContent = '✕ 그만두기'; btn.style.color = ''; btn.style.borderColor = '';
 }
 
 function goHome() {
