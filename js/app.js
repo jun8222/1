@@ -611,6 +611,11 @@ async function showMainView() {
   await Promise.all([refreshSessions(), refreshDaily(), updateAdminBadge(), refreshStats()]);
 }
 
+function quitQuiz() {
+  if (!confirm('풀이를 그만두고 나갈까요?\n(이미 푼 문제는 기록됩니다)')) return;
+  goHome();
+}
+
 function goHome() {
   if (!currentUser || currentUser.status !== 'approved') return;
   hideAllViews();
