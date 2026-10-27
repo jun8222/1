@@ -1012,7 +1012,7 @@ function renderSubjectList() {
         '</div>' +
         '<div style="height: 8px; background-color: ' + bg + '; border: 1px solid ' + bar + '; border-radius: 3px; overflow: hidden;"><div style="height: 100%; width: ' + acc + '%; background-color: ' + bar + ';"></div></div>' +
       '</div>' +
-      '<div style="margin-top:8px; text-align:right;"><button class="tool-link" onclick="event.stopPropagation(); toggleSubjectDropdown(\'' + meta.key + '\')">🕘 이력' + (subjectHistories.length ? ' ' + subjectHistories.length : '') + '</button></div>';
+      (meta.key === 'review' ? '' : '<div style="margin-top:8px; text-align:right;"><button class="tool-link" onclick="event.stopPropagation(); toggleSubjectDropdown(\'' + meta.key + '\')">🕘 이력' + (subjectHistories.length ? ' ' + subjectHistories.length : '') + '</button></div>');
 
     const panel = document.createElement('div');
     panel.className = 'history-dropdown-panel';
@@ -1022,7 +1022,7 @@ function renderSubjectList() {
     panel.innerHTML = subjectHistories.length
       ? subjectHistories.slice(0, 20).map(renderHistoryItem).join('')
       : '<div style="font-size:0.8rem; color:var(--text-sub); text-align:center; padding:8px;">풀이 이력이 없습니다.</div>';
-    card.appendChild(panel);
+    if (meta.key !== 'review') card.appendChild(panel);
     built.push(card);
   });
   // 내용이 그대로면 다시 그리지 않음 (클릭 도중 카드가 교체되는 것 방지)
