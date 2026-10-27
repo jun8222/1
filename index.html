@@ -425,6 +425,21 @@
     .status-pill.bad  { background: rgba(255, 120, 66, 0.15); color: var(--error-orange); }
 
     
+    .admin-cards { display: none; }
+    @media (max-width: 700px) {
+      #admin-modal .modal-box { max-width: 100% !important; width: calc(100% - 16px); padding: 16px 12px; }
+      .admin-table-wrap { display: none; }
+      .admin-cards { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+      .admin-card { border: 1px solid var(--border-color); background: var(--card-inner); border-radius: 12px; padding: 12px; }
+      .admin-card.pending { border-color: #f59e0b; box-shadow: 0 0 0 1px #f59e0b inset; }
+      .ac-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+      .ac-name { font-size: 1rem; min-width: 0; }
+      .ac-me { color: var(--text-sub); font-size: 0.8rem; }
+      .ac-email { color: var(--text-sub); font-size: 0.78rem; margin-top: 2px; word-break: break-all; }
+      .ac-stat { font-size: 0.85rem; margin-top: 8px; }
+      .ac-btns { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+      .ac-btns .btn-action-sm { min-height: 36px; padding: 6px 12px; font-size: 0.85rem; }
+    }
     .admin-table-wrap { overflow-x: auto; }
     .admin-table td { vertical-align: middle; }
     .admin-btn-col { display: flex; flex-wrap: wrap; gap: 4px; }
