@@ -156,7 +156,72 @@ async function loadOverlays() {
   } catch (e) { /* 보강 파일 없음 */ }
 }
 
+
+// ---------------------------------------------------------------- 팁 · 근거 · 플래그
+function showTipAndSource(q) {
+  const tip = $('tip-box'), src = $('source-toggle');
+  if (q.tip) { $('tip-text').textContent = q.tip; tip.style.display = 'block'; }
+  const parts = [];
+  if (q.source) parts.push('📖 ' + esc(q.source));
+  if (q.flag === '정답불일치') parts.push('⚠ 교재 기준과 기출 정답이 다를 수 있어요' + (q.flagNote ? ': ' + esc(q.flagNote) : ''));
+  if (q.flag === '출처외') parts.push('ℹ 교재에 명확한 근거가 없어 일반 지식으로 쓴 해설이에요' + (q.flagNote ? ': ' + esc(q.flagNote) : ''));
+  if (parts.length) {
+    $('source-box').innerHTML = parts.join('<br>');
+    src.style.display = 'block';
+  }
+}
+function toggleSource() {
+  const box = $('source-box'), open = box.style.display !== 'block';
+  box.style.display = open ? 'block' : 'none';
+  $('source-icon').textContent = open ? '▲' : '▼';
+}
+function flagChip(q) {
+  if (q.flag === '정답불일치') return '<span class="flag-chip mismatch">정답 확인 필요</span>';
+  if (q.flag === '출처외') return '<span class="flag-chip nosrc">교재 외</span>';
+  return '';
+}
+
+// ---------------------------------------------------------------- 테마
+function applyTheme(t) {
+  document.documentElement.setAttribute('data-theme', t);
+  const b = $('theme-btn'); if (b) b.textContent = t === 'light' ? '🌙' : '☀️';
+}
+function initTheme() {
+  let t = 'dark';
+  try {
+    t = localStorage.getItem('theme') || (window.matchMedia && matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  } catch (e) { /* 저장소 사용 불가 */ }
+  applyTheme(t);
+}
+function toggleTheme() {
+  const t = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+  applyTheme(t);
+  try { localStorage.setItem('theme', t); } catch (e) { /* 무시 */ }
+}
+
+// ---------------------------------------------------------------- 과목별 진도·정답률
+let statsCache = {};
+async function refreshStats() {
+  if (!currentUser || currentUser.status !== 'approved') return;
+  try {
+    await Promise.race([Cloud.flush(), sleep(3000)]);
+    statsCache = await Cloud.loadQuestionStats();
+  } catch (e) { return; }
+  if ($('subject-view').style.display === 'block') renderSubjectList();
+}
+function subjectProgress(key, total) {
+  let solved = 0, tries = 0, rights = 0;
+  const prefix = key + ':';
+  Object.keys(statsCache).forEach(function (k) {
+    if (k.indexOf(prefix) !== 0) return;
+    const st = statsCache[k]; solved++; tries += st.tries; rights += st.rights;
+  });
+  const acc = tries ? Math.round(rights / tries * 100) : null;
+  return { solved: solved, pct: total ? Math.round(solved / total * 100) : 0, acc: acc, weak: tries >= 10 && acc !== null && acc < 70 };
+}
+
 async function boot() {
+  initTheme();
   window.addEventListener('keydown', handleGlobalKeydown);
   await loadOverlays();
 
@@ -288,7 +353,7 @@ async function showMainView() {
   renderSubjectList();
   renderDailyCard();
 
-  await Promise.all([refreshSessions(), refreshDaily(), updateAdminBadge()]);
+  await Promise.all([refreshSessions(), refreshDaily(), updateAdminBadge(), refreshStats()]);
 }
 
 function goHome() {
@@ -300,6 +365,7 @@ function goHome() {
   renderDailyCard();
   refreshSessions();
   refreshDaily();
+  refreshStats();
 }
 
 async function refreshSessions() {
@@ -755,6 +821,7 @@ function renderSubjectList() {
     const subData = db[meta.key];
     const count = subData && subData.questions ? subData.questions.length : 0;
 
+    const pr = subjectProgress(meta.key, count);
     const subjectHistories = sessionsCache.filter(function (h) { return h.subject_key === meta.key; });
     const latest = subjectHistories.length ? subjectHistories[0] : null;
 
@@ -772,8 +839,12 @@ function renderSubjectList() {
       '<div class="subject-card-left">' +
         '<div class="card-icon-box"><i class="fa-regular fa-clone"></i></div>' +
         '<div class="subject-title-area">' +
-          '<div class="subject-info-title">' + esc(meta.name) + '</div>' +
-          '<div class="subject-info-sub">' + count + ' 문항</div>' +
+          '<div class="subject-info-title">' + esc(meta.name) + (pr.weak ? '<span class="weak-badge">취약</span>' : '') + '</div>' +
+          '<div class="subject-info-sub">' + count + ' 문항' + (pr.solved ? ' · 푼 문제 ' + pr.solved : '') + '</div>' +
+          '<div class="sc-bars">' +
+            '<div class="sc-row"><span class="sc-label">진도</span><div class="sc-track"><div class="sc-fill prog" style="width:' + pr.pct + '%"></div></div><span class="sc-val">' + pr.pct + '%</span></div>' +
+            '<div class="sc-row"><span class="sc-label">정답률</span><div class="sc-track"><div class="sc-fill ' + (pr.acc === null ? '' : pr.acc >= 80 ? 'good' : pr.acc >= 70 ? 'mid' : 'bad') + '" style="width:' + (pr.acc || 0) + '%"></div></div><span class="sc-val">' + (pr.acc === null ? '-' : pr.acc + '%') + '</span></div>' +
+          '</div>' +
         '</div>' +
       '</div>' +
       '<div class="subject-card-right">' + wrongBadge +
@@ -910,7 +981,7 @@ function quizHeaderText(q) {
 
 function renderCurrentQuestion() {
   const q = quizQuestions[currentIndex];
-  $('quiz-card-header').textContent = quizHeaderText(q);
+  $('quiz-card-header').innerHTML = esc(quizHeaderText(q)) + flagChip(q);
   $('quiz-question-text').innerText = (currentIndex + 1) + '. ' + q.question;
   const ctx = $('quiz-context-box');
   ctx.textContent = q.contextBox || '';
@@ -947,6 +1018,10 @@ function renderCurrentQuestion() {
     banner.className = 'status-msg-banner';
     banner.style.display = 'none';
     $('common-explanation-box').style.display = 'none';
+    $('tip-box').style.display = 'none';
+    $('source-toggle').style.display = 'none';
+    $('source-box').style.display = 'none';
+    $('source-icon').textContent = '▼';
   }
 }
 
@@ -994,13 +1069,12 @@ function restoreQuestionState(userPick) {
     if (explElem && explElem.innerText.trim() !== '') explElem.style.display = 'block';
   });
 
-  let commonExplText = (q.commonExplanations && q.commonExplanations.length > 0) ? q.commonExplanations.join('<br>') : '';
-  if (q.tip) commonExplText += (commonExplText ? '<br>' : '') + '💡 ' + esc(q.tip);
-  if (q.flag === '정답불일치') commonExplText += '<br><span style="opacity:.8">※ 교재 기준과 기출 정답이 다를 수 있어요' + (q.flagNote ? ': ' + esc(q.flagNote) : '') + '</span>';
+  const commonExplText = (q.commonExplanations && q.commonExplanations.length > 0) ? q.commonExplanations.join('<br>') : '';
   if (commonExplText) {
     $('common-explanation-text').innerHTML = commonExplText;
     $('common-explanation-box').style.display = 'block';
   }
+  showTipAndSource(q);
 
   if (isCorrect) {
     if (segment) { segment.classList.remove('failed'); segment.classList.add('passed'); }
