@@ -235,6 +235,7 @@ function flagChip(q) {
 // ---------------------------------------------------------------- 테마
 function applyTheme(t) {
   document.documentElement.setAttribute('data-theme', t);
+  const cs = document.querySelector('meta[name="color-scheme"]'); if (cs) cs.setAttribute('content', t === 'light' ? 'light' : 'dark');
   const b = $('themeIcon'); if (b) b.textContent = t === 'light' ? '🌙' : '☀️';
 }
 function initTheme() {
