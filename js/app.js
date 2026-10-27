@@ -1027,6 +1027,32 @@ async function openAdminModal() {
         '</tr>';
     });
     html += '</tbody></table></div>';
+
+    // 모바일: 회원 카드 (승인 대기 먼저)
+    const rank = { pending: 0, blocked: 2 };
+    const sorted = members.slice().sort(function (a, b) { return (rank[a.status] !== undefined ? rank[a.status] : 1) - (rank[b.status] !== undefined ? rank[b.status] : 1); });
+    html += '<div class="admin-cards">' + sorted.map(function (m) {
+      const me = m.id === currentUser.id;
+      const rate = Number(m.total_attempts) ? Math.round(Number(m.correct_attempts) / Number(m.total_attempts) * 100) + '%' : '-';
+      const btns = [];
+      if (!me) {
+        if (m.status !== 'approved') btns.push('<button class="btn-action-sm btn-review-expl" onclick="adminAction(\'' + m.id + '\',\'' + m.role + '\',\'approved\')">승인</button>');
+        if (m.status !== 'blocked') btns.push('<button class="btn-action-sm btn-retry-wrong" onclick="adminAction(\'' + m.id + '\',\'' + m.role + '\',\'blocked\')">차단</button>');
+        if (m.status === 'approved' && m.role !== 'admin') btns.push('<button class="btn-action-sm btn-review-expl" onclick="adminAction(\'' + m.id + '\',\'admin\',\'approved\')">관리자로</button>');
+        if (m.role === 'admin') btns.push('<button class="btn-action-sm btn-review-expl" onclick="adminAction(\'' + m.id + '\',\'user\',\'' + m.status + '\')">일반으로</button>');
+        btns.push('<button class="btn-action-sm btn-retry-wrong" onclick="adminReset(\'' + m.id + '\')">기록 초기화</button>');
+      }
+      let last = '-';
+      if (m.last_active) { const d = new Date(m.last_active); last = (d.getMonth() + 1) + '/' + d.getDate() + ' ' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); }
+      return '<div class="admin-card' + (m.status === 'pending' ? ' pending' : '') + '">' +
+        '<div class="ac-top"><div class="ac-name"><strong>' + esc(m.display_name || '-') + '</strong>' + (m.role === 'admin' ? ' <span class="status-pill ok">관리자</span>' : '') + (me ? ' <span class="ac-me">(나)</span>' : '') + '</div>' +
+          '<span class="status-pill ' + (m.status === 'approved' ? 'ok' : (m.status === 'blocked' ? 'bad' : 'open')) + '">' + STATUS_LABEL[m.status] + '</span></div>' +
+        '<div class="ac-email">' + esc(m.email || '') + '</div>' +
+        '<div class="ac-stat">' + Number(m.total_attempts) + '문제 · 정답률 ' + rate + ' · 마지막 활동 ' + last + '</div>' +
+        (btns.length ? '<div class="ac-btns">' + btns.join('') + '</div>' : '') +
+      '</div>';
+    }).join('') + '</div>';
+
     container.innerHTML = html;
     updateAdminBadge();
   } catch (e) {
