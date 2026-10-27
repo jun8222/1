@@ -1021,6 +1021,7 @@ function renderSubjectList() {
   const db = window.quizDatabase || {};
 
   const built = [];
+  if (!window.__cardEls) window.__cardEls = {};
 
   subjectMeta.concat(extraSubjects).forEach(function (meta) {
     if (periodVal !== 'all' && meta.period !== parseInt(periodVal, 10)) return;
@@ -1034,10 +1035,14 @@ function renderSubjectList() {
     const bg = noAcc ? 'rgba(148, 163, 184, 0.12)' : acc >= 80 ? 'rgba(34, 197, 94, 0.1)' : acc >= 70 ? 'rgba(245, 158, 11, 0.1)' : 'rgba(239, 68, 68, 0.1)';
     const bar = noAcc ? '#64748b' : acc >= 80 ? '#22c55e' : acc >= 70 ? '#f59e0b' : '#ef4444';
 
-    const card = document.createElement('div');
-    card.className = 'subject-card';
-    card.onclick = function () { onSubjectStart(meta.key); };
-    card.innerHTML =
+    let card = window.__cardEls[meta.key];
+    if (!card) {
+      card = document.createElement('div');
+      card.className = 'subject-card';
+      card.onclick = function () { onSubjectStart(meta.key); };
+      window.__cardEls[meta.key] = card;
+    }
+    const html =
       '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">' +
         '<div class="subject-name" style="margin: 0; font-size: 1rem;">' + esc(meta.name) + '</div>' +
         (pr.weak ? '<span style="background-color: #ef4444; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600;">취약</span>' : '') +
@@ -1055,14 +1060,12 @@ function renderSubjectList() {
         '<div style="height: 8px; background-color: ' + bg + '; border: 1px solid ' + bar + '; border-radius: 3px; overflow: hidden;"><div style="height: 100%; width: ' + acc + '%; background-color: ' + bar + ';"></div></div>' +
       '</div>';
 
+    // 카드 요소는 그대로 두고 내용이 바뀐 것만 갱신 (클릭 도중 카드가 교체되는 것 방지)
+    if (card._html !== html) { card.innerHTML = html; card._html = html; }
     built.push(card);
   });
-  // 내용이 그대로면 다시 그리지 않음 (클릭 도중 카드가 교체되는 것 방지)
-  const sig = built.map(function (c) { return c.outerHTML; }).join('');
-  if (grid.dataset.sig === sig && grid.children.length === built.length) return;
-  grid.dataset.sig = sig;
-  grid.innerHTML = '';
-  built.forEach(function (c) { grid.appendChild(c); });
+  built.forEach(function (c, i) { if (grid.children[i] !== c) grid.insertBefore(c, grid.children[i] || null); });
+  while (grid.children.length > built.length) grid.removeChild(grid.lastChild);
 }
 
 function filterSubjects() { renderSubjectList(); }
