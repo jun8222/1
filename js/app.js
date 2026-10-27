@@ -973,10 +973,6 @@ function renderSubjectList() {
   const searchVal = $('subject-search').value.trim().toLowerCase();
   const db = window.quizDatabase || {};
 
-  const openPanels = {};
-  document.querySelectorAll('.history-dropdown-panel').forEach(function (p) {
-    if (p.style.display === 'flex') openPanels[p.id] = true;
-  });
   const built = [];
 
   subjectMeta.concat(extraSubjects).forEach(function (meta) {
@@ -986,7 +982,6 @@ function renderSubjectList() {
     const subData = db[meta.key];
     const count = subData && subData.questions ? subData.questions.length : 0;
     const pr = subjectProgress(meta.key, count);
-    const subjectHistories = sessionsCache.filter(function (h) { return h.subject_key === meta.key; });
     const noAcc = pr.acc === null;
     const acc = noAcc ? 0 : pr.acc;
     const bg = noAcc ? 'rgba(148, 163, 184, 0.12)' : acc >= 80 ? 'rgba(34, 197, 94, 0.1)' : acc >= 70 ? 'rgba(245, 158, 11, 0.1)' : 'rgba(239, 68, 68, 0.1)';
@@ -1011,18 +1006,8 @@ function renderSubjectList() {
           '<div style="font-size: 0.85rem; font-weight: 700;">' + (noAcc ? '-' : acc + '%') + '</div>' +
         '</div>' +
         '<div style="height: 8px; background-color: ' + bg + '; border: 1px solid ' + bar + '; border-radius: 3px; overflow: hidden;"><div style="height: 100%; width: ' + acc + '%; background-color: ' + bar + ';"></div></div>' +
-      '</div>' +
-      (meta.key === 'review' ? '' : '<div style="margin-top:8px; text-align:right;"><button class="tool-link" onclick="event.stopPropagation(); toggleSubjectDropdown(\'' + meta.key + '\')">🕘 이력' + (subjectHistories.length ? ' ' + subjectHistories.length : '') + '</button></div>');
+      '</div>';
 
-    const panel = document.createElement('div');
-    panel.className = 'history-dropdown-panel';
-    panel.id = 'history-panel-' + meta.key;
-    panel.onclick = function (e) { e.stopPropagation(); };
-    if (openPanels[panel.id]) panel.style.display = 'flex';
-    panel.innerHTML = subjectHistories.length
-      ? subjectHistories.slice(0, 20).map(renderHistoryItem).join('')
-      : '<div style="font-size:0.8rem; color:var(--text-sub); text-align:center; padding:8px;">풀이 이력이 없습니다.</div>';
-    if (meta.key !== 'review') card.appendChild(panel);
     built.push(card);
   });
   // 내용이 그대로면 다시 그리지 않음 (클릭 도중 카드가 교체되는 것 방지)
@@ -1034,11 +1019,6 @@ function renderSubjectList() {
 }
 
 function filterSubjects() { renderSubjectList(); }
-
-function toggleSubjectDropdown(key) {
-  const panel = $('history-panel-' + key);
-  if (panel) panel.style.display = panel.style.display === 'flex' ? 'none' : 'flex';
-}
 
 function shuffleArray(array) {
   const arr = array.slice();
