@@ -236,7 +236,7 @@ function flagChip(q) {
 function applyTheme(t) {
   document.documentElement.setAttribute('data-theme', t);
   const cs = document.querySelector('meta[name="color-scheme"]'); if (cs) cs.setAttribute('content', t === 'light' ? 'only light' : 'dark');
-  const b = $('themeIcon'); if (b) b.textContent = t === 'light' ? '🌙' : '☀️';
+  const b = $('themeIcon'); if (b) b.textContent = t === 'light' ? '☀️' : '🌙';
 }
 function initTheme() {
   let t = 'dark';
