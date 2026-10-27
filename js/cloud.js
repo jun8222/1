@@ -254,6 +254,20 @@ window.Cloud = (function () {
     return rows;
   }
 
+  /** 과목별 최근 n회 풀이 → { subject: {n, rights} } (취약 판정용) */
+  async function loadRecentBySubject(n) {
+    var res = await client.from('attempts').select('subject_key,correct')
+      .eq('user_id', uid()).order('id', { ascending: false }).limit(3000);
+    var rows = check(res, '최근 풀이 불러오기');
+    var out = {};
+    rows.forEach(function (r) {
+      var o = out[r.subject_key] || (out[r.subject_key] = { n: 0, rights: 0 });
+      if (o.n >= n) return;
+      o.n++; if (r.correct) o.rights++;
+    });
+    return out;
+  }
+
   // ------------------------------------------------------------ 오늘의 문제
   async function getDailySet(day) {
     var res = await client.from('daily_sets').select('*').eq('user_id', uid()).eq('day', day).maybeSingle();
@@ -309,7 +323,7 @@ window.Cloud = (function () {
     signInWithGoogle: signInWithGoogle, signOut: signOut,
     getProfile: getProfile, updateProfile: updateProfile,
     logAttempt: logAttempt, saveSession: saveSession, flush: flush, pendingCount: pendingCount,
-    listSessions: listSessions, loadQuestionStats: loadQuestionStats, loadNoteClears: loadNoteClears, saveNoteClears: saveNoteClears, loadAttemptsSince: loadAttemptsSince,
+    listSessions: listSessions, loadQuestionStats: loadQuestionStats, loadRecentBySubject: loadRecentBySubject, loadNoteClears: loadNoteClears, saveNoteClears: saveNoteClears, loadAttemptsSince: loadAttemptsSince,
     getDailySet: getDailySet, saveDailySet: saveDailySet,
     createReport: createReport, listReports: listReports, setReportStatus: setReportStatus, deleteReport: deleteReport,
     adminListMembers: adminListMembers, adminSetMember: adminSetMember, adminResetMember: adminResetMember,
