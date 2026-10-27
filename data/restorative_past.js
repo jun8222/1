@@ -290,7 +290,7 @@ window.quizDatabase.restorative_past = {
       ],
       "tip": "직접법 장점 = 생략(인상·모형), 단점 = 치료시간·재제작 불가.",
       "source": "충전기공학_파트2.pdf p.5",
-      "flag": "정답불일치",
+      "flag": "정답변경",
       "flagNote": "원본 정답 4을(를) 사용자 확인에 따라 PDF 기준 1로 수정함. 근거: 충전기공학_파트2.pdf p.5."
     },
     {
@@ -604,7 +604,7 @@ window.quizDatabase.restorative_past = {
       ],
       "tip": "덜 데우면 안 들어가고, 너무 데우면 안 빠진다.",
       "source": "충전기공학_파트2.pdf p.9",
-      "flag": "정답불일치",
+      "flag": "정답변경",
       "flagNote": "원본 정답 2을(를) 사용자 확인에 따라 PDF 기준 5로 수정함. 근거: 충전기공학_파트2.pdf p.9."
     },
     {
@@ -846,7 +846,7 @@ window.quizDatabase.restorative_past = {
       ],
       "tip": "fin = 금(crack)간 주형 → 서서히 소환.",
       "source": "충전기공학_파트2.pdf p.44",
-      "flag": "정답불일치",
+      "flag": "정답변경",
       "flagNote": "원본 정답 4을(를) 사용자 확인에 따라 PDF 기준 5로 수정함. 근거: 충전기공학_파트2.pdf p.44."
     },
     {
@@ -896,7 +896,7 @@ window.quizDatabase.restorative_past = {
       ],
       "tip": "가압 = 누르고 기다린다.",
       "source": "충전기공학_파트2.pdf p.8, p.9, p.10",
-      "flag": "정답불일치",
+      "flag": "정답변경",
       "flagNote": "원본 정답 4을(를) 사용자 확인에 따라 PDF 기준 3로 수정함. 근거: 충전기공학_파트2.pdf p.8, p.9, p.10."
     },
     {
@@ -922,7 +922,7 @@ window.quizDatabase.restorative_past = {
       ],
       "tip": "기포 제거 = 진공·가압, 온도 유지 = 항온 상자.",
       "source": "충전기공학_파트2.pdf p.21, p.25, p.27",
-      "flag": "정답불일치",
+      "flag": "정답변경",
       "flagNote": "원본 정답 5을(를) 사용자 확인에 따라 PDF 기준 2로 수정함. 근거: 충전기공학_파트2.pdf p.21, p.25, p.27."
     },
     {
