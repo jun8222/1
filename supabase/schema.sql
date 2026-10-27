@@ -257,6 +257,32 @@ create policy reports_delete_admin on public.reports
   for delete to authenticated
   using (public.is_admin());
 
+-- note_clears: 오답노트/복습완료에서 "지운" 문항 표시 (기록 자체는 attempts에 그대로 남음)
+create table if not exists public.note_clears (
+  user_id     uuid not null references auth.users(id) on delete cascade,
+  subject_key text not null,
+  question_id int  not null,
+  cleared_at  timestamptz not null default now(),
+  primary key (user_id, subject_key, question_id)
+);
+alter table public.note_clears enable row level security;
+revoke all on public.note_clears from anon, authenticated;
+grant select, insert, update on public.note_clears to authenticated;
+
+drop policy if exists note_clears_select on public.note_clears;
+create policy note_clears_select on public.note_clears
+  for select to authenticated using (user_id = auth.uid());
+
+drop policy if exists note_clears_insert on public.note_clears;
+create policy note_clears_insert on public.note_clears
+  for insert to authenticated with check (user_id = auth.uid() and public.is_approved());
+
+drop policy if exists note_clears_update on public.note_clears;
+create policy note_clears_update on public.note_clears
+  for update to authenticated
+  using (user_id = auth.uid() and public.is_approved())
+  with check (user_id = auth.uid() and public.is_approved());
+
 grant select on public.question_stats to authenticated;
 
 -- ---------------------------------------------------------------------

@@ -253,11 +253,37 @@ function toggleTheme() {
 
 // ---------------------------------------------------------------- 과목별 진도·정답률
 let statsCache = {};
+// 오답노트/복습완료에서 지운 문항 { 'subject:id': 지운시각(ms) } — 이후에 다시 풀면 다시 나타남
+let noteClears = {};
+function noteClearKey() { return 'noteClears:' + (currentUser && currentUser.id); }
+function loadLocalClears() {
+  try { noteClears = JSON.parse(localStorage.getItem(noteClearKey()) || '{}') || {}; } catch (e) { noteClears = {}; }
+}
+async function clearNoteKeys(keys) {
+  const t = Date.now();
+  keys.forEach(function (k) { noteClears[k] = t; });
+  try { localStorage.setItem(noteClearKey(), JSON.stringify(noteClears)); } catch (e) { /* 무시 */ }
+  renderNotes();
+  try { await Cloud.saveNoteClears(keys); } catch (e) { /* 서버 테이블이 없으면 이 기기에만 적용 */ }
+}
+function deleteNote(s, id) {
+  clearNoteKeys([s + ':' + id]);
+}
+function clearNoteList(kind) {
+  const all = noteEntries();
+  let list = kind === 'wrong' ? all.wrong : all.done;
+  if (kind === 'wrong') { const f = $('wrong-filter').value; list = list.filter(function (e) { return f === 'all' || e.s === f; }); }
+  if (!list.length) return;
+  if (!confirm((kind === 'wrong' ? '오답노트' : '복습 완료') + ' ' + list.length + '개를 모두 지울까요?\n(풀이 기록·통계는 그대로 남고, 다시 틀리면 오답노트에 다시 나타납니다)')) return;
+  clearNoteKeys(list.map(function (e) { return e.s + ':' + e.id; }));
+}
 async function refreshStats() {
   if (!currentUser || currentUser.status !== 'approved') return;
   try {
     await Promise.race([Cloud.flush(), sleep(3000)]);
     statsCache = await Cloud.loadQuestionStats();
+    const remote = await Cloud.loadNoteClears().catch(function () { return null; });
+    if (remote) Object.keys(remote).forEach(function (k) { noteClears[k] = Math.max(noteClears[k] || 0, remote[k]); });
   } catch (e) { return; }
   const wc = noteEntries().wrong.length, cnt = $('wrong-count');
   cnt.textContent = wc; cnt.style.display = wc ? 'inline-block' : 'none';
@@ -306,6 +332,7 @@ function noteEntries() {
     const s = k.slice(0, i), id = parseInt(k.slice(i + 1), 10);
     const q = getQuestion(s, id); if (!q) return;
     const st = statsCache[k];
+    if (noteClears[k] && st.lastAt <= noteClears[k]) return;
     const e = { s: s, id: id, q: q, st: st, miss: st.tries - st.rights };
     if (!st.lastCorrect) wrong.push(e);
     else if (st.rights < st.tries) done.push(e);
@@ -339,6 +366,7 @@ function noteItemHtml(e, resolved) {
     '<div class="wrong-item-header">' +
       '<div class="wrong-question">' + esc(q.question) + '</div>' +
       '<div style="display: flex; gap: 8px; align-items: center;">' +
+        '<button type="button" class="note-del-btn" title="목록에서 지우기" aria-label="목록에서 지우기" onclick="deleteNote(\'' + e.s + '\',' + e.id + ')">🗑 지우기</button>' +
         '<div class="wrong-badge">' + esc(subjectName(e.s)) + ' · ' + e.id + '번</div>' +
         (resolved ? '<div class="wrong-badge" style="background-color: #22c55e;">✓ 복습 완료</div>' : '<div class="wrong-badge" style="background-color: #64748b;">' + e.st.tries + '회 중 ' + e.miss + '회 오답</div>') +
         flagChip(q) +
@@ -364,10 +392,10 @@ function renderNotes() {
   const dl = sortNotes(all.done.slice(), 'recent');
 
   $('notesContent').innerHTML = wl.length
-    ? '<div style="margin-bottom: 16px; color: var(--text-sub); font-size: 0.9rem;">총 <strong>' + wl.length + '개</strong>의 오답이 있습니다.</div>' + wl.map(function (e) { return noteItemHtml(e, false); }).join('')
+    ? '<div style="margin-bottom: 16px; color: var(--text-sub); font-size: 0.9rem;">총 <strong>' + wl.length + '개</strong>의 오답이 있습니다. <button type="button" class="note-del-btn" onclick="clearNoteList(\'wrong\')">🗑 전체 비우기</button></div>' + wl.map(function (e) { return noteItemHtml(e, false); }).join('')
     : '<div class="empty-state"><div class="empty-icon">' + (Object.keys(statsCache).length ? '🎉' : '📝') + '</div><p>' + (Object.keys(statsCache).length ? '지금 틀린 채로 남은 문제가 없어요.' : '아직 푼 기록이 없어요.') + '</p></div>';
   $('completedContent').innerHTML = dl.length
-    ? dl.map(function (e) { return noteItemHtml(e, true); }).join('')
+    ? '<div style="margin-bottom: 16px; text-align:right;"><button type="button" class="note-del-btn" onclick="clearNoteList(\'done\')">🗑 전체 비우기</button></div>' + dl.map(function (e) { return noteItemHtml(e, true); }).join('')
     : '<div class="empty-state"><div class="empty-icon">📚</div><p>틀렸다가 다시 맞힌 문제가 여기에 모여요.</p></div>';
   fitContextBoxes();
 }
@@ -499,6 +527,7 @@ async function routeBySession() {
   if (!profile) { showAuthView('noprofile'); return; }
 
   currentUser = profile;
+  loadLocalClears();
   if (profile.status === 'approved') {
     await showMainView();
     Cloud.flush();
