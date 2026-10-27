@@ -211,7 +211,7 @@ window.addEventListener('resize', fitContextBoxes);
 function showTipAndSource(q) {
   if (q.tip) { $('tipText').textContent = q.tip; $('tipBox').classList.add('show'); }
   const parts = [];
-  if (q.source) parts.push('📖 ' + esc(q.source));
+  if (q.source) parts.push('📖 ' + esc(window.formatSource ? window.formatSource(q.source) : q.source));
   if (q.flag === '정답변경') parts.push('🔄 교재 근거에 맞춰 정답을 바꾼 문항이에요' + (q.flagNote ? ': ' + esc(q.flagNote) : ''));
   if (q.flag === '정답불일치') parts.push('⚠ 교재 기준과 기출 정답이 다를 수 있어요' + (q.flagNote ? ': ' + esc(q.flagNote) : ''));
   if (q.flag === '출처외') parts.push('ℹ 교재에 명확한 근거가 없어 일반 지식으로 쓴 해설이에요' + (q.flagNote ? ': ' + esc(q.flagNote) : ''));
