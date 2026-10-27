@@ -241,7 +241,7 @@ function applyTheme(t) {
 function initTheme() {
   let t = 'dark';
   try {
-    t = localStorage.getItem('theme') || (window.matchMedia && matchMedia('(prefers-color-scheme: light)').matches ? 'only light' : 'dark');
+    t = localStorage.getItem('theme') || (window.matchMedia && matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
   } catch (e) { /* 저장소 사용 불가 */ }
   applyTheme(t);
 }
