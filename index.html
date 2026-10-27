@@ -517,6 +517,12 @@
       #wrong-count-sel { flex: 0 0 20%; }
       .mobile-controls-sticky .btn-result { flex: 1 1 45%; padding: 8px 10px !important; }
     }
+    /* 팁 박스: 팁이 있는 문제에서만 보임 */
+    .tip-box { display: none; }
+    .tip-box.show { display: block; }
+    /* 오답·모름 선택 시 정답 보기 강조 */
+    .option-btn.correct-highlight { border-color: var(--correct-green); background-color: rgba(34, 197, 94, 0.14); box-shadow: 0 0 0 1px var(--correct-green) inset; opacity: 1; }
+    .option-btn.correct-highlight .option-idx { background-color: var(--correct-green); color: #fff; }
     /* ---- 프로토타입 위에 얹는 추가 요소 ---- */
     body { display: block; }
     .user-menu-wrap { position: relative; }

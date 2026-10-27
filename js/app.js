@@ -1264,6 +1264,7 @@ function restoreQuestionState(userPick) {
       $('opt-icon-' + userPick).innerHTML = '<i class="fa-solid fa-xmark"></i>';
     }
     optButtons[q.answer - 1].classList.add('correct-highlight');
+    $('opt-icon-' + q.answer).innerHTML = '<i class="fa-solid fa-check"></i>';
   }
   $('dont-know-btn').disabled = true;
 }
