@@ -4,6 +4,6 @@
  * (절대로 service_role 키를 여기에 넣지 마세요.)
  */
 window.APP_CONFIG = {
-  SUPABASE_URL: 'YOUR_SUPABASE_URL',
-  SUPABASE_ANON_KEY: 'YOUR_SUPABASE_ANON_KEY'
+  SUPABASE_URL: 'https://qfjiicsubxvkstbpzqbr.supabase.co',
+  SUPABASE_ANON_KEY: 'sb_publishable_uT2NwU3PCbLgURpHvrqZ5w_rIaMqs2x'
 };
