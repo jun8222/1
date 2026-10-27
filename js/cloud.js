@@ -218,6 +218,25 @@ window.Cloud = (function () {
     return out;
   }
 
+  /** 오답노트/복습완료에서 지운 문항 → { 'subject:id': clearedAtMs } (테이블이 없으면 null) */
+  async function loadNoteClears() {
+    var res = await client.from('note_clears').select('subject_key,question_id,cleared_at').eq('user_id', uid()).limit(5000);
+    if (res.error) return null;
+    var out = {};
+    (res.data || []).forEach(function (r) { out[r.subject_key + ':' + r.question_id] = new Date(r.cleared_at).getTime(); });
+    return out;
+  }
+
+  async function saveNoteClears(list) {
+    if (!list.length) return;
+    var at = new Date().toISOString();
+    var rows = list.map(function (k) {
+      var i = k.indexOf(':');
+      return { user_id: uid(), subject_key: k.slice(0, i), question_id: parseInt(k.slice(i + 1), 10), cleared_at: at };
+    });
+    check(await client.from('note_clears').upsert(rows, { onConflict: 'user_id,subject_key,question_id' }), '노트 지우기');
+  }
+
   /** 오늘 푼 기록 → [{subject_key, question_id, source, correct}] */
   async function loadAttemptsSince(isoStart) {
     var rows = [];
@@ -290,7 +309,7 @@ window.Cloud = (function () {
     signInWithGoogle: signInWithGoogle, signOut: signOut,
     getProfile: getProfile, updateProfile: updateProfile,
     logAttempt: logAttempt, saveSession: saveSession, flush: flush, pendingCount: pendingCount,
-    listSessions: listSessions, loadQuestionStats: loadQuestionStats, loadAttemptsSince: loadAttemptsSince,
+    listSessions: listSessions, loadQuestionStats: loadQuestionStats, loadNoteClears: loadNoteClears, saveNoteClears: saveNoteClears, loadAttemptsSince: loadAttemptsSince,
     getDailySet: getDailySet, saveDailySet: saveDailySet,
     createReport: createReport, listReports: listReports, setReportStatus: setReportStatus, deleteReport: deleteReport,
     adminListMembers: adminListMembers, adminSetMember: adminSetMember, adminResetMember: adminResetMember,
