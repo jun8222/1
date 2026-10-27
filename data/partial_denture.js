@@ -136,7 +136,7 @@ window.quizDatabase.partial_denture = {
       question: "Roach clasp(Bar clasp)에 대한 설명으로 옳은 것만의 조합은?",
       contextBox: "가. double T clasp\n나. 구치부 언더컷 양은 0.25mm\n다. 전치부 언더컷 양은 10G\n라. 유리단 국소의치에 적용되며 중간결손시에도 좋다",
       options: ["가, 나, 다", "가, 다", "나, 라", "라", "가, 나, 다, 라"],
-      answer: 5,
+      answer: 2,
       optionExplanations: {
         1: "나(구치부 0.25mm)가 틀렸다. 교재는 구치부 0.5mm(20G), 전치 0.25mm(10G)라고 한다.",
         2: "가(double T clasp)와 다(전치부 0.25mm = 10G)만 교재와 일치한다. PDF 기준으로는 이 조합이 맞다.",
@@ -147,8 +147,8 @@ window.quizDatabase.partial_denture = {
       commonExplanations: ["로치(roach) 클래스프 = 더블 T바 클래스프. 서베이 라인 2번, 언더컷은 전치 0.25mm(10G)·구치부 0.5mm(20G), 상악 소구치가 대표적이며 후방연장에는 적용하고 중간결손에는 좋지 않다."],
       tip: "로치 = 더블 T, 전치 10G · 구치 20G, 유리단 O · 중간결손 X.",
       source: "국소의치기공학_파트1.pdf p.87",
-      flag: "정답불일치",
-      flagNote: "원본 정답 ⑤(가·나·다·라). 교재 p.87: 언더컷은 전치 0.25mm(10G)·구치부 0.5mm(20G), 후방연장에는 적용되나 중간 결손 시에는 좋지 않다고 한다. 따라서 나·라가 틀려 PDF 기준 정답은 ②(가, 다)이다."
+      flag: "정답변경",
+      flagNote: "[정답 변경: 원본 5번 → 2번] 원본 정답 ⑤(가·나·다·라). 교재 p.87: 언더컷은 전치 0.25mm(10G)·구치부 0.5mm(20G), 후방연장에는 적용되나 중간 결손 시에는 좋지 않다고 한다. 따라서 나·라가 틀려 PDF 기준 정답은 ②(가, 다)이다."
     },
     {
       id: 10,
@@ -170,7 +170,7 @@ window.quizDatabase.partial_denture = {
       id: 11,
       question: "RPA clasp에 대한 설명으로 틀린 것은?",
       options: ["mesial rest를 형성", "0.01inch 언더컷 양 필요", "유지부는 Akers 유지부로 형성", "조직부의 언더컷이 심하여 I bar 설계가 어려울 때 사용", "proximal plate를 형성"],
-      answer: 3,
+      answer: 2,
       optionExplanations: {
         1: "RPA도 RPI처럼 근심 레스트(mesial rest)를 형성한다. 맞는 설명이다.",
         2: "RPA 유지부 끝의 언더컷은 0.5mm(20게이지=0.02inch)이다. 0.01inch(0.25mm, 10G)는 RPI 계열 양이므로 이 보기가 틀렸다.",
@@ -181,8 +181,8 @@ window.quizDatabase.partial_denture = {
       commonExplanations: ["RPA = RPI의 I바 대신 인접판에서 이어지는 에이커스 원형유지부를 쓰는 클래스프다. 서베이 라인 2번, 유지부 끝만 0.5mm(20G) 언더컷에 둔다."],
       tip: "RPA는 I바 대신 Akers 유지부, 언더컷은 20G(0.02inch).",
       source: "국소의치기공학_파트1.pdf p.71, p.65",
-      flag: "정답불일치",
-      flagNote: "원본 정답 ③. 교재 p.71: RPA는 에이커스 원형유지부를 쓰고(③은 맞는 설명) 유지부 끝은 0.5mm(20게이지) 언더컷에 둔다. 0.01inch(=0.25mm, 10G)는 맞지 않아 PDF 기준 정답은 ②이다."
+      flag: "정답변경",
+      flagNote: "[정답 변경: 원본 3번 → 2번] 원본 정답 ③. 교재 p.71: RPA는 에이커스 원형유지부를 쓰고(③은 맞는 설명) 유지부 끝은 0.5mm(20게이지) 언더컷에 둔다. 0.01inch(=0.25mm, 10G)는 맞지 않아 PDF 기준 정답은 ②이다."
     },
     {
       id: 12,
@@ -849,7 +849,7 @@ window.quizDatabase.partial_denture = {
       id: 53,
       question: "Kennedy Class II mod. 0(편측 유리단) 국소의치 설계 시 불합리한 것은?",
       options: ["반드시 양측성으로 설계", "주연결장치는 편측유리단 반대쪽의 7번치까지 연장", "유리단 지대치는 bar type clasp 사용", "유리단 반대쪽엔 embrasure clasp 사용", "금속상 설계가 필요"],
-      answer: 2,
+      answer: 5,
       optionExplanations: {
         1: "Class II는 양측성 구조로 주연결장치를 두는 설계가 기본이다. 합리적인 설명이다.",
         2: "유리단 반대쪽은 가능한 한 후방의 지대치를 선정해 주연결장치를 길게 해주는 것이 안정에 좋다. 7번치까지 연장하는 것은 합리적이다. 원본 정답이 이 보기라 PDF와 맞지 않는다.",
@@ -860,8 +860,8 @@ window.quizDatabase.partial_denture = {
       commonExplanations: ["Class II(편측 유리단): 지점선 회전이 있어 완압형 클래스프(RPI·조합), 유리단 반대쪽 후방 지대치와 긴 주연결장치, 반대쪽 제1소구치 부위 간접유지장치, 유리단측 합성수지 의치상, 1·2차 인상을 쓴다."],
       tip: "유리단측 의치상 = 레진(첨상·개상).",
       source: "국소의치기공학_파트2.pdf p.36-39",
-      flag: "정답불일치",
-      flagNote: "원본 정답 ②. 교재 p.38은 유리단 반대쪽 지대치를 가능한 후방에서 선정해 주연결장치를 길게 하라고 하므로 ②는 합리적이다. 반면 p.39는 유리단측 의치상을 첨상·개상이 가능한 합성수지로 쓴다고 하므로 금속상이 필요하다는 ⑤가 불합리하다. PDF 기준 정답은 ⑤이다."
+      flag: "정답변경",
+      flagNote: "[정답 변경: 원본 2번 → 5번] 원본 정답 ②. 교재 p.38은 유리단 반대쪽 지대치를 가능한 후방에서 선정해 주연결장치를 길게 하라고 하므로 ②는 합리적이다. 반면 p.39는 유리단측 의치상을 첨상·개상이 가능한 합성수지로 쓴다고 하므로 금속상이 필요하다는 ⑤가 불합리하다. PDF 기준 정답은 ⑤이다."
     },
     {
       id: 54,
@@ -1011,7 +1011,7 @@ window.quizDatabase.partial_denture = {
       id: 63,
       question: "상악 유리단부에서 의치상 resin과 metal의 경계선(Finish line)은 상실 구치부 설측면 가상선으로부터 어느 위치에 형성하는가?",
       options: ["0.5mm", "1mm", "2mm", "4mm", "6mm"],
-      answer: 2,
+      answer: 3,
       optionExplanations: {
         1: "0.5mm는 비딩의 깊이·폭이다.",
         2: "1mm는 교재에 이 위치로 나오지 않는다. 구개후연폐쇄 깊이(1.0mm)와 혼동하기 쉽다. 원본 정답이 이 보기라 PDF와 맞지 않는다.",
@@ -1022,8 +1022,8 @@ window.quizDatabase.partial_denture = {
       commonExplanations: ["상악 연마면(외면) 경계선은 인공치아 가상설면에서 2mm 구개쪽에 위치한다. 너무 치조정쪽이면 인공치아 배열이 어렵고, 너무 내측이면 구개 해부형태가 레진 두께로 변한다."],
       tip: "상악 경계선 = 가상설면 + 구개쪽 2mm.",
       source: "국소의치기공학_파트1.pdf p.31, p.35, p.51",
-      flag: "정답불일치",
-      flagNote: "원본 정답 ②(1mm). 교재 p.31·35·51: 상악 연마면(외면) 경계선은 인공치아의 가상설면에서 2mm 구개쪽으로 악궁 외형선을 따라 형성한다. PDF 기준 정답은 ③(2mm)이다."
+      flag: "정답변경",
+      flagNote: "[정답 변경: 원본 2번 → 3번] 원본 정답 ②(1mm). 교재 p.31·35·51: 상악 연마면(외면) 경계선은 인공치아의 가상설면에서 2mm 구개쪽으로 악궁 외형선을 따라 형성한다. PDF 기준 정답은 ③(2mm)이다."
     },
     {
       id: 64,

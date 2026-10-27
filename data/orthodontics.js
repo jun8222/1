@@ -543,7 +543,7 @@ window.quizDatabase.orthodontics = {
                           "라",
                           "가, 나, 다, 라"
                       ],
-          "answer":  1,
+          "answer":  2,
           "optionExplanations":  {
                                      "1":  "원본 정답은 1이지만, PDF에서 나(0.6~0.7mm 굵은 wire)는 self supporting spring의 설명이다. protected spring은 0.5mm 이하의 가는 wire이므로 PDF 기준 정답은 가, 다(보기 2)이다.",
                                      "2":  "PDF 기준으로 이 보기가 맞다. protected(guided) spring은 0.5mm 이하의 가는 wire이고 스프링 자체가 유연하며 가이드 와이어가 필요하다.",
@@ -556,8 +556,8 @@ window.quizDatabase.orthodontics = {
                                  ],
           "tip":  "굵다=스스로 지탱, 가늘다=가이드로 보호.",
           "source":  "치과교정기공학_파트2.pdf p.16",
-          "flag":  "정답불일치",
-          "flagNote":  "원본 정답 1(가,나,다)과 PDF가 가리키는 정답 2(가,다)가 다르다. 나(0.6~0.7mm)는 self supporting spring의 설명이다. 파트2 p.16."
+          "flag":  "정답변경",
+          "flagNote":  "[정답 변경: 원본 1번 → 2번] 원본 정답 1(가,나,다)과 PDF가 가리키는 정답 2(가,다)가 다르다. 나(0.6~0.7mm)는 self supporting spring의 설명이다. 파트2 p.16."
       },
       {
           "id":  23,
