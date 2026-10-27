@@ -33,6 +33,11 @@ const subjectMeta = [
   { key: 'orthodontics_past', name: '교정기공학 국시기출 (19~25년)', period: 2 }
 ];
 
+// 과목 목록 맨 위에 따로 보이는 모음 (오늘의 문제·설정에는 포함하지 않음)
+const extraSubjects = [
+  { key: 'review', name: '⚠ 정답 확인 필요 모음', period: 0 }
+];
+
 const WHY_LABEL = { review: '복습', new: '새 문제', refresh: '재확인' };
 
 // ---------------------------------------------------------------- 상태
@@ -112,7 +117,7 @@ function cloneQuestion(q, s, why) {
 }
 
 function subjectName(key) {
-  const m = subjectMeta.find(function (x) { return x.key === key; });
+  const m = subjectMeta.concat(extraSubjects).find(function (x) { return x.key === key; });
   return m ? m.name : key;
 }
 
@@ -974,7 +979,7 @@ function renderSubjectList() {
   });
   const built = [];
 
-  subjectMeta.forEach(function (meta) {
+  extraSubjects.concat(subjectMeta).forEach(function (meta) {
     if (periodVal !== 'all' && meta.period !== parseInt(periodVal, 10)) return;
     if (searchVal && !meta.name.toLowerCase().includes(searchVal)) return;
 
