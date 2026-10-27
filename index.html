@@ -497,6 +497,26 @@
       gap: 6px;
       flex-shrink: 0;
     }
+    /* [보기] 박스: ㄱ·ㄴ 2칸, 하나라도 길면 전체 1칸 */
+    .ctx-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 16px; white-space: normal; }
+    .ctx-grid.one { grid-template-columns: minmax(0, 1fr); }
+    .ctx-grid.nowrap .ctx-item { white-space: nowrap; overflow: hidden; }
+    .ctx-item { word-break: keep-all; }
+    .ctx-head { grid-column: 1 / -1; }
+    .mobile-controls-sticky { transition: transform .25s ease; }
+    @media (max-width: 768px) {
+      .wrong-item-header { flex-direction: column-reverse; align-items: stretch; gap: 8px; }
+      .wrong-item-header > div:last-child { flex-wrap: wrap; }
+      .wrong-question { flex: none; }
+      #notes-tab { padding-bottom: 130px !important; }
+      .mobile-controls-sticky { padding: 8px 12px !important; gap: 6px !important; }
+      .mobile-controls-sticky.hide { transform: translateY(110%); }
+      .mobile-controls-sticky .select-dropdown { padding: 7px 8px; font-size: 0.82rem; min-width: 0; }
+      #wrong-filter { flex: 1 1 38%; }
+      #wrong-sort { flex: 1 1 26%; }
+      #wrong-count-sel { flex: 0 0 20%; }
+      .mobile-controls-sticky .btn-result { flex: 1 1 45%; padding: 8px 10px !important; }
+    }
     /* ---- 프로토타입 위에 얹는 추가 요소 ---- */
     body { display: block; }
     .user-menu-wrap { position: relative; }
