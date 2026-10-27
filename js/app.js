@@ -255,6 +255,7 @@ function toggleTheme() {
 let statsCache = {};
 // 오답노트/복습완료에서 지운 문항 { 'subject:id': 지운시각(ms) } — 이후에 다시 풀면 다시 나타남
 let noteClears = {};
+let recentCache = {};   // 과목별 최근 30회 { n, rights }
 function noteClearKey() { return 'noteClears:' + (currentUser && currentUser.id); }
 function loadLocalClears() {
   try { noteClears = JSON.parse(localStorage.getItem(noteClearKey()) || '{}') || {}; } catch (e) { noteClears = {}; }
@@ -281,8 +282,13 @@ async function refreshStats() {
   if (!currentUser || currentUser.status !== 'approved') return;
   try {
     await Promise.race([Cloud.flush(), sleep(3000)]);
-    statsCache = await Cloud.loadQuestionStats();
-    const remote = await Cloud.loadNoteClears().catch(function () { return null; });
+    const got = await Promise.all([
+      Cloud.loadQuestionStats(),
+      Cloud.loadRecentBySubject(30).catch(function () { return recentCache; }),
+      Cloud.loadNoteClears().catch(function () { return null; })
+    ]);
+    statsCache = got[0]; recentCache = got[1];
+    const remote = got[2];
     if (remote) Object.keys(remote).forEach(function (k) { noteClears[k] = Math.max(noteClears[k] || 0, remote[k]); });
   } catch (e) { return; }
   const wc = noteEntries().wrong.length, cnt = $('wrong-count');
@@ -297,7 +303,8 @@ function subjectProgress(key, total) {
     const st = statsCache[k]; solved++; tries += st.tries; rights += st.rights;
   });
   const acc = tries ? Math.round(rights / tries * 100) : null;
-  return { solved: solved, pct: total ? Math.round(solved / total * 100) : 0, acc: acc, weak: tries >= 10 && acc !== null && acc < 70 };
+  const rc = recentCache[key];
+  return { solved: solved, pct: total ? Math.round(solved / total * 100) : 0, acc: acc, weak: !!(rc && rc.n >= 20 && rc.rights / rc.n < 0.7) };
 }
 
 // ---------------------------------------------------------------- 탭 · 오답노트 · 복습완료
