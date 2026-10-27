@@ -70,6 +70,28 @@
     .flag-chip.mismatch { background: rgba(245,158,11,0.18); color: #f59e0b; }
     .flag-chip.nosrc { background: rgba(148,163,184,0.2); color: var(--text-sub); }
 
+
+    /* 탭 / 오답노트 / 복습완료 */
+    .tab-bar { display: flex; gap: 4px; border-bottom: 2px solid var(--border-color); margin-bottom: 14px; }
+    .tab-btn { background: none; border: none; color: var(--text-sub); font-weight: 700; font-size: 0.92rem; padding: 10px 14px; cursor: pointer;
+      border-bottom: 3px solid transparent; margin-bottom: -2px; }
+    .tab-btn.active { color: var(--accent-blue); border-bottom-color: var(--accent-blue); }
+    .tab-count { background: #ef4444; color: #fff; border-radius: 9px; font-size: 0.7rem; padding: 1px 6px; margin-left: 4px; }
+    .note-toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 12px; }
+    .note-item { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 12px 14px; margin-bottom: 8px; cursor: pointer; }
+    .note-item.resolved { opacity: 0.75; }
+    .note-meta { font-size: 0.72rem; color: var(--text-sub); margin-bottom: 4px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+    .note-q { font-size: 0.92rem; line-height: 1.45; }
+    .note-detail { display: none; margin-top: 10px; border-top: 1px dashed var(--border-color); padding-top: 10px; font-size: 0.82rem; }
+    .note-opt { padding: 5px 8px; border-radius: 6px; margin-bottom: 4px; line-height: 1.4; }
+    .note-opt.ans { background: rgba(34,197,94,0.14); }
+    .note-opt small { display: block; color: var(--text-sub); margin-top: 2px; }
+    .note-empty { text-align: center; color: var(--text-sub); padding: 30px 10px; font-size: 0.9rem; }
+    .bd-row { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; margin: 6px 0; text-align: left; }
+    .bd-name { width: 120px; flex: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-sub); }
+    .bd-track { flex: 1; height: 9px; border-radius: 5px; background: rgba(120,130,170,0.22); overflow: hidden; }
+    .bd-val { width: 74px; flex: none; text-align: right; font-weight: 700; }
+
     * {
       box-sizing: border-box;
       margin: 0;
@@ -1336,7 +1358,7 @@
       transform: translateX(-50%);
       background-color: #232654;
       border: 1px solid var(--border-color);
-      color: var(--text-main);
+      color: #f6f7fb;
       padding: 10px 16px;
       border-radius: 10px;
       font-size: 0.85rem;
@@ -1386,6 +1408,12 @@
 
     <!-- [화면 1] 메인 과목 목록 화면 -->
     <div id="subject-view">
+      <div class="tab-bar">
+        <button class="tab-btn active" id="tabbtn-study" onclick="switchTab('study')">📚 학습</button>
+        <button class="tab-btn" id="tabbtn-wrong" onclick="switchTab('wrong')">📝 오답노트<span class="tab-count" id="wrong-count" style="display:none;"></span></button>
+        <button class="tab-btn" id="tabbtn-done" onclick="switchTab('done')">✔ 복습완료</button>
+      </div>
+      <div id="tab-study">
       <!-- 오늘의 문제 -->
       <div class="daily-card" id="daily-card"></div>
 
@@ -1424,6 +1452,32 @@
       <div id="section-period-2">
         <div class="period-section-title"><i class="fa-regular fa-clock"></i> 2교시</div>
         <div class="subject-list" id="subject-list-period-2"></div>
+      </div>
+      </div>
+
+      <div id="tab-wrong" style="display:none;">
+        <div class="note-toolbar">
+          <select class="select-dropdown" id="wrong-filter" onchange="renderNotes()"></select>
+          <select class="select-dropdown" id="wrong-sort" onchange="renderNotes()">
+            <option value="recent">최근 틀린 순</option>
+            <option value="most">많이 틀린 순</option>
+            <option value="subject">과목 순</option>
+          </select>
+          <select class="select-dropdown" id="wrong-count-sel">
+            <option value="10">10문제</option><option value="20">20문제</option><option value="0">전체</option>
+          </select>
+          <button class="btn-action-sm btn-retry-wrong" onclick="startWrongFromNote()">틀린 문제 풀기</button>
+          <button class="btn-action-sm" onclick="copyWrongForAnalysis()">📋 분석용 복사</button>
+        </div>
+        <div id="wrong-note-content"></div>
+      </div>
+
+      <div id="tab-done" style="display:none;">
+        <div class="note-toolbar">
+          <select class="select-dropdown" id="done-filter" onchange="renderNotes()"></select>
+        </div>
+        <div style="font-size:0.78rem;color:var(--text-sub);margin-bottom:10px;">한 번 이상 틀렸다가 가장 최근에 맞힌 문제예요.</div>
+        <div id="done-note-content"></div>
       </div>
     </div>
 
@@ -1476,6 +1530,7 @@
         <div class="result-summary-icon"><i class="fa-solid fa-circle-check"></i></div>
         <div class="result-summary-title">학습을 완료했습니다!</div>
         <div class="result-summary-stats" id="result-summary-stats-text"></div>
+        <div id="result-breakdown" style="margin:14px 0 6px;"></div>
         <div class="result-btn-group">
           <button class="continue-btn" id="result-continue-daily-btn" style="display:none;" onclick="continueDailyFromResult()">오늘의 문제 이어서 풀기</button>
           <button class="continue-btn" onclick="goHome()">홈으로</button>
@@ -1503,6 +1558,20 @@
     <div class="nav-btn-group">
       <button class="prev-nav-btn" id="prev-btn" onclick="prevQuestion()"><i class="fa-solid fa-chevron-left"></i> 이전</button>
       <button class="continue-btn" id="continue-btn" onclick="nextQuestion()">계속 <i class="fa-solid fa-chevron-right"></i></button>
+    </div>
+  </div>
+
+
+  <!-- 이어서 풀기 모달 -->
+  <div class="modal-overlay" id="resume-modal">
+    <div class="modal-box" style="max-width:380px; text-align:center;">
+      <div class="modal-title" id="resume-title" style="margin-bottom:6px;"></div>
+      <div id="resume-info" style="font-size:0.88rem; color:var(--text-sub); margin-bottom:18px;"></div>
+      <div style="display:flex; flex-direction:column; gap:8px;">
+        <button class="continue-btn" id="resume-continue-btn">이어서 풀기</button>
+        <button class="btn-action-sm" id="resume-restart-btn" style="padding:10px;">처음부터 풀기</button>
+        <button class="btn-action-sm" onclick="closeModal('resume-modal')" style="padding:10px;">취소</button>
+      </div>
     </div>
   </div>
 

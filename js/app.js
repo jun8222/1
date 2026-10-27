@@ -207,6 +207,8 @@ async function refreshStats() {
     await Promise.race([Cloud.flush(), sleep(3000)]);
     statsCache = await Cloud.loadQuestionStats();
   } catch (e) { return; }
+  const wc = noteEntries().wrong.length, cnt = $('wrong-count');
+  cnt.textContent = wc; cnt.style.display = wc ? 'inline-block' : 'none';
   if ($('subject-view').style.display === 'block') renderSubjectList();
 }
 function subjectProgress(key, total) {
@@ -218,6 +220,151 @@ function subjectProgress(key, total) {
   });
   const acc = tries ? Math.round(rights / tries * 100) : null;
   return { solved: solved, pct: total ? Math.round(solved / total * 100) : 0, acc: acc, weak: tries >= 10 && acc !== null && acc < 70 };
+}
+
+// ---------------------------------------------------------------- 탭 · 오답노트 · 복습완료
+let currentTab = 'study';
+function switchTab(name) {
+  currentTab = name;
+  ['study', 'wrong', 'done'].forEach(function (t) {
+    $('tab-' + t).style.display = t === name ? 'block' : 'none';
+    $('tabbtn-' + t).classList.toggle('active', t === name);
+  });
+  if (name !== 'study') { renderNotes(); refreshStats().then(function () { if (currentTab !== 'study') renderNotes(); }); }
+}
+
+function noteEntries() {
+  const wrong = [], done = [];
+  Object.keys(statsCache).forEach(function (k) {
+    const i = k.indexOf(':'); if (i < 0) return;
+    const s = k.slice(0, i), id = parseInt(k.slice(i + 1), 10);
+    const q = getQuestion(s, id); if (!q) return;
+    const st = statsCache[k];
+    const e = { s: s, id: id, q: q, st: st, miss: st.tries - st.rights };
+    if (!st.lastCorrect) wrong.push(e);
+    else if (st.rights < st.tries) done.push(e);
+  });
+  return { wrong: wrong, done: done };
+}
+
+function fillSubjectFilter(selId, entries) {
+  const sel = $(selId); const prev = sel.value;
+  const keys = [];
+  entries.forEach(function (e) { if (keys.indexOf(e.s) < 0) keys.push(e.s); });
+  keys.sort(function (a, b) { return subjectMeta.findIndex(function (m) { return m.key === a; }) - subjectMeta.findIndex(function (m) { return m.key === b; }); });
+  sel.innerHTML = '<option value="all">전체 과목</option>' + keys.map(function (k) { return '<option value="' + k + '">' + esc(subjectName(k)) + '</option>'; }).join('');
+  sel.value = keys.indexOf(prev) >= 0 ? prev : 'all';
+}
+
+function sortNotes(list, mode) {
+  const order = function (k) { return subjectMeta.findIndex(function (m) { return m.key === k; }); };
+  list.sort(function (a, b) {
+    if (mode === 'most') return (b.miss - a.miss) || (b.st.lastAt - a.st.lastAt);
+    if (mode === 'subject') return (order(a.s) - order(b.s)) || (a.id - b.id);
+    return b.st.lastAt - a.st.lastAt;
+  });
+  return list;
+}
+
+function noteItemHtml(e, resolved) {
+  const q = e.q;
+  const opts = q.options.map(function (o, i) {
+    const n = i + 1, ex = q.optionExplanations && q.optionExplanations[n];
+    return '<div class="note-opt ' + (n === q.answer ? 'ans' : '') + '">' + n + '. ' + esc(o) + (n === q.answer ? ' ✓' : '') + (ex ? '<small>↳ ' + esc(ex) + '</small>' : '') + '</div>';
+  }).join('');
+  const common = (q.commonExplanations || []).length ? '<div class="wrong-item-expl"><strong>[핵심]</strong> ' + q.commonExplanations.map(esc).join('<br>') + '</div>' : '';
+  const tip = q.tip ? '<div class="tip-box" style="display:block;margin-top:8px;"><b>🎯 암기 팁</b>' + esc(q.tip) + '</div>' : '';
+  return '<div class="note-item ' + (resolved ? 'resolved' : '') + '" onclick="this.querySelector(\'.note-detail\').style.display = this.querySelector(\'.note-detail\').style.display === \'block\' ? \'none\' : \'block\'">' +
+    '<div class="note-meta"><span>' + esc(subjectName(e.s)) + '</span><span>· ' + e.id + '번</span><span>· ' + e.st.tries + '회 중 ' + e.miss + '회 오답</span>' + flagChip(q) + '</div>' +
+    '<div class="note-q">' + esc(q.question) + '</div>' +
+    '<div class="note-detail">' + (q.contextBox ? '<div class="context-box">' + esc(q.contextBox) + '</div>' : '') + opts + common + tip + '</div></div>';
+}
+
+function renderNotes() {
+  if (!currentUser) return;
+  const all = noteEntries();
+  fillSubjectFilter('wrong-filter', all.wrong);
+  fillSubjectFilter('done-filter', all.done);
+
+  const cnt = $('wrong-count');
+  cnt.textContent = all.wrong.length; cnt.style.display = all.wrong.length ? 'inline-block' : 'none';
+
+  const wf = $('wrong-filter').value, df = $('done-filter').value;
+  const wl = sortNotes(all.wrong.filter(function (e) { return wf === 'all' || e.s === wf; }), $('wrong-sort').value);
+  const dl = sortNotes(all.done.filter(function (e) { return df === 'all' || e.s === df; }), 'recent');
+
+  $('wrong-note-content').innerHTML = wl.length
+    ? wl.map(function (e) { return noteItemHtml(e, false); }).join('')
+    : '<div class="note-empty">' + (Object.keys(statsCache).length ? '🎉 지금 틀린 채로 남은 문제가 없어요.' : '아직 푼 기록이 없어요.') + '</div>';
+  $('done-note-content').innerHTML = dl.length
+    ? dl.map(function (e) { return noteItemHtml(e, true); }).join('')
+    : '<div class="note-empty">틀렸다가 다시 맞힌 문제가 여기에 모여요.</div>';
+}
+
+function currentWrongList() {
+  const f = $('wrong-filter').value;
+  return sortNotes(noteEntries().wrong.filter(function (e) { return f === 'all' || e.s === f; }), $('wrong-sort').value);
+}
+
+function startWrongFromNote() {
+  let list = currentWrongList();
+  if (!list.length) { toast('풀 오답 문제가 없어요.'); return; }
+  const n = parseInt($('wrong-count-sel').value, 10);
+  if (n > 0) list = list.slice(0, n);
+  startQuiz('wrong', list.map(function (e) { return cloneQuestion(e.q, e.s); }), 'retry');
+}
+
+function copyWrongForAnalysis() {
+  const list = currentWrongList();
+  if (!list.length) { toast('복사할 오답이 없어요.'); return; }
+  const C = '①②③④⑤';
+  const text = '[내 오답노트 ' + list.length + '문제 — 약한 개념을 분석해 주세요]\n\n' + list.map(function (e, i) {
+    const q = e.q;
+    return (i + 1) + '. [' + subjectName(e.s) + ' ' + e.id + '번] ' + q.question + '\n' +
+      (q.contextBox ? '<보기> ' + q.contextBox.replace(/\n/g, ' / ') + '\n' : '') +
+      q.options.map(function (o, k) { return C[k] + ' ' + o; }).join('\n') + '\n정답: ' + q.answer + '번 (' + e.st.tries + '회 중 ' + e.miss + '회 오답)';
+  }).join('\n\n');
+  const done = function () { toast('복사했어요. Claude 등에 붙여넣어 분석하세요.'); };
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, function () { fallbackCopy(text); done(); });
+  else { fallbackCopy(text); done(); }
+}
+function fallbackCopy(text) {
+  const ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); } catch (e) { /* 무시 */ } document.body.removeChild(ta);
+}
+
+// ---------------------------------------------------------------- 이어서 풀기
+function onSubjectStart(key) {
+  const sub = (window.quizDatabase || {})[key];
+  if (!sub || !sub.questions) { toast('문항 데이터를 불러올 수 없습니다.'); return; }
+  const total = sub.questions.length;
+  const remaining = sub.questions.filter(function (q) { return !statsCache[key + ':' + q.id]; });
+  if (remaining.length === 0 || remaining.length === total) { startQuiz(key); return; }
+  $('resume-title').textContent = subjectName(key);
+  $('resume-info').textContent = '전체 ' + total + '문제 중 ' + (total - remaining.length) + '문제를 풀었어요. (남은 ' + remaining.length + '문제)';
+  $('resume-continue-btn').textContent = '이어서 풀기 (남은 ' + remaining.length + '문제)';
+  $('resume-continue-btn').onclick = function () { closeModal('resume-modal'); startQuiz(key, remaining.map(function (q) { return cloneQuestion(q, key); }), 'free'); };
+  $('resume-restart-btn').textContent = '처음부터 풀기 (전체 ' + total + '문제)';
+  $('resume-restart-btn').onclick = function () { closeModal('resume-modal'); startQuiz(key); };
+  $('resume-modal').style.display = 'flex';
+}
+
+// ---------------------------------------------------------------- 결과: 과목별 정답률 막대
+function renderBreakdown() {
+  const map = {}, order = [];
+  quizQuestions.forEach(function (q, idx) {
+    const s = q._s || currentSubjectKey;
+    if (!map[s]) { map[s] = { n: 0, ok: 0 }; order.push(s); }
+    map[s].n++;
+    if (userAnswersRecord[idx] !== null && userAnswersRecord[idx] === q.answer) map[s].ok++;
+  });
+  $('result-breakdown').innerHTML = order.map(function (s) {
+    const m = map[s], pct = Math.round(m.ok / m.n * 100);
+    const cls = pct >= 80 ? 'good' : pct >= 70 ? 'mid' : 'bad';
+    return '<div class="bd-row"><span class="bd-name">' + esc(subjectName(s)) + '</span>' +
+      '<div class="bd-track"><div class="sc-fill ' + cls + '" style="width:' + pct + '%"></div></div>' +
+      '<span class="bd-val">' + m.ok + '/' + m.n + ' · ' + pct + '%</span></div>';
+  }).join('');
 }
 
 async function boot() {
@@ -365,7 +512,7 @@ function goHome() {
   renderDailyCard();
   refreshSessions();
   refreshDaily();
-  refreshStats();
+  refreshStats().then(function () { if (currentTab !== 'study') renderNotes(); });
 }
 
 async function refreshSessions() {
@@ -848,7 +995,7 @@ function renderSubjectList() {
         '</div>' +
       '</div>' +
       '<div class="subject-card-right">' + wrongBadge +
-        '<button class="btn-start-badge" onclick="event.stopPropagation(); startQuiz(\'' + meta.key + '\')" title="전체 ' + count + '문제 바로 풀기"><i class="fa-solid fa-play"></i> 학습 시작</button>' +
+        '<button class="btn-start-badge" onclick="event.stopPropagation(); onSubjectStart(\'' + meta.key + '\')" title="전체 ' + count + '문제 바로 풀기"><i class="fa-solid fa-play"></i> 학습 시작</button>' +
         '<button class="card-more-btn" onclick="event.stopPropagation(); toggleSubjectDropdown(\'' + meta.key + '\')" title="회차별 이력 열기"><i class="fa-solid fa-ellipsis"></i></button>' +
       '</div>';
 
@@ -1167,6 +1314,7 @@ function finishQuizSession() {
     }
   }
 
+  renderBreakdown();
   $('result-summary-stats-text').innerHTML =
     '총 ' + quizQuestions.length + '문항 중 <strong style="color:var(--correct-green);">' + correctCount + '문항</strong> 정답<br>' +
     '<span style="color:var(--error-orange); font-weight:600;">오답 ' + currentSessionWrongItems.length + '문항</span>' + extra;
