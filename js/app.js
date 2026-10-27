@@ -235,13 +235,13 @@ function flagChip(q) {
 // ---------------------------------------------------------------- 테마
 function applyTheme(t) {
   document.documentElement.setAttribute('data-theme', t);
-  const cs = document.querySelector('meta[name="color-scheme"]'); if (cs) cs.setAttribute('content', t === 'light' ? 'light' : 'dark');
+  const cs = document.querySelector('meta[name="color-scheme"]'); if (cs) cs.setAttribute('content', t === 'light' ? 'only light' : 'dark');
   const b = $('themeIcon'); if (b) b.textContent = t === 'light' ? '🌙' : '☀️';
 }
 function initTheme() {
   let t = 'dark';
   try {
-    t = localStorage.getItem('theme') || (window.matchMedia && matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+    t = localStorage.getItem('theme') || (window.matchMedia && matchMedia('(prefers-color-scheme: light)').matches ? 'only light' : 'dark');
   } catch (e) { /* 저장소 사용 불가 */ }
   applyTheme(t);
 }
