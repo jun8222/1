@@ -216,6 +216,8 @@
     }
 
     
+    #auth-view { min-height: 70vh; align-items: center; justify-content: center; text-align: center; }
+    .auth-avatar { width: 72px; height: 72px; font-size: 2rem; margin-bottom: 18px; }
     .auth-card {
       width: 100%;
       max-width: 420px;
@@ -247,11 +249,11 @@
 
     .google-btn {
       width: 100%;
-      background: #fff;
-      color: #1f1f1f;
-      border: none;
-      border-radius: 10px;
-      padding: 13px 16px;
+      background: var(--card-bg);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 18px 16px;
       font-size: 0.95rem;
       font-weight: 700;
       cursor: pointer;
@@ -261,7 +263,7 @@
       gap: 10px;
     }
 
-    .google-btn:hover { background: #e9ecf5; }
+    .google-btn:hover { background: var(--card-hover); border-color: var(--accent-blue); }
 
     .auth-hint {
       color: var(--text-sub);
@@ -555,8 +557,8 @@
     <!-- [화면 0] 로그인 / 승인 대기 화면 -->
     <div id="auth-view">
       <div class="auth-card">
-        <div class="auth-icon"><i class="fa-solid fa-tooth"></i></div>
-        <div class="user-select-title">치과기공사 국가시험 퀴즈</div>
+        <div class="user-avatar auth-avatar">🦷</div>
+        <div class="user-select-title">학습을 시작해보세요</div>
         <div class="user-select-sub" id="auth-sub"></div>
         <div id="auth-body"><div class="auth-hint"><i class="fa-solid fa-rotate fa-spin"></i> 불러오는 중...</div></div>
       </div>
