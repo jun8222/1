@@ -994,7 +994,9 @@ function restoreQuestionState(userPick) {
     if (explElem && explElem.innerText.trim() !== '') explElem.style.display = 'block';
   });
 
-  const commonExplText = (q.commonExplanations && q.commonExplanations.length > 0) ? q.commonExplanations.join('<br>') : '';
+  let commonExplText = (q.commonExplanations && q.commonExplanations.length > 0) ? q.commonExplanations.join('<br>') : '';
+  if (q.tip) commonExplText += (commonExplText ? '<br>' : '') + '💡 ' + esc(q.tip);
+  if (q.flag === '정답불일치') commonExplText += '<br><span style="opacity:.8">※ 교재 기준과 기출 정답이 다를 수 있어요' + (q.flagNote ? ': ' + esc(q.flagNote) : '') + '</span>';
   if (commonExplText) {
     $('common-explanation-text').innerHTML = commonExplText;
     $('common-explanation-box').style.display = 'block';
