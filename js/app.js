@@ -162,6 +162,51 @@ async function loadOverlays() {
 }
 
 
+
+// ---------------------------------------------------------------- [보기] 박스: ㄱ·ㄴ… 2칸 / 길면 1칸
+function ctxItems(text) {
+  const items = [];
+  String(text || '').split('\n').forEach(function (line) {
+    if (!line.trim()) return;
+    const re = /(^|\s)([ㄱ-ㅎ가-하]\.|\[[가-하]\])(?=\s)/g;
+    const pos = []; let m;
+    while ((m = re.exec(line)) !== null) pos.push(m.index + m[1].length);
+    if (!pos.length) { items.push({ t: line.trim(), head: true }); return; }
+    if (pos[0] > 0 && line.slice(0, pos[0]).trim()) items.push({ t: line.slice(0, pos[0]).trim(), head: true });
+    pos.forEach(function (p, i) { items.push({ t: line.slice(p, i + 1 < pos.length ? pos[i + 1] : line.length).trim(), head: false }); });
+  });
+  return items;
+}
+function ctxInner(text) {
+  const items = ctxItems(text);
+  if (items.filter(function (x) { return !x.head; }).length < 2) return esc(text);
+  return '<div class="ctx-grid">' + items.map(function (x) {
+    return '<div class="ctx-item' + (x.head ? ' ctx-head' : '') + '">' + esc(x.t) + '</div>';
+  }).join('') + '</div>';
+}
+function fitContextBoxes() {
+  document.querySelectorAll('.ctx-grid').forEach(function (g) {
+    g.classList.remove('one'); g.classList.add('nowrap');
+    let over = false;
+    g.querySelectorAll('.ctx-item:not(.ctx-head)').forEach(function (it) { if (it.scrollWidth > it.clientWidth + 1) over = true; });
+    g.classList.remove('nowrap');
+    if (over) g.classList.add('one');
+  });
+}
+window.addEventListener('resize', fitContextBoxes);
+
+// ---------------------------------------------------------------- 하단 조작바: 아래로 스크롤하면 숨김
+(function () {
+  let lastY = 0;
+  window.addEventListener('scroll', function () {
+    const y = window.pageYOffset || 0, bar = document.querySelector('.mobile-controls-sticky');
+    if (!bar) return;
+    if (y > lastY + 6 && y > 80) bar.classList.add('hide');
+    else if (y < lastY - 6) bar.classList.remove('hide');
+    lastY = y;
+  }, { passive: true });
+})();
+
 // ---------------------------------------------------------------- 팁 · 근거 · 플래그
 function showTipAndSource(q) {
   if (q.tip) { $('tipText').textContent = q.tip; $('tipBox').classList.add('show'); }
@@ -298,7 +343,7 @@ function noteItemHtml(e, resolved) {
         flagChip(q) +
       '</div>' +
     '</div>' +
-    (q.contextBox ? '<div class="context-box" style="margin-top:10px;">' + esc(q.contextBox) + '</div>' : '') +
+    (q.contextBox ? '<div class="context-box" style="margin-top:10px;">' + ctxInner(q.contextBox) + '</div>' : '') +
     '<div class="wrong-answer-line">✓ 정답 ' + q.answer + '. ' + ansText + '</div>' +
     (expl ? '<div class="wrong-explanation" style="margin-top: 12px;"><div class="wrong-explanation-label">💡 해설</div><div class="wrong-explanation-text">' + expl + '</div></div>' : '') +
     (q.tip ? '<div class="wrong-tip" style="margin-top: 12px;"><div class="wrong-tip-label">🎯 팁</div><div>' + esc(q.tip) + '</div></div>' : '') +
@@ -323,6 +368,7 @@ function renderNotes() {
   $('completedContent').innerHTML = dl.length
     ? dl.map(function (e) { return noteItemHtml(e, true); }).join('')
     : '<div class="empty-state"><div class="empty-icon">📚</div><p>틀렸다가 다시 맞힌 문제가 여기에 모여요.</p></div>';
+  fitContextBoxes();
 }
 
 function currentWrongList() {
@@ -1124,8 +1170,9 @@ function renderCurrentQuestion() {
   $('quizSub').textContent = quizHeaderText(q);
   $('questionText').textContent = q.question;
   const ctx = $('quiz-context-box');
-  ctx.textContent = q.contextBox || '';
+  ctx.innerHTML = q.contextBox ? ctxInner(q.contextBox) : '';
   ctx.style.display = q.contextBox ? 'block' : 'none';
+  fitContextBoxes();
 
   const optContainer = $('optionsContainer');
   optContainer.innerHTML = '';
@@ -1395,11 +1442,12 @@ function reviewHistoryExplanation(sessionId) {
     const commonExpl = (q.commonExplanations && q.commonExplanations.length > 0) ? q.commonExplanations.join('<br>') : '';
     itemDiv.innerHTML =
       '<div style="font-weight:700; margin-bottom:6px; font-size:0.92rem; color:#f87171;">[오답 ' + (idx + 1) + '] ' + esc(q.question) + '</div>' +
-      (q.contextBox ? '<div class="context-box" style="margin-bottom:8px;">' + esc(q.contextBox) + '</div>' : '') +
+      (q.contextBox ? '<div class="context-box" style="margin-bottom:8px;">' + ctxInner(q.contextBox) + '</div>' : '') +
       '<div style="margin-bottom:8px;">' + optionsHtml + '</div>' +
       (commonExpl ? '<div style="background:rgba(96,165,250,0.1); border-left:3px solid #60a5fa; padding:6px 10px; font-size:0.78rem; color:#93c5fd;"><strong>[핵심 TIP]</strong> ' + commonExpl + '</div>' : '');
     container.appendChild(itemDiv);
   });
 
   $('explanation-modal').style.display = 'flex';
+  fitContextBoxes();
 }
