@@ -237,6 +237,41 @@ window.Cloud = (function () {
     check(await client.from('note_clears').upsert(rows, { onConflict: 'user_id,subject_key,question_id' }), '노트 지우기');
   }
 
+  // ------------------------------------------------------------ 내 기록 · 랭킹 · 대결
+  /** 내 전체 풀이 이력 [{created_at, subject_key, correct}] (스트릭·레벨·뱃지 계산용) */
+  async function loadAttemptHistory() {
+    var rows = [], from = 0, size = 1000;
+    for (;;) {
+      var res = await client.from('attempts').select('created_at,subject_key,correct')
+        .eq('user_id', uid()).order('id').range(from, from + size - 1);
+      var part = check(res, '풀이 이력 불러오기');
+      rows = rows.concat(part);
+      if (part.length < size) break;
+      from += size;
+    }
+    return rows;
+  }
+  async function getRanking() { return check(await client.rpc('weekly_ranking'), '랭킹 불러오기'); }
+  async function getActivity() { return check(await client.rpc('recent_activity'), '활동 불러오기'); }
+  async function createDuel(items) {
+    var res = await client.from('duels').insert({ creator_id: uid(), items: items }).select().single();
+    return check(res, '대결 만들기');
+  }
+  async function getDuel(id) {
+    var res = await client.from('duels').select('*').eq('id', id).maybeSingle();
+    return check(res, '대결 불러오기');
+  }
+  async function saveDuelResult(id, correct, total) {
+    check(await client.from('duel_results').upsert({ duel_id: id, user_id: uid(), correct: correct, total: total },
+      { onConflict: 'duel_id,user_id', ignoreDuplicates: true }), '대결 결과 저장');
+  }
+  async function myDuelResult(id) {
+    var res = await client.from('duel_results').select('*').eq('duel_id', id).eq('user_id', uid()).maybeSingle();
+    return check(res, '대결 결과 확인');
+  }
+  async function duelBoard(id) { return check(await client.rpc('duel_board', { d: id }), '대결 점수판'); }
+  async function myDuels() { return check(await client.rpc('my_duels'), '대결 목록'); }
+
   /** 오늘 푼 기록 → [{subject_key, question_id, source, correct}] */
   async function loadAttemptsSince(isoStart) {
     var rows = [];
@@ -323,7 +358,7 @@ window.Cloud = (function () {
     signInWithGoogle: signInWithGoogle, signOut: signOut,
     getProfile: getProfile, updateProfile: updateProfile,
     logAttempt: logAttempt, saveSession: saveSession, flush: flush, pendingCount: pendingCount,
-    listSessions: listSessions, loadQuestionStats: loadQuestionStats, loadRecentBySubject: loadRecentBySubject, loadNoteClears: loadNoteClears, saveNoteClears: saveNoteClears, loadAttemptsSince: loadAttemptsSince,
+    listSessions: listSessions, loadQuestionStats: loadQuestionStats, loadAttemptHistory: loadAttemptHistory, getRanking: getRanking, getActivity: getActivity, createDuel: createDuel, getDuel: getDuel, saveDuelResult: saveDuelResult, myDuelResult: myDuelResult, duelBoard: duelBoard, myDuels: myDuels, loadRecentBySubject: loadRecentBySubject, loadNoteClears: loadNoteClears, saveNoteClears: saveNoteClears, loadAttemptsSince: loadAttemptsSince,
     getDailySet: getDailySet, saveDailySet: saveDailySet,
     createReport: createReport, listReports: listReports, setReportStatus: setReportStatus, deleteReport: deleteReport,
     adminListMembers: adminListMembers, adminSetMember: adminSetMember, adminResetMember: adminResetMember,
