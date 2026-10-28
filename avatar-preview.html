@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>캐릭터 미리보기</title>
+<style>
+  :root { --bg:#f4f5f9; --card:#fff; --text:#1b1f2a; --sub:#667085; --line:#e3e6ee; --accent:#4f6bff; --ok:#16a34a; --warn:#d97706; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#0b0f1e; --card:#141a30; --text:#eef1fb; --sub:#9aa4c2; --line:#26304f; } }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font-family:system-ui,-apple-system,"Noto Sans KR",sans-serif; }
+  header { position:sticky; top:0; z-index:5; background:var(--bg); padding:14px 16px 10px; border-bottom:1px solid var(--line); }
+  h1 { margin:0 0 4px; font-size:1.1rem; }
+  .sub { color:var(--sub); font-size:.82rem; }
+  .bar { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+  button { border:1px solid var(--line); background:var(--card); color:var(--text); border-radius:10px; padding:7px 12px; font-size:.85rem; cursor:pointer; }
+  button.on { background:var(--accent); border-color:var(--accent); color:#fff; }
+  main { padding:12px 16px 40px; max-width:760px; margin:0 auto; display:grid; gap:12px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:16px; padding:12px; }
+  .head { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+  .name { font-weight:700; }
+  .tag { font-size:.68rem; padding:2px 8px; border-radius:20px; border:1px solid currentColor; white-space:nowrap; }
+  .tag.free { color:var(--ok); } .tag.credit { color:var(--warn); }
+  .grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
+  .grid img { width:100%; aspect-ratio:1; border-radius:50%; background:var(--bg); border:1px solid var(--line); }
+  .note { margin-top:6px; font-size:.74rem; color:var(--sub); }
+  .cap { text-align:center; font-size:.7rem; color:var(--sub); margin-top:2px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>🎭 캐릭터 모음 미리보기</h1>
+  <div class="sub">마음에 드는 스타일 이름을 알려 주세요. (예: "lorelei랑 big-smile") · <span style="color:var(--ok)">표기 불필요</span> / <span style="color:var(--warn)">출처 표기 필요</span></div>
+  <div class="bar">
+    <button id="more">🔄 다른 얼굴 보기</button>
+    <button data-f="all" class="on">전체</button>
+    <button data-f="free">표기 불필요만</button>
+    <button data-f="credit">표기 필요만</button>
+  </div>
+</header>
+<main id="list"></main>
+<script>
+// [스타일, 라이선스(free=표기 불필요 / credit=CC BY 표기 필요), 한줄 설명]
+var STYLES = [
+  ['thumbs','free','동글동글 귀여운 캐릭터 (지금 Lv.1)'],
+  ['bottts-neutral','free','귀여운 로봇 (지금 Lv.2)'],
+  ['lorelei','free','부드러운 일러스트 얼굴 (지금 Lv.3)'],
+  ['notionists','free','심플한 선화 얼굴 (지금 Lv.4)'],
+  ['open-peeps','free','손그림 사람 (지금 Lv.5)'],
+  ['lorelei-neutral','free','표정만 있는 둥근 얼굴'],
+  ['notionists-neutral','free','선화 표정 얼굴'],
+  ['avataaars','free','만화풍 사람 (자유로운 상업 이용)'],
+  ['avataaars-neutral','free','만화풍 표정 얼굴'],
+  ['bottts','free','네모 로봇'],
+  ['shapes','free','도형 조합'],
+  ['adventurer','credit','모험가 일러스트'],
+  ['adventurer-neutral','credit','모험가 표정 얼굴'],
+  ['big-smile','credit','활짝 웃는 얼굴'],
+  ['big-ears','credit','큰 귀 캐릭터'],
+  ['big-ears-neutral','credit','큰 귀 표정 얼굴'],
+  ['micah','credit','굵은 선 일러스트'],
+  ['personas','credit','심플한 사람 일러스트'],
+  ['toon-head','credit','카툰 얼굴'],
+  ['croodles','credit','낙서 그림체'],
+  ['croodles-neutral','credit','낙서 표정 얼굴'],
+  ['miniavs','credit','미니 아바타'],
+  ['dylan','credit','둥근 얼굴'],
+  ['fun-emoji','credit','이모지 얼굴'],
+  ['pixel-art','credit','도트 캐릭터'],
+  ['pixel-art-neutral','credit','도트 표정 얼굴']
+];
+var round = 0, filter = 'all';
+function seeds(i) { var a = []; for (var k = 0; k < 8; k++) a.push('dental-' + round + '-' + k); return a; }
+function render() {
+  var html = '';
+  STYLES.forEach(function (s) {
+    if (filter !== 'all' && s[1] !== filter) return;
+    html += '<div class="card"><div class="head"><span class="name">' + s[0] + '</span>' +
+      '<span class="tag ' + s[1] + '">' + (s[1] === 'free' ? '표기 불필요' : '출처 표기 필요') + '</span></div>' +
+      '<div class="grid">' + seeds().map(function (sd) {
+        return '<img loading="lazy" alt="" src="https://api.dicebear.com/9.x/' + s[0] + '/svg?seed=' + encodeURIComponent(sd) + '&radius=50&size=96">';
+      }).join('') + '</div><div class="note">' + s[2] + '</div></div>';
+  });
+  document.getElementById('list').innerHTML = html;
+}
+document.getElementById('more').onclick = function () { round++; render(); };
+document.querySelectorAll('[data-f]').forEach(function (b) {
+  b.onclick = function () {
+    filter = b.getAttribute('data-f');
+    document.querySelectorAll('[data-f]').forEach(function (x) { x.classList.toggle('on', x === b); });
+    render();
+  };
+});
+render();
+</script>
+</body>
+</html>
