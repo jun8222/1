@@ -176,6 +176,19 @@
     btn.disabled = false;
   };
 
+  function duelLinkOf(id) { return location.origin + location.pathname + '?duel=' + id; }
+  window.copyDuelLinkFor = function (id) { lastDuelLink = duelLinkOf(id); return copyDuelLink(); };
+
+  window.cancelDuel = async function (id, players) {
+    var msg = '이 대결을 취소할까요?\n링크는 쓸 수 없게 되고 점수판도 사라져요.' + (players > 0 ? '\n(이미 ' + players + '명이 참가했어요)' : '');
+    if (!confirm(msg)) return;
+    try {
+      await Cloud.deleteDuel(id);
+      var nb = $('duel-new'); if (nb && nb.innerHTML.indexOf(id) >= 0) nb.innerHTML = '';
+      toast('대결을 취소했어요.'); loadDuelList();
+    } catch (e) { toast('취소하지 못했어요. 서버 설정(records.sql)을 확인해 주세요.', 4000); }
+  };
+
   window.copyDuelLink = async function () {
     var text = '치과기공사 퀴즈 대결 신청! 같은 10문제로 붙어봐요 ⚔️ ' + lastDuelLink;
     try {
@@ -194,8 +207,10 @@
         var mine = r.my_correct === null || r.my_correct === undefined;
         return '<div class="rec-duel-row"><div><b>' + esc(r.creator_name || '-') + '님의 대결</b> <small>' + ago(r.created_at) + ' · ' + Number(r.players) + '명 참가</small>' +
           '<div>' + (mine ? '아직 풀지 않았어요' : '내 점수 <b>' + r.my_correct + '/' + r.total + '</b>') + '</div></div>' +
-          '<div>' + (mine ? '<button class="btn-action-sm btn-review-expl" onclick="startDuel(\'' + r.id + '\')">풀기</button>'
-                         : '<button class="btn-action-sm btn-review-expl" onclick="showDuelBoard(\'' + r.id + '\', this)">점수판</button>') + '</div></div>' +
+          '<div class="rec-duel-btns">' + (mine ? '<button class="btn-action-sm btn-review-expl" onclick="startDuel(\'' + r.id + '\')">풀기</button>'
+                         : '<button class="btn-action-sm btn-review-expl" onclick="showDuelBoard(\'' + r.id + '\', this)">점수판</button>') +
+            '<button class="btn-action-sm btn-review-expl" onclick="copyDuelLinkFor(\'' + r.id + '\')">🔗 링크</button>' +
+            (r.is_mine ? '<button class="btn-action-sm btn-retry-wrong" onclick="cancelDuel(\'' + r.id + '\',' + Number(r.players) + ')">🗑 취소</button>' : '') + '</div></div>' +
           '<div class="rec-board" id="board-' + r.id + '"></div>';
       }).join('');
     } catch (e) { el.textContent = '서버 설정(records.sql)을 실행하면 사용할 수 있어요.'; }

@@ -58,7 +58,7 @@ create table if not exists public.duel_results (
 alter table public.duels        enable row level security;
 alter table public.duel_results enable row level security;
 revoke all on public.duels, public.duel_results from anon, authenticated;
-grant select, insert on public.duels        to authenticated;
+grant select, insert, delete on public.duels to authenticated;
 grant select, insert on public.duel_results to authenticated;
 
 drop policy if exists duels_select on public.duels;
@@ -66,6 +66,10 @@ create policy duels_select on public.duels for select to authenticated using (pu
 drop policy if exists duels_insert on public.duels;
 create policy duels_insert on public.duels for insert to authenticated
   with check (creator_id = auth.uid() and public.is_approved());
+
+drop policy if exists duels_delete on public.duels;
+create policy duels_delete on public.duels for delete to authenticated
+  using (creator_id = auth.uid());
 
 drop policy if exists duel_results_select on public.duel_results;
 create policy duel_results_select on public.duel_results for select to authenticated using (user_id = auth.uid());
@@ -83,13 +87,15 @@ language sql stable security definer set search_path = public as $$
   order by r.correct desc, r.created_at;
 $$;
 
--- 내가 만들었거나 참가한 대결 목록
+-- 내가 만들었거나 참가한 대결 목록 (is_mine: 내가 만든 대결 → 취소 가능)
+drop function if exists public.my_duels();
 create or replace function public.my_duels()
-returns table (id uuid, created_at timestamptz, creator_name text, total int, my_correct int, players bigint)
+returns table (id uuid, created_at timestamptz, creator_name text, total int, my_correct int, players bigint, is_mine boolean)
 language sql stable security definer set search_path = public as $$
   select d.id, d.created_at, c.display_name, jsonb_array_length(d.items),
          (select r.correct from public.duel_results r where r.duel_id = d.id and r.user_id = auth.uid()),
-         (select count(*) from public.duel_results r where r.duel_id = d.id)
+         (select count(*) from public.duel_results r where r.duel_id = d.id),
+         (d.creator_id = auth.uid())
   from public.duels d join public.profiles c on c.id = d.creator_id
   where public.is_approved()
     and (d.creator_id = auth.uid()
