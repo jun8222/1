@@ -74,7 +74,7 @@ $$;
 revoke all on function public.toggle_cheer(uuid) from public, anon;
 grant execute on function public.toggle_cheer(uuid) to authenticated;
 
--- 3. 최근 24시간 활동 피드 (공개한 회원 + 나), 과목별 묶음
+-- 3. 최근 24시간 활동 피드 (본인 것만), 과목별 묶음
 create or replace function public.recent_activity()
 returns table (display_name text, subject_key text, n bigint, last_at timestamptz, is_me boolean)
 language sql stable security definer set search_path = public as $$
@@ -83,7 +83,7 @@ language sql stable security definer set search_path = public as $$
   join public.attempts a on a.user_id = p.id
   where public.is_approved()
     and p.status = 'approved'
-    and (p.rank_public or p.id = auth.uid())
+    and p.id = auth.uid()
     and a.created_at >= now() - interval '24 hours'
   group by p.id, p.display_name, a.subject_key
   order by max(a.created_at) desc
