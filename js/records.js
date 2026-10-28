@@ -120,19 +120,66 @@
   }
 
   // ---------------------------------------------------------------- 랭킹 · 피드
+  var CHARS = ['🌱', '🔧', '🦷', '⚙️', '🏅', '👑'];
+  function pctText(r) { return r.attempts ? Math.round(r.rights / r.attempts * 100) + '%' : '-'; }
+
+  // 이번 주 어워드 (재미 상): 조건을 못 채우면 주인공 없음
+  function awardsOf(rows) {
+    function best(list, score) { var w = null, ws = -1; list.forEach(function (r) { var v = score(r); if (v > ws) { ws = v; w = r; } }); return w; }
+    var diligent = best(rows.filter(function (r) { return Number(r.active_days) >= 2; }), function (r) { return Number(r.active_days) * 10000 + Number(r.attempts); });
+    var sharp = best(rows.filter(function (r) { return Number(r.attempts) >= 20; }), function (r) { return Number(r.rights) / Number(r.attempts) * 10000 + Number(r.attempts) / 1000; });
+    var owl = best(rows.filter(function (r) { return Number(r.night_n) >= 5; }), function (r) { return Number(r.night_n); });
+    return [
+      { id: 'diligent', icon: '🔥', name: '개근왕', who: diligent, val: diligent ? diligent.active_days + '일 학습' : '', hint: '2일 이상 풀면 도전' },
+      { id: 'sharp', icon: '🎯', name: '정확도왕', who: sharp, val: sharp ? pctText(sharp) : '', hint: '20문제 이상 풀면 도전' },
+      { id: 'owl', icon: '🌙', name: '올빼미', who: owl, val: owl ? '밤 ' + owl.night_n + '문제' : '', hint: '새벽 0~5시 5문제↑' }
+    ];
+  }
+
   async function loadRanking() {
     var el = $('rank-box'); if (!el) return;
     try {
       var rows = await Cloud.getRanking();
       if (!rows.length) { el.textContent = '이번 주 기록이 아직 없어요.'; return; }
       var medal = ['🥇', '🥈', '🥉'];
-      el.innerHTML = '<div class="rec-rank">' + rows.map(function (r, i) {
-        return '<div class="rec-rank-row' + (r.is_me ? ' me' : '') + '"><span class="rk">' + (medal[i] || (i + 1)) + '</span>' +
-          '<span class="nm">' + esc(r.display_name || '-') + (r.is_me ? ' (나)' : '') + '</span>' +
-          '<span class="sc"><b>' + Number(r.attempts) + '</b>문제 <small>정답 ' + Number(r.rights) + '</small></span></div>';
+      var maxN = Math.max.apply(null, rows.map(function (r) { return Number(r.attempts); })) || 1;
+      var awards = awardsOf(rows);
+      var winnerOf = {};
+      awards.forEach(function (a) { if (a.who) (winnerOf[a.who.user_id] = winnerOf[a.who.user_id] || []).push(a); });
+
+      var html = '<div class="rec-awards">' + awards.map(function (a) {
+        return '<div class="rec-award' + (a.who ? ' on' : '') + '"><div class="ai">' + a.icon + '</div><div class="an">' + a.name + '</div>' +
+          (a.who ? '<div class="aw">' + esc(a.who.display_name || '-') + '</div><div class="av">' + esc(a.val) + '</div>' : '<div class="av">' + esc(a.hint) + '</div>') + '</div>';
       }).join('') + '</div>';
+
+      html += '<div class="rec-race">' + rows.map(function (r, i) {
+        var lv = RC.levelInfo(Number(r.total_xp)), f = Math.max(0.02, Number(r.attempts) / maxN);
+        var chips = (winnerOf[r.user_id] || []).map(function (a) { return '<span class="lane-chip" title="' + a.name + '">' + a.icon + '</span>'; }).join('');
+        return '<div class="rec-lane' + (r.is_me ? ' me' : '') + '">' +
+          '<div class="lane-head"><span class="rk">' + (medal[i] || (i + 1)) + '</span>' +
+            '<span class="nm">' + esc(r.display_name || '-') + (r.is_me ? ' <small>(나)</small>' : '') + '</span>' + chips +
+            '<span class="ttl">Lv.' + lv.level + ' ' + esc(lv.name) + '</span></div>' +
+          '<div class="lane-track"><div class="lane-run' + (i === 0 ? ' lead' : '') + '" style="--f:' + f.toFixed(3) + '"><span class="lane-ch">' + CHARS[lv.level - 1] + '</span></div><span class="lane-flag">🏁</span></div>' +
+          '<div class="lane-foot"><span><b>' + Number(r.attempts) + '</b>문제 · 정답 ' + Number(r.rights) + ' (' + pctText(r) + ')</span>' +
+            (r.is_me ? '<span class="cheer-got">👏 ' + Number(r.cheers) + '</span>'
+                     : '<button class="cheer-btn' + (r.cheered_by_me ? ' on' : '') + '" data-n="' + Number(r.cheers) + '" onclick="cheerUser(\'' + r.user_id + '\', this)">👏 ' + Number(r.cheers) + '</button>') +
+          '</div></div>';
+      }).join('') + '</div>';
+      el.innerHTML = html;
     } catch (e) { el.textContent = '서버 설정(records.sql)을 실행하면 사용할 수 있어요.'; }
   }
+
+  window.cheerUser = async function (id, btn) {
+    btn.disabled = true;
+    try {
+      var on = await Cloud.toggleCheer(id);
+      var n = Number(btn.getAttribute('data-n')) + (on ? 1 : -1);
+      btn.setAttribute('data-n', Math.max(0, n)); btn.textContent = '👏 ' + Math.max(0, n);
+      btn.classList.toggle('on', !!on);
+      if (on) toast('응원했어요! 👏');
+    } catch (e) { toast('응원하지 못했어요. 서버 설정(records.sql)을 다시 실행해 주세요.', 4000); }
+    btn.disabled = false;
+  };
 
   async function loadFeed() {
     var el = $('feed-box'); if (!el) return;

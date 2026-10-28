@@ -8,20 +8,66 @@ alter table public.profiles add column if not exists rank_public boolean not nul
 grant update (display_name, daily_goal, daily_subjects, rank_public) on public.profiles to authenticated;
 
 -- 2. 이번 주(월~일, 한국시간) 랭킹: 푼 문제 수 기준. 공개한 회원 + 나
+--    캐릭터(전체 경험치 total_xp)·어워드(active_days, night_n)·응원(cheers) 정보 포함
+create table if not exists public.cheers (
+  week_start date not null,
+  from_user  uuid not null references auth.users(id) on delete cascade,
+  to_user    uuid not null references auth.users(id) on delete cascade,
+  created_at timestamptz not null default now(),
+  primary key (week_start, from_user, to_user)
+);
+alter table public.cheers enable row level security;
+revoke all on public.cheers from anon, authenticated;     -- 직접 접근 불가, 아래 함수로만
+
+drop function if exists public.weekly_ranking();
 create or replace function public.weekly_ranking()
-returns table (user_id uuid, display_name text, attempts bigint, rights bigint, is_me boolean)
+returns table (user_id uuid, display_name text, attempts bigint, rights bigint, total_xp bigint,
+               active_days bigint, night_n bigint, cheers bigint, cheered_by_me boolean, is_me boolean)
 language sql stable security definer set search_path = public as $$
-  select p.id, p.display_name, count(*), count(*) filter (where a.correct), (p.id = auth.uid())
+  select p.id, p.display_name,
+         count(*) filter (where a.created_at >= ws.s),
+         count(*) filter (where a.created_at >= ws.s and a.correct),
+         count(*) + count(*) filter (where a.correct),
+         count(distinct (a.created_at at time zone 'Asia/Seoul')::date) filter (where a.created_at >= ws.s),
+         count(*) filter (where a.created_at >= ws.s and extract(hour from a.created_at at time zone 'Asia/Seoul') < 5),
+         (select count(*) from public.cheers c
+            where c.to_user = p.id and c.week_start = (date_trunc('week', now() at time zone 'Asia/Seoul'))::date),
+         exists (select 1 from public.cheers c
+            where c.to_user = p.id and c.from_user = auth.uid() and c.week_start = (date_trunc('week', now() at time zone 'Asia/Seoul'))::date),
+         (p.id = auth.uid())
   from public.profiles p
   join public.attempts a on a.user_id = p.id
+  cross join (select (date_trunc('week', now() at time zone 'Asia/Seoul') at time zone 'Asia/Seoul') as s) ws
   where public.is_approved()
     and p.status = 'approved'
     and (p.rank_public or p.id = auth.uid())
-    and a.created_at >= (date_trunc('week', now() at time zone 'Asia/Seoul') at time zone 'Asia/Seoul')
-  group by p.id, p.display_name
-  order by count(*) desc, count(*) filter (where a.correct) desc
+  group by p.id, p.display_name, ws.s
+  having count(*) filter (where a.created_at >= ws.s) > 0
+  order by 3 desc, 4 desc
   limit 50;
 $$;
+
+-- 응원 👏 (누르면 켜짐, 다시 누르면 취소). 이번 주 한 사람당 한 번
+create or replace function public.toggle_cheer(target uuid)
+returns boolean
+language plpgsql security definer set search_path = public as $$
+declare wk date := (date_trunc('week', now() at time zone 'Asia/Seoul'))::date;
+begin
+  if not public.is_approved() then raise exception 'forbidden' using errcode = '42501'; end if;
+  if target = auth.uid() then raise exception 'cannot cheer yourself' using errcode = '22023'; end if;
+  if not exists (select 1 from public.profiles where id = target and status = 'approved' and rank_public) then
+    raise exception 'not public' using errcode = '22023';
+  end if;
+  if exists (select 1 from public.cheers where week_start = wk and from_user = auth.uid() and to_user = target) then
+    delete from public.cheers where week_start = wk and from_user = auth.uid() and to_user = target;
+    return false;
+  end if;
+  insert into public.cheers (week_start, from_user, to_user) values (wk, auth.uid(), target);
+  return true;
+end;
+$$;
+revoke all on function public.toggle_cheer(uuid) from public, anon;
+grant execute on function public.toggle_cheer(uuid) to authenticated;
 
 -- 3. 최근 24시간 활동 피드 (공개한 회원 + 나), 과목별 묶음
 create or replace function public.recent_activity()
