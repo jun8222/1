@@ -38,11 +38,12 @@ const flat = [].concat(...cal);
 assert.strictEqual(flat.find(c => c.day === '2026-10-28').n, 6);
 assert.strictEqual(flat.find(c => c.day === '2026-10-28').lv, 1);
 console.log('records tests passed');
-// ---- 캐릭터
-assert.strictEqual(R.avatarList().length, 36);
-assert.strictEqual(R.avatarInfo('L3-2').style, 'lorelei');
-assert.strictEqual(R.avatarInfo('L9-1'), null);
+// ---- 캐릭터 (도트 12종)
+assert.strictEqual(R.avatarList().length, 12);
+assert.strictEqual(R.avatarList().filter(a => a.level === 1).length, 3);
+assert.strictEqual(R.avatarInfo('P12').level, 6);
+assert.strictEqual(R.avatarInfo('P13'), null);
+assert.strictEqual(R.avatarInfo('L3-2'), null);
 assert.strictEqual(R.avatarInfo(null), null);
-assert.ok(/^https:\/\/api\.dicebear\.com\/9\.x\/thumbs\/svg\?seed=dental-thumbs-1-1&/.test(R.avatarUrl('L1-1')));
-assert.ok(R.avatarUrl('L6-1').includes('fde68a'));
+assert.ok(R.avatarUrl('P07').startsWith('./assets/avatars/p07.png'));
 console.log('avatar tests passed');
