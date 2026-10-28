@@ -126,35 +126,21 @@
     return cols;
   }
 
-  // ---- 캐릭터(DiceBear 아바타): 출처 표기가 필요 없는 스타일만 사용 (thumbs·lorelei·notionists·open-peeps: CC0, bottts-neutral: 상업적 이용 가능)
-  var AVATAR_TIERS = [
-    { level: 1, style: 'thumbs', label: '꼬마' },
-    { level: 2, style: 'bottts-neutral', label: '로봇' },
-    { level: 3, style: 'lorelei', label: '친구들' },
-    { level: 4, style: 'notionists', label: '스케치' },
-    { level: 5, style: 'open-peeps', label: '피플' },
-    { level: 6, style: 'lorelei', label: '명장', bg: 'fde68a,fcd34d' }
-  ];
-  var AVATAR_PER_TIER = 6;
-  var BG_DEFAULT = 'b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf';
+  // ---- 캐릭터: CC0 도트 캐릭터 12종 (OpenGameArt "random pixel characters" by frozenen). 레벨이 오르면 열림
+  var AVATAR_LEVELS = [1, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6];   // P01~P12 가 열리는 레벨
 
+  function pad2(n) { return n < 10 ? '0' + n : '' + n; }
   function avatarList() {
-    var out = [];
-    AVATAR_TIERS.forEach(function (t) {
-      for (var i = 1; i <= AVATAR_PER_TIER; i++) out.push({ id: 'L' + t.level + '-' + i, level: t.level, style: t.style, label: t.label });
-    });
-    return out;
+    return AVATAR_LEVELS.map(function (lv, i) { return { id: 'P' + pad2(i + 1), level: lv }; });
   }
   function avatarInfo(id) {
-    var m = /^L([1-6])-([1-6])$/.exec(id || '');
+    var m = /^P(0[1-9]|1[0-2])$/.exec(id || '');
     if (!m) return null;
-    var t = AVATAR_TIERS[+m[1] - 1];
-    return { id: id, level: t.level, style: t.style, seed: 'dental-' + t.style + '-' + m[1] + '-' + m[2], bg: t.bg || BG_DEFAULT };
+    return { id: id, level: AVATAR_LEVELS[+m[1] - 1], file: 'p' + m[1] + '.png' };
   }
-  function avatarUrl(id, size) {
+  function avatarUrl(id) {
     var a = avatarInfo(id);
-    if (!a) return null;
-    return 'https://api.dicebear.com/9.x/' + a.style + '/svg?seed=' + encodeURIComponent(a.seed) + '&radius=50&backgroundColor=' + a.bg + (size ? '&size=' + size : '');
+    return a ? './assets/avatars/' + a.file + '?v=1' : null;
   }
 
   return { avatarList: avatarList, avatarInfo: avatarInfo, avatarUrl: avatarUrl, GROUPS: GROUPS, LEVELS: LEVELS, groupOf: groupOf, dayKey: dayKey, summarize: summarize, levelInfo: levelInfo, badges: badges, radar: radar, calendar: calendar };

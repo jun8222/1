@@ -54,7 +54,7 @@
     html += '<div class="rec-card rec-hero">' +
       '<div class="rec-streak"><div class="rec-flame' + (sum.streak ? '' : ' off') + '">🔥</div><div><div class="rec-big">' + sum.streak + '일</div>' +
         '<div class="rec-sub">' + (sum.todayDone ? '오늘도 풀었어요!' : (sum.streak ? '오늘 풀면 ' + (sum.streak + 1) + '일째' : '오늘 풀면 시작해요')) + ' · 최고 ' + sum.bestStreak + '일</div></div></div>' +
-      '<div class="rec-me"><div class="rec-me-ch">' + (RC.avatarUrl(currentUser && currentUser.avatar, 96) ? '<img src="' + RC.avatarUrl(currentUser.avatar, 96) + '" alt="">' : '<span>' + lv.icon + '</span>') + '</div>' +
+      '<div class="rec-me"><div class="rec-me-ch">' + (RC.avatarUrl(currentUser && currentUser.avatar) ? '<img src="' + RC.avatarUrl(currentUser.avatar) + '" alt="">' : '<span>' + lv.icon + '</span>') + '</div>' +
         '<button class="btn-action-sm btn-review-expl" onclick="openAvatarPicker(' + lv.level + ')">🎭 캐릭터 바꾸기</button></div>' +
       '<div id="avatar-picker"></div>' +
       '<div class="rec-level"><div class="rec-lv-name">' + lv.icon + ' Lv.' + lv.level + ' ' + esc(lv.name) + '</div>' +
@@ -125,7 +125,7 @@
   // ---------------------------------------------------------------- 랭킹 · 피드
   var CHARS = ['🌱', '🔧', '🦷', '⚙️', '🏅', '👑'];
   function charHtml(avatar, level) {
-    var emoji = CHARS[level - 1], url = RC.avatarUrl(avatar, 64);
+    var emoji = CHARS[level - 1], url = RC.avatarUrl(avatar);
     if (!url) return '<span class="lane-ch">' + emoji + '</span>';
     return '<img class="lane-img" src="' + url + '" alt="" loading="lazy" onerror="this.outerHTML=\'<span class=&quot;lane-ch&quot;>' + emoji + '</span>\'">';
   }
@@ -210,9 +210,9 @@
     RC.avatarList().forEach(function (a) {
       var locked = a.level > level;
       html += '<button class="avatar-opt' + (cur === a.id ? ' sel' : '') + (locked ? ' locked' : '') + '"' + (locked ? ' onclick="toast(\'Lv.' + a.level + '에 열려요\')"' : ' onclick="pickAvatar(\'' + a.id + '\')"') + '>' +
-        '<img src="' + RC.avatarUrl(a.id, 80) + '" alt="" loading="lazy">' + (locked ? '<span class="lock">🔒 Lv.' + a.level + '</span>' : '') + '</button>';
+        '<img src="' + RC.avatarUrl(a.id) + '" alt="" loading="lazy">' + (locked ? '<span class="lock">🔒 Lv.' + a.level + '</span>' : '') + '</button>';
     });
-    box.innerHTML = html + '</div></div>';
+    box.innerHTML = html + '</div><div class="rec-sub" style="margin-top:8px; font-size:.68rem">캐릭터 제공: frozenen (CC0)</div></div>';
   };
 
   window.pickAvatar = async function (id) {
