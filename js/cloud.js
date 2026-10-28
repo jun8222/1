@@ -270,6 +270,7 @@ window.Cloud = (function () {
     return check(res, '대결 결과 확인');
   }
   async function duelBoard(id) { return check(await client.rpc('duel_board', { d: id }), '대결 점수판'); }
+  async function deleteDuel(id) { check(await client.from('duels').delete().eq('id', id), '대결 취소'); }
   async function myDuels() { return check(await client.rpc('my_duels'), '대결 목록'); }
 
   /** 오늘 푼 기록 → [{subject_key, question_id, source, correct}] */
@@ -358,7 +359,7 @@ window.Cloud = (function () {
     signInWithGoogle: signInWithGoogle, signOut: signOut,
     getProfile: getProfile, updateProfile: updateProfile,
     logAttempt: logAttempt, saveSession: saveSession, flush: flush, pendingCount: pendingCount,
-    listSessions: listSessions, loadQuestionStats: loadQuestionStats, loadAttemptHistory: loadAttemptHistory, getRanking: getRanking, getActivity: getActivity, createDuel: createDuel, getDuel: getDuel, saveDuelResult: saveDuelResult, myDuelResult: myDuelResult, duelBoard: duelBoard, myDuels: myDuels, loadRecentBySubject: loadRecentBySubject, loadNoteClears: loadNoteClears, saveNoteClears: saveNoteClears, loadAttemptsSince: loadAttemptsSince,
+    listSessions: listSessions, loadQuestionStats: loadQuestionStats, loadAttemptHistory: loadAttemptHistory, getRanking: getRanking, getActivity: getActivity, createDuel: createDuel, getDuel: getDuel, saveDuelResult: saveDuelResult, myDuelResult: myDuelResult, duelBoard: duelBoard, deleteDuel: deleteDuel, myDuels: myDuels, loadRecentBySubject: loadRecentBySubject, loadNoteClears: loadNoteClears, saveNoteClears: saveNoteClears, loadAttemptsSince: loadAttemptsSince,
     getDailySet: getDailySet, saveDailySet: saveDailySet,
     createReport: createReport, listReports: listReports, setReportStatus: setReportStatus, deleteReport: deleteReport,
     adminListMembers: adminListMembers, adminSetMember: adminSetMember, adminResetMember: adminResetMember,
