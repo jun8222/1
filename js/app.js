@@ -1061,6 +1061,7 @@ async function openAdminModal() {
 }
 
 async function adminAction(id, role, status) {
+  if (status === 'blocked' && !confirm('이 회원을 차단할까요?\n차단하면 더 이상 이용할 수 없어요. (언제든 다시 승인할 수 있어요)')) return;
   try { await Cloud.adminSetMember(id, role, status); toast('변경했어요.'); openAdminModal(); }
   catch (e) { toast(e.message, 4000); }
 }
