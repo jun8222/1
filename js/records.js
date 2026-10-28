@@ -192,7 +192,7 @@
   async function loadFeed() {
     var el = $('feed-box'); if (!el) return;
     try {
-      var rows = await Cloud.getActivity();
+      var rows = (await Cloud.getActivity()).filter(function (r) { return r.is_me; });
       if (!rows.length) { el.textContent = '최근 24시간 활동이 없어요.'; return; }
       el.innerHTML = rows.map(function (r) {
         return '<div class="rec-feed">' + (r.is_me ? '<b>나</b>는 ' : '<b>' + esc(r.display_name || '-') + '</b>님은 ') + '' + esc(subjectName(r.subject_key)) + ' <b>' + Number(r.n) + '문제</b> 풀었어요 <small>' + ago(r.last_at) + '</small></div>';
