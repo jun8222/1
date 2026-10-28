@@ -38,12 +38,15 @@ const flat = [].concat(...cal);
 assert.strictEqual(flat.find(c => c.day === '2026-10-28').n, 6);
 assert.strictEqual(flat.find(c => c.day === '2026-10-28').lv, 1);
 console.log('records tests passed');
-// ---- 캐릭터 (도트 12종)
-assert.strictEqual(R.avatarList().length, 12);
-assert.strictEqual(R.avatarList().filter(a => a.level === 1).length, 3);
-assert.strictEqual(R.avatarInfo('P12').level, 6);
-assert.strictEqual(R.avatarInfo('P13'), null);
-assert.strictEqual(R.avatarInfo('L3-2'), null);
+// ---- 캐릭터 (잠금 없음)
+assert.strictEqual(R.avatarList().length, 72);
+assert.strictEqual(R.avatarList('people').length, 48);
+assert.strictEqual(R.avatarList('monster').length, 24);
+assert.strictEqual(R.avatarInfo('M24').kind, 'monster');
+assert.strictEqual(R.avatarInfo('P49'), null);
+assert.strictEqual(R.avatarInfo('M25'), null);
+assert.strictEqual(R.avatarInfo('P00'), null);
 assert.strictEqual(R.avatarInfo(null), null);
 assert.ok(R.avatarUrl('P07').startsWith('./assets/avatars/p07.png'));
+assert.ok(R.avatarUrl('M03').startsWith('./assets/avatars/m03.png'));
 console.log('avatar tests passed');

@@ -126,21 +126,25 @@
     return cols;
   }
 
-  // ---- 캐릭터: CC0 도트 캐릭터 12종 (OpenGameArt "random pixel characters" by frozenen). 레벨이 오르면 열림
-  var AVATAR_LEVELS = [1, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6];   // P01~P12 가 열리는 레벨
-
+  // ---- 캐릭터 (잠금 없이 자유 선택): 도트 사람 48종(P01~P48, CC0 12종 + 색 변형) + 도트 몬스터 24종(M01~M24)
+  var PEOPLE = 48, MONSTERS = 24;
   function pad2(n) { return n < 10 ? '0' + n : '' + n; }
-  function avatarList() {
-    return AVATAR_LEVELS.map(function (lv, i) { return { id: 'P' + pad2(i + 1), level: lv }; });
+  function avatarList(kind) {
+    var out = [], i;
+    if (!kind || kind === 'people') for (i = 1; i <= PEOPLE; i++) out.push({ id: 'P' + pad2(i), kind: 'people' });
+    if (!kind || kind === 'monster') for (i = 1; i <= MONSTERS; i++) out.push({ id: 'M' + pad2(i), kind: 'monster' });
+    return out;
   }
   function avatarInfo(id) {
-    var m = /^P(0[1-9]|1[0-2])$/.exec(id || '');
+    var m = /^([PM])(\d{2})$/.exec(id || '');
     if (!m) return null;
-    return { id: id, level: AVATAR_LEVELS[+m[1] - 1], file: 'p' + m[1] + '.png' };
+    var n = parseInt(m[2], 10), max = m[1] === 'P' ? PEOPLE : MONSTERS;
+    if (n < 1 || n > max) return null;
+    return { id: id, kind: m[1] === 'P' ? 'people' : 'monster', file: m[1].toLowerCase() + m[2] + '.png' };
   }
   function avatarUrl(id) {
     var a = avatarInfo(id);
-    return a ? './assets/avatars/' + a.file + '?v=1' : null;
+    return a ? './assets/avatars/' + a.file + '?v=2' : null;
   }
 
   return { avatarList: avatarList, avatarInfo: avatarInfo, avatarUrl: avatarUrl, GROUPS: GROUPS, LEVELS: LEVELS, groupOf: groupOf, dayKey: dayKey, summarize: summarize, levelInfo: levelInfo, badges: badges, radar: radar, calendar: calendar };

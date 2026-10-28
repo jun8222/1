@@ -55,7 +55,7 @@
       '<div class="rec-streak"><div class="rec-flame' + (sum.streak ? '' : ' off') + '">🔥</div><div><div class="rec-big">' + sum.streak + '일</div>' +
         '<div class="rec-sub">' + (sum.todayDone ? '오늘도 풀었어요!' : (sum.streak ? '오늘 풀면 ' + (sum.streak + 1) + '일째' : '오늘 풀면 시작해요')) + ' · 최고 ' + sum.bestStreak + '일</div></div></div>' +
       '<div class="rec-me"><div class="rec-me-ch">' + (RC.avatarUrl(currentUser && currentUser.avatar) ? '<img src="' + RC.avatarUrl(currentUser.avatar) + '" alt="">' : '<span>' + lv.icon + '</span>') + '</div>' +
-        '<button class="btn-action-sm btn-review-expl" onclick="openAvatarPicker(' + lv.level + ')">🎭 캐릭터 바꾸기</button></div>' +
+        '<button class="btn-action-sm btn-review-expl" onclick="openAvatarPicker()">🎭 캐릭터 바꾸기</button></div>' +
       '<div id="avatar-picker"></div>' +
       '<div class="rec-level"><div class="rec-lv-name">' + lv.icon + ' Lv.' + lv.level + ' ' + esc(lv.name) + '</div>' +
         '<div class="rec-bar"><div style="width:' + lv.pct + '%"></div></div>' +
@@ -201,19 +201,25 @@
   }
 
   // ---------------------------------------------------------------- 캐릭터 고르기
-  window.openAvatarPicker = function (level) {
+  var pickerKind = 'people';
+  window.openAvatarPicker = function () {
     var box = $('avatar-picker'); if (!box) return;
     if (box.innerHTML) { box.innerHTML = ''; return; }
-    var cur = currentUser && currentUser.avatar;
-    var html = '<div class="avatar-panel"><div class="rec-sub" style="margin-bottom:8px">레벨이 오르면 새 캐릭터가 열려요. 고른 캐릭터가 랭킹 레이스에서 달려요.</div><div class="avatar-grid">';
-    html += '<button class="avatar-opt' + (!cur ? ' sel' : '') + '" onclick="pickAvatar(null)"><span class="ae">🦷</span><small>기본</small></button>';
-    RC.avatarList().forEach(function (a) {
-      var locked = a.level > level;
-      html += '<button class="avatar-opt' + (cur === a.id ? ' sel' : '') + (locked ? ' locked' : '') + '"' + (locked ? ' onclick="toast(\'Lv.' + a.level + '에 열려요\')"' : ' onclick="pickAvatar(\'' + a.id + '\')"') + '>' +
-        '<img src="' + RC.avatarUrl(a.id) + '" alt="" loading="lazy">' + (locked ? '<span class="lock">🔒 Lv.' + a.level + '</span>' : '') + '</button>';
-    });
-    box.innerHTML = html + '</div><div class="rec-sub" style="margin-top:8px; font-size:.68rem">캐릭터 제공: frozenen (CC0)</div></div>';
+    drawAvatarPicker();
   };
+  window.setAvatarKind = function (k) { pickerKind = k; drawAvatarPicker(); };
+  function drawAvatarPicker() {
+    var box = $('avatar-picker'); if (!box) return;
+    var cur = currentUser && currentUser.avatar;
+    var html = '<div class="avatar-panel"><div class="rec-sub" style="margin-bottom:8px">마음에 드는 캐릭터를 골라 보세요. 고른 캐릭터가 랭킹 레이스에서 달려요.</div>' +
+      '<div class="avatar-tabs"><button class="' + (pickerKind === 'people' ? 'on' : '') + '" onclick="setAvatarKind(\'people\')">🧑 사람</button>' +
+      '<button class="' + (pickerKind === 'monster' ? 'on' : '') + '" onclick="setAvatarKind(\'monster\')">👾 몬스터</button>' +
+      '<button class="' + (!cur ? 'on' : '') + '" onclick="pickAvatar(null)">🦷 기본으로</button></div><div class="avatar-grid">';
+    RC.avatarList(pickerKind).forEach(function (a) {
+      html += '<button class="avatar-opt' + (cur === a.id ? ' sel' : '') + '" onclick="pickAvatar(\'' + a.id + '\')"><img src="' + RC.avatarUrl(a.id) + '" alt="" loading="lazy"></button>';
+    });
+    box.innerHTML = html + '</div><div class="rec-sub" style="margin-top:8px; font-size:.68rem">사람 캐릭터 원본: frozenen (CC0)</div></div>';
+  }
 
   window.pickAvatar = async function (id) {
     try { currentUser = await Cloud.updateProfile({ avatar: id }); toast(id ? '캐릭터를 바꿨어요!' : '기본 캐릭터로 돌아왔어요.'); renderRecords(); }

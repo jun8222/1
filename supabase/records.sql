@@ -7,8 +7,8 @@
 alter table public.profiles add column if not exists rank_public boolean not null default false;
 alter table public.profiles add column if not exists avatar text;
 alter table public.profiles drop constraint if exists profiles_avatar_check;
-update public.profiles set avatar = null where avatar is not null and avatar !~ '^P(0[1-9]|1[0-2])$';   -- 이전 캐릭터 번호 정리
-alter table public.profiles add constraint profiles_avatar_check check (avatar is null or avatar ~ '^P(0[1-9]|1[0-2])$');
+update public.profiles set avatar = null where avatar is not null and avatar !~ '^(P(0[1-9]|[1-3][0-9]|4[0-8])|M(0[1-9]|1[0-9]|2[0-4]))$';   -- 이전 캐릭터 번호 정리
+alter table public.profiles add constraint profiles_avatar_check check (avatar is null or avatar ~ '^(P(0[1-9]|[1-3][0-9]|4[0-8])|M(0[1-9]|1[0-9]|2[0-4]))$');
 grant update (display_name, daily_goal, daily_subjects, rank_public, avatar) on public.profiles to authenticated;
 
 -- 2. 이번 주(월~일, 한국시간) 랭킹: 푼 문제 수 기준. 공개한 회원 + 나
