@@ -7,7 +7,7 @@
   <title>치과기공사 국가시험 퀴즈</title>
   
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="./css/proto.css?v=202610281256">
+  <link rel="stylesheet" href="./css/proto.css?v=202610281409">
   
   <style>
 
@@ -425,6 +425,43 @@
     .status-pill.bad  { background: rgba(255, 120, 66, 0.15); color: var(--error-orange); }
 
     
+    /* ===== 내 기록 탭 ===== */
+    @media (max-width: 480px) { .tab-bar { gap: 0; justify-content: space-between; } .tab-btn { padding: 12px 4px; font-size: 0.82rem; white-space: nowrap; flex: 1; } }
+    .rec-card { background: var(--card-bg, var(--card-inner)); border: 1px solid var(--border-color); border-radius: 16px; padding: 16px; margin-bottom: 14px; }
+    .rec-title { font-weight: 700; font-size: 1rem; margin-bottom: 10px; }
+    .rec-sub { color: var(--text-sub); font-size: 0.8rem; font-weight: 400; }
+    .rec-hero { display: flex; flex-direction: column; gap: 14px; }
+    .rec-streak { display: flex; align-items: center; gap: 12px; }
+    .rec-flame { font-size: 2.6rem; line-height: 1; filter: drop-shadow(0 0 10px rgba(255,140,0,.55)); }
+    .rec-flame.off { filter: grayscale(1); opacity: .45; }
+    .rec-big { font-size: 1.8rem; font-weight: 800; line-height: 1.1; }
+    .rec-lv-name { font-weight: 700; margin-bottom: 6px; }
+    .rec-bar { height: 10px; border-radius: 6px; background: var(--border-color); overflow: hidden; margin-bottom: 4px; }
+    .rec-bar > div { height: 100%; background: linear-gradient(90deg, #4facfe, #7c6cff); border-radius: 6px; }
+    .rec-cal { display: flex; gap: 3px; justify-content: center; overflow: hidden; }
+    .rec-col { display: flex; flex-direction: column; gap: 3px; }
+    .rec-cell { display: inline-block; width: 15px; height: 15px; border-radius: 3px; background: var(--border-color); }
+    .rec-cell.lv1 { background: #9be9a8; } .rec-cell.lv2 { background: #40c463; } .rec-cell.lv3 { background: #30a14e; } .rec-cell.lv4 { background: #216e39; }
+    .rec-cell.future { opacity: .25; }
+    .rec-legend { display: flex; align-items: center; gap: 4px; justify-content: flex-end; margin-top: 8px; font-size: 0.7rem; color: var(--text-sub); }
+    .rec-legend .rec-cell { width: 11px; height: 11px; }
+    .rec-radar { width: 100%; max-width: 340px; display: block; margin: 0 auto; }
+    .rec-weak { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 0.85rem; margin-top: 8px; }
+    .rec-weak b:first-child { width: 100%; }
+    .rec-badges { display: grid; grid-template-columns: repeat(auto-fill, minmax(88px, 1fr)); gap: 8px; }
+    .rec-badge { text-align: center; padding: 10px 4px; border-radius: 12px; border: 1px solid var(--border-color); opacity: .5; }
+    .rec-badge.got { opacity: 1; border-color: #f59e0b; background: rgba(245,158,11,.1); }
+    .rec-badge .bi { font-size: 1.6rem; } .rec-badge .bn { font-size: 0.74rem; font-weight: 600; margin-top: 2px; } .rec-badge .bp { font-size: 0.66rem; color: var(--text-sub); }
+    .rec-toggle { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; margin-bottom: 10px; }
+    .rec-rank-row { display: flex; align-items: center; gap: 10px; padding: 8px 6px; border-bottom: 1px solid var(--border-color); font-size: 0.9rem; }
+    .rec-rank-row.me { background: rgba(79,172,254,.12); border-radius: 8px; }
+    .rec-rank-row .rk { width: 28px; text-align: center; font-weight: 700; }
+    .rec-rank-row .nm { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .rec-feed { padding: 6px 0; font-size: 0.85rem; color: var(--text-main); border-bottom: 1px solid var(--border-color); }
+    .rec-duel-new { margin-top: 12px; padding: 12px; border-radius: 12px; background: rgba(79,172,254,.1); }
+    .rec-link { width: 100%; margin-top: 8px; padding: 8px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--card-inner); color: var(--text-main); font-size: 0.78rem; box-sizing: border-box; }
+    .rec-duel-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 10px 0; border-bottom: 1px solid var(--border-color); font-size: 0.85rem; color: var(--text-main); }
+    .rec-board { padding-left: 4px; }
     .admin-cards { display: none; }
     @media (max-width: 700px) {
       #admin-modal .modal-box { max-width: 100% !important; width: calc(100% - 16px); padding: 16px 12px; }
@@ -619,6 +656,7 @@
         <button class="tab-btn active" id="tabbtn-study" onclick="switchTab('study')">📚 학습</button>
         <button class="tab-btn" id="tabbtn-notes" onclick="switchTab('notes')">📝 오답노트<span class="tab-count" id="wrong-count" style="display:none;"></span></button>
         <button class="tab-btn" id="tabbtn-completed" onclick="switchTab('completed')">✓ 복습완료</button>
+        <button class="tab-btn" id="tabbtn-records" onclick="switchTab('records')">🏆 기록</button>
       </div>
 
       <div id="study-tab" class="tab-content active">
@@ -654,6 +692,10 @@
 
       <div id="completed-tab" class="tab-content">
         <div id="completedContent"></div>
+      </div>
+
+      <div id="records-tab" class="tab-content">
+        <div id="recordsContent"></div>
       </div>
     </div>
 
@@ -840,35 +882,37 @@
   <script src="./js/config.js"></script>
 
   <!-- 11개 기본 과목 + 11개 기출 과목 스크립트 연결 -->
-  <script src="./data/anatomy.js?v=202610281256"></script>
-  <script src="./data/anatomy_past.js?v=202610281256"></script>
-  <script src="./data/morphology.js?v=202610281256"></script>
-  <script src="./data/morphology_past.js?v=202610281256"></script>
-  <script src="./data/hygiene.js?v=202610281256"></script>
-  <script src="./data/hygiene_past.js?v=202610281256"></script>
-  <script src="./data/materials.js?v=202610281256"></script>
-  <script src="./data/materials_past.js?v=202610281256"></script>
-  <script src="./data/law.js?v=202610281256"></script>
-  <script src="./data/law_past.js?v=202610281256"></script>
+  <script src="./data/anatomy.js?v=202610281409"></script>
+  <script src="./data/anatomy_past.js?v=202610281409"></script>
+  <script src="./data/morphology.js?v=202610281409"></script>
+  <script src="./data/morphology_past.js?v=202610281409"></script>
+  <script src="./data/hygiene.js?v=202610281409"></script>
+  <script src="./data/hygiene_past.js?v=202610281409"></script>
+  <script src="./data/materials.js?v=202610281409"></script>
+  <script src="./data/materials_past.js?v=202610281409"></script>
+  <script src="./data/law.js?v=202610281409"></script>
+  <script src="./data/law_past.js?v=202610281409"></script>
 
-  <script src="./data/crown_bridge.js?v=202610281256"></script>
-  <script src="./data/crown_bridge_past.js?v=202610281256"></script>
-  <script src="./data/porcelain.js?v=202610281256"></script>
-  <script src="./data/porcelain_past.js?v=202610281256"></script>
-  <script src="./data/complete_denture.js?v=202610281256"></script>
-  <script src="./data/complete_denture_past.js?v=202610281256"></script>
-  <script src="./data/partial_denture.js?v=202610281256"></script>
-  <script src="./data/partial_denture_past.js?v=202610281256"></script>
-  <script src="./data/restorative.js?v=202610281256"></script>
-  <script src="./data/restorative_past.js?v=202610281256"></script>
-  <script src="./data/orthodontics.js?v=202610281256"></script>
-  <script src="./data/orthodontics_past.js?v=202610281256"></script>
-  <script src="./data/review.js?v=202610281256"></script>
+  <script src="./data/crown_bridge.js?v=202610281409"></script>
+  <script src="./data/crown_bridge_past.js?v=202610281409"></script>
+  <script src="./data/porcelain.js?v=202610281409"></script>
+  <script src="./data/porcelain_past.js?v=202610281409"></script>
+  <script src="./data/complete_denture.js?v=202610281409"></script>
+  <script src="./data/complete_denture_past.js?v=202610281409"></script>
+  <script src="./data/partial_denture.js?v=202610281409"></script>
+  <script src="./data/partial_denture_past.js?v=202610281409"></script>
+  <script src="./data/restorative.js?v=202610281409"></script>
+  <script src="./data/restorative_past.js?v=202610281409"></script>
+  <script src="./data/orthodontics.js?v=202610281409"></script>
+  <script src="./data/orthodontics_past.js?v=202610281409"></script>
+  <script src="./data/review.js?v=202610281409"></script>
 
   <!-- 앱 로직 (클라우드 연동 / 오늘의 문제 / 화면) -->
-  <script src="./js/source.js?v=202610281256"></script>
-  <script src="./js/daily.js?v=202610281256"></script>
-  <script src="./js/cloud.js?v=202610281256"></script>
-  <script src="./js/app.js?v=202610281256"></script>
+  <script src="./js/source.js?v=202610281409"></script>
+  <script src="./js/records-core.js?v=202610281409"></script>
+  <script src="./js/daily.js?v=202610281409"></script>
+  <script src="./js/cloud.js?v=202610281409"></script>
+  <script src="./js/app.js?v=202610281409"></script>
+  <script src="./js/records.js?v=202610281409"></script>
 </body>
 </html>

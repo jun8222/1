@@ -311,11 +311,12 @@ function subjectProgress(key, total) {
 let currentTab = 'study';
 function switchTab(name) {
   currentTab = name;
-  ['study', 'notes', 'completed'].forEach(function (t) {
+  ['study', 'notes', 'completed', 'records'].forEach(function (t) {
     $(t + '-tab').classList.toggle('active', t === name);
     $('tabbtn-' + t).classList.toggle('active', t === name);
   });
-  if (name !== 'study') { renderNotes(); refreshStats().then(function () { if (currentTab !== 'study') renderNotes(); }); }
+  if (name === 'records') { refreshStats().then(function () { if (currentTab === 'records') renderRecords(); }); renderRecords(); }
+  else if (name !== 'study') { renderNotes(); refreshStats().then(function () { if (currentTab !== 'study' && currentTab !== 'records') renderNotes(); }); }
 }
 function openNotesTab() {
   goHome();
@@ -609,6 +610,7 @@ async function showMainView() {
   renderDailyCard();
 
   await Promise.all([refreshSessions(), refreshDaily(), updateAdminBadge(), refreshStats()]);
+  if (window.handlePendingDuel) handlePendingDuel();
 }
 
 let quitArmed = null;
@@ -1191,7 +1193,7 @@ function startQuiz(key, specificQuestions, mode) {
   const shuffleQuestions = $('toggle-shuffle-questions').checked;
   const shuffleOptions = $('toggle-shuffle-options').checked;
 
-  if (shuffleQuestions && mode !== 'daily') baseQuestions = shuffleArray(baseQuestions);
+  if (shuffleQuestions && mode !== 'daily' && mode !== 'duel') baseQuestions = shuffleArray(baseQuestions);
 
   if (shuffleOptions) {
     baseQuestions.forEach(function (q) {
@@ -1243,6 +1245,7 @@ function quizHeaderText(q) {
   const base = q._s ? subjectName(q._s) : '';
   if (currentMode === 'daily') return '오늘의 문제 • ' + base + (q._why ? ' • ' + WHY_LABEL[q._why] : '');
   if (currentMode === 'retry') return '오답 복습 • ' + base;
+  if (currentMode === 'duel') return '⚔️ 친구 대결 • ' + base;
   return base;
 }
 
@@ -1310,7 +1313,7 @@ function selectAnswer(userPick) {
     questionId: q.id,
     picked: picked,
     correct: correct,
-    source: currentMode,
+    source: currentMode === 'duel' ? 'free' : currentMode,
     sessionId: currentSessionId
   });
   if (currentMode === 'daily') {
@@ -1398,7 +1401,7 @@ function finishQuizSession() {
   const rec = {
     id: currentSessionId,
     subjectKey: currentSubjectKey,
-    mode: currentMode,
+    mode: currentMode === 'duel' ? 'free' : currentMode,
     total: quizQuestions.length,
     correct: correctCount,
     wrongItems: wrongItems
@@ -1439,6 +1442,7 @@ function finishQuizSession() {
     retryBtn.style.display = 'none';
   }
   $('result-continue-daily-btn').style.display = continueDaily ? '' : 'none';
+  if (currentMode === 'duel' && window.duelFinished) duelFinished(correctCount, nTotal);
 
   $('quiz-result-view').style.display = 'block';
   window.scrollTo({ top: 0, behavior: 'smooth' });
