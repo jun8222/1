@@ -23,6 +23,7 @@
   .tag { font-size:.68rem; padding:2px 8px; border-radius:20px; border:1px solid currentColor; white-space:nowrap; }
   .tag.free { color:var(--ok); } .tag.credit { color:var(--warn); }
   .grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
+  .grid svg { width:100%; aspect-ratio:1; border-radius:50%; border:1px solid var(--line); }
   .grid img { width:100%; aspect-ratio:1; border-radius:50%; background:var(--bg); border:1px solid var(--line); }
   .note { margin-top:6px; font-size:.74rem; color:var(--sub); }
   .cap { text-align:center; font-size:.7rem; color:var(--sub); margin-top:2px; }
@@ -35,6 +36,7 @@
   <div class="bar">
     <button id="more">🔄 다른 얼굴 보기</button>
     <button data-f="all" class="on">전체</button>
+    <button data-f="pixel">👾 도트만</button>
     <button data-f="free">표기 불필요만</button>
     <button data-f="credit">표기 필요만</button>
   </div>
@@ -43,6 +45,8 @@
 <script>
 // [스타일, 라이선스(free=표기 불필요 / credit=CC BY 표기 필요), 한줄 설명]
 var STYLES = [
+  ['pixel-art','free','도트 캐릭터 (CC0, 표기 불필요)',1],
+  ['pixel-art-neutral','free','도트 표정 얼굴 (CC0, 표기 불필요)',1],
   ['thumbs','free','동글동글 귀여운 캐릭터 (지금 Lv.1)'],
   ['bottts-neutral','free','귀여운 로봇 (지금 Lv.2)'],
   ['lorelei','free','부드러운 일러스트 얼굴 (지금 Lv.3)'],
@@ -67,15 +71,37 @@ var STYLES = [
   ['miniavs','credit','미니 아바타'],
   ['dylan','credit','둥근 얼굴'],
   ['fun-emoji','credit','이모지 얼굴'],
-  ['pixel-art','credit','도트 캐릭터'],
-  ['pixel-art-neutral','credit','도트 표정 얼굴']
 ];
 var round = 0, filter = 'all';
+// 직접 만드는 도트 몬스터: 좌우 대칭 8x8, 시드마다 모양·색이 달라짐 (라이선스 걱정 없음, 외부 서버 불필요)
+function hash(str) { var h = 2166136261; for (var i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+function rng(seed) { var a = hash(seed); return function () { a |= 0; a = a + 0x6D2B79F5 | 0; var t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function sprite(seed) {
+  var r = rng(seed), hue = Math.floor(r() * 360), N = 8, cells = [], x, y;
+  var body = 'hsl(' + hue + ',70%,55%)', dark = 'hsl(' + hue + ',70%,32%)', bg = 'hsl(' + ((hue + 40) % 360) + ',80%,90%)';
+  var g = [];
+  for (y = 0; y < N; y++) { g[y] = []; for (x = 0; x < N / 2; x++) { var edge = (x === 0 || y === 0 || y === N - 1) ? 0.35 : 0.62; g[y][x] = r() < edge ? 1 : 0; } }
+  for (y = 2; y < 6; y++) g[y][3] = 1;               // 가운데 몸통 보장
+  g[3][1] = 2; g[3][2] = 2;                           // 눈 자리 (흰색+검정)
+  var rects = '';
+  for (y = 0; y < N; y++) for (x = 0; x < N; x++) {
+    var v = x < N / 2 ? g[y][x] : g[y][N - 1 - x];
+    if (!v) continue;
+    var col = v === 2 ? (x === 2 || x === N - 3 ? '#111' : '#fff') : ((x + y) % 5 === 0 ? dark : body);
+    rects += '<rect x="' + x + '" y="' + y + '" width="1" height="1" fill="' + col + '"/>';
+  }
+  return '<svg viewBox="-1 -1 10 10" shape-rendering="crispEdges"><rect x="-1" y="-1" width="10" height="10" fill="' + bg + '"/>' + rects + '</svg>';
+}
 function seeds(i) { var a = []; for (var k = 0; k < 8; k++) a.push('dental-' + round + '-' + k); return a; }
 function render() {
   var html = '';
+  if (filter === 'all' || filter === 'pixel' || filter === 'free') {
+    html += '<div class="card"><div class="head"><span class="name">도트 몬스터 (직접 생성)</span><span class="tag free">표기 불필요</span></div><div class="grid">' +
+      seeds().map(function (sd) { return '<div>' + sprite(sd) + '</div>'; }).join('') + '</div><div class="note">좌우 대칭 도트 몬스터. 무한히 다른 모양이 나와요. 외부 서버 없이 앱 안에서 바로 그려요.</div></div>';
+  }
   STYLES.forEach(function (s) {
-    if (filter !== 'all' && s[1] !== filter) return;
+    if (filter === 'pixel' && !s[3]) return;
+    if (filter !== 'all' && filter !== 'pixel' && s[1] !== filter) return;
     html += '<div class="card"><div class="head"><span class="name">' + s[0] + '</span>' +
       '<span class="tag ' + s[1] + '">' + (s[1] === 'free' ? '표기 불필요' : '출처 표기 필요') + '</span></div>' +
       '<div class="grid">' + seeds().map(function (sd) {
