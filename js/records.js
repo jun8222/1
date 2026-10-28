@@ -54,6 +54,9 @@
     html += '<div class="rec-card rec-hero">' +
       '<div class="rec-streak"><div class="rec-flame' + (sum.streak ? '' : ' off') + '">🔥</div><div><div class="rec-big">' + sum.streak + '일</div>' +
         '<div class="rec-sub">' + (sum.todayDone ? '오늘도 풀었어요!' : (sum.streak ? '오늘 풀면 ' + (sum.streak + 1) + '일째' : '오늘 풀면 시작해요')) + ' · 최고 ' + sum.bestStreak + '일</div></div></div>' +
+      '<div class="rec-me"><div class="rec-me-ch">' + (RC.avatarUrl(currentUser && currentUser.avatar, 96) ? '<img src="' + RC.avatarUrl(currentUser.avatar, 96) + '" alt="">' : '<span>' + lv.icon + '</span>') + '</div>' +
+        '<button class="btn-action-sm btn-review-expl" onclick="openAvatarPicker(' + lv.level + ')">🎭 캐릭터 바꾸기</button></div>' +
+      '<div id="avatar-picker"></div>' +
       '<div class="rec-level"><div class="rec-lv-name">' + lv.icon + ' Lv.' + lv.level + ' ' + esc(lv.name) + '</div>' +
         '<div class="rec-bar"><div style="width:' + lv.pct + '%"></div></div>' +
         '<div class="rec-sub">' + lv.xp + ' XP' + (lv.next ? ' · ' + esc(lv.next) + '까지 ' + lv.toNext + ' XP' : ' · 최고 레벨!') + '</div>' +
@@ -121,6 +124,11 @@
 
   // ---------------------------------------------------------------- 랭킹 · 피드
   var CHARS = ['🌱', '🔧', '🦷', '⚙️', '🏅', '👑'];
+  function charHtml(avatar, level) {
+    var emoji = CHARS[level - 1], url = RC.avatarUrl(avatar, 64);
+    if (!url) return '<span class="lane-ch">' + emoji + '</span>';
+    return '<img class="lane-img" src="' + url + '" alt="" loading="lazy" onerror="this.outerHTML=\'<span class=&quot;lane-ch&quot;>' + emoji + '</span>\'">';
+  }
   function pctText(r) { return r.attempts ? Math.round(r.rights / r.attempts * 100) + '%' : '-'; }
 
   // 이번 주 어워드 (재미 상): 조건을 못 채우면 주인공 없음
@@ -159,7 +167,7 @@
           '<div class="lane-head"><span class="rk">' + (medal[i] || (i + 1)) + '</span>' +
             '<span class="nm">' + esc(r.display_name || '-') + (r.is_me ? ' <small>(나)</small>' : '') + '</span>' + chips +
             '<span class="ttl">Lv.' + lv.level + ' ' + esc(lv.name) + '</span></div>' +
-          '<div class="lane-track"><div class="lane-run' + (i === 0 ? ' lead' : '') + '" style="--f:' + f.toFixed(3) + '"><span class="lane-ch">' + CHARS[lv.level - 1] + '</span></div><span class="lane-flag">🏁</span></div>' +
+          '<div class="lane-track"><div class="lane-run' + (i === 0 ? ' lead' : '') + '" style="--f:' + f.toFixed(3) + '">' + charHtml(r.avatar, lv.level) + '</div><span class="lane-flag">🏁</span></div>' +
           '<div class="lane-foot"><span><b>' + Number(r.attempts) + '</b>문제 · 정답 ' + Number(r.rights) + ' (' + pctText(r) + ')</span>' +
             (r.is_me ? '<span class="cheer-got">👏 ' + Number(r.cheers) + '</span>'
                      : '<button class="cheer-btn' + (r.cheered_by_me ? ' on' : '') + '" data-n="' + Number(r.cheers) + '" onclick="cheerUser(\'' + r.user_id + '\', this)">👏 ' + Number(r.cheers) + '</button>') +
@@ -191,6 +199,26 @@
       }).join('');
     } catch (e) { el.textContent = '서버 설정(records.sql)을 실행하면 사용할 수 있어요.'; }
   }
+
+  // ---------------------------------------------------------------- 캐릭터 고르기
+  window.openAvatarPicker = function (level) {
+    var box = $('avatar-picker'); if (!box) return;
+    if (box.innerHTML) { box.innerHTML = ''; return; }
+    var cur = currentUser && currentUser.avatar;
+    var html = '<div class="avatar-panel"><div class="rec-sub" style="margin-bottom:8px">레벨이 오르면 새 캐릭터가 열려요. 고른 캐릭터가 랭킹 레이스에서 달려요.</div><div class="avatar-grid">';
+    html += '<button class="avatar-opt' + (!cur ? ' sel' : '') + '" onclick="pickAvatar(null)"><span class="ae">🦷</span><small>기본</small></button>';
+    RC.avatarList().forEach(function (a) {
+      var locked = a.level > level;
+      html += '<button class="avatar-opt' + (cur === a.id ? ' sel' : '') + (locked ? ' locked' : '') + '"' + (locked ? ' onclick="toast(\'Lv.' + a.level + '에 열려요\')"' : ' onclick="pickAvatar(\'' + a.id + '\')"') + '>' +
+        '<img src="' + RC.avatarUrl(a.id, 80) + '" alt="" loading="lazy">' + (locked ? '<span class="lock">🔒 Lv.' + a.level + '</span>' : '') + '</button>';
+    });
+    box.innerHTML = html + '</div></div>';
+  };
+
+  window.pickAvatar = async function (id) {
+    try { currentUser = await Cloud.updateProfile({ avatar: id }); toast(id ? '캐릭터를 바꿨어요!' : '기본 캐릭터로 돌아왔어요.'); renderRecords(); }
+    catch (e) { toast('저장하지 못했어요. 서버 설정(records.sql)을 다시 실행해 주세요.', 4000); }
+  };
 
   window.toggleRankPublic = async function (on) {
     try { currentUser = await Cloud.updateProfile({ rank_public: !!on }); toast(on ? '랭킹·활동에 공개해요.' : '비공개로 바꿨어요.'); }
