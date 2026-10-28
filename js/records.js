@@ -195,7 +195,7 @@
       var rows = await Cloud.getActivity();
       if (!rows.length) { el.textContent = '최근 24시간 활동이 없어요.'; return; }
       el.innerHTML = rows.map(function (r) {
-        return '<div class="rec-feed">' + (r.is_me ? '나' : '<b>' + esc(r.display_name || '-') + '</b>님') + '이 ' + esc(subjectName(r.subject_key)) + ' <b>' + Number(r.n) + '문제</b> 풀었어요 <small>' + ago(r.last_at) + '</small></div>';
+        return '<div class="rec-feed">' + (r.is_me ? '<b>나</b>는 ' : '<b>' + esc(r.display_name || '-') + '</b>님은 ') + '' + esc(subjectName(r.subject_key)) + ' <b>' + Number(r.n) + '문제</b> 풀었어요 <small>' + ago(r.last_at) + '</small></div>';
       }).join('');
     } catch (e) { el.textContent = '서버 설정(records.sql)을 실행하면 사용할 수 있어요.'; }
   }
