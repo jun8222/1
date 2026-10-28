@@ -5,7 +5,10 @@
 
 -- 1. 랭킹/피드 공개 여부 (기본: 비공개 — 각자 켠 사람만 다른 사람에게 보임)
 alter table public.profiles add column if not exists rank_public boolean not null default false;
-grant update (display_name, daily_goal, daily_subjects, rank_public) on public.profiles to authenticated;
+alter table public.profiles add column if not exists avatar text;
+alter table public.profiles drop constraint if exists profiles_avatar_check;
+alter table public.profiles add constraint profiles_avatar_check check (avatar is null or avatar ~ '^L[1-6]-[1-6]$');
+grant update (display_name, daily_goal, daily_subjects, rank_public, avatar) on public.profiles to authenticated;
 
 -- 2. 이번 주(월~일, 한국시간) 랭킹: 푼 문제 수 기준. 공개한 회원 + 나
 --    캐릭터(전체 경험치 total_xp)·어워드(active_days, night_n)·응원(cheers) 정보 포함
@@ -22,7 +25,7 @@ revoke all on public.cheers from anon, authenticated;     -- 직접 접근 불�
 drop function if exists public.weekly_ranking();
 create or replace function public.weekly_ranking()
 returns table (user_id uuid, display_name text, attempts bigint, rights bigint, total_xp bigint,
-               active_days bigint, night_n bigint, cheers bigint, cheered_by_me boolean, is_me boolean)
+               active_days bigint, night_n bigint, cheers bigint, cheered_by_me boolean, is_me boolean, avatar text)
 language sql stable security definer set search_path = public as $$
   select p.id, p.display_name,
          count(*) filter (where a.created_at >= ws.s),
@@ -34,14 +37,15 @@ language sql stable security definer set search_path = public as $$
             where c.to_user = p.id and c.week_start = (date_trunc('week', now() at time zone 'Asia/Seoul'))::date),
          exists (select 1 from public.cheers c
             where c.to_user = p.id and c.from_user = auth.uid() and c.week_start = (date_trunc('week', now() at time zone 'Asia/Seoul'))::date),
-         (p.id = auth.uid())
+         (p.id = auth.uid()),
+         p.avatar
   from public.profiles p
   join public.attempts a on a.user_id = p.id
   cross join (select (date_trunc('week', now() at time zone 'Asia/Seoul') at time zone 'Asia/Seoul') as s) ws
   where public.is_approved()
     and p.status = 'approved'
     and (p.rank_public or p.id = auth.uid())
-  group by p.id, p.display_name, ws.s
+  group by p.id, p.display_name, p.avatar, ws.s
   having count(*) filter (where a.created_at >= ws.s) > 0
   order by 3 desc, 4 desc
   limit 50;
