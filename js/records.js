@@ -191,11 +191,15 @@
 
   window.copyDuelLink = async function () {
     var text = '치과기공사 퀴즈 대결 신청! 같은 10문제로 붙어봐요 ⚔️ ' + lastDuelLink;
-    try {
-      if (navigator.share) { await navigator.share({ text: text }); return; }
-    } catch (e) { /* 공유 취소 */ return; }
-    try { await navigator.clipboard.writeText(text); toast('링크를 복사했어요.'); }
-    catch (e) { var i = document.querySelector('.rec-link'); if (i) { i.select(); } toast('링크를 길게 눌러 복사해 주세요.'); }
+    try { await navigator.clipboard.writeText(text); toast('링크를 복사했어요.'); return; } catch (e) { /* 아래 대체 방법 */ }
+    try {   // 클립보드 권한이 없는 브라우저용
+      var ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      var ok = document.execCommand('copy'); document.body.removeChild(ta);
+      if (ok) { toast('링크를 복사했어요.'); return; }
+    } catch (e) { /* 무시 */ }
+    var i = document.querySelector('.rec-link'); if (i) i.select();
+    toast('링크를 길게 눌러 복사해 주세요.');
   };
 
   async function loadDuelList() {
