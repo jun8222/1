@@ -421,6 +421,12 @@ function startWrongFromNote() {
   startQuiz('wrong', list.map(function (e) { return cloneQuestion(e.q, e.s); }), 'retry');
 }
 
+function pickedText(p, C) {
+  if (p === null || p === undefined) return '기록 없음';
+  if (p < 1) return '모르겠음(답 확인)';
+  return p + '번 ' + (C[p - 1] || '');
+}
+
 function copyWrongForAnalysis() {
   const list = currentWrongList();
   if (!list.length) { toast('복사할 오답이 없어요.'); return; }
@@ -429,7 +435,7 @@ function copyWrongForAnalysis() {
     const q = e.q;
     return (i + 1) + '. [' + subjectName(e.s) + ' ' + e.id + '번] ' + q.question + '\n' +
       (q.contextBox ? '<보기> ' + q.contextBox.replace(/\n/g, ' / ') + '\n' : '') +
-      q.options.map(function (o, k) { return C[k] + ' ' + o; }).join('\n') + '\n정답: ' + q.answer + '번 (' + e.st.tries + '회 중 ' + e.miss + '회 오답)';
+      q.options.map(function (o, k) { return C[k] + ' ' + o; }).join('\n') + '\n내가 고른 답: ' + pickedText(e.st.lastPicked, C) + '\n정답: ' + q.answer + '번 (' + e.st.tries + '회 중 ' + e.miss + '회 오답)';
   }).join('\n\n');
   const done = function () { toast('복사했어요. Claude 등에 붙여넣어 분석하세요.'); };
   if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, function () { fallbackCopy(text); done(); });
