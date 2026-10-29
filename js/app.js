@@ -1470,14 +1470,15 @@ function handleGlobalKeydown(e) {
   const tag = (e.target && e.target.tagName) || '';
   if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
 
-  if (!isAnswerChecked) {
-    if (['1', '2', '3', '4', '5'].indexOf(e.key) !== -1) {
-      const pick = parseInt(e.key, 10);
-      const q = quizQuestions[currentIndex];
-      if (q && pick <= q.options.length) selectAnswer(pick);
-    }
-  } else if (e.key === 'ArrowRight' || e.key === 'Enter') {
+  if (!isAnswerChecked && ['1', '2', '3', '4', '5'].indexOf(e.key) !== -1) {
+    const pick = parseInt(e.key, 10);
+    const q = quizQuestions[currentIndex];
+    if (q && pick <= q.options.length) selectAnswer(pick);
+  } else if (!isAnswerChecked && e.key === '0') {
+    handleDontKnow();
+  } else if (e.key === 'ArrowRight' || (isAnswerChecked && e.key === 'Enter')) {
     e.preventDefault();
+    if (!isAnswerChecked && currentIndex >= quizQuestions.length - 1) return;   // 마지막 문제를 안 풀고 →로 끝내지 않도록
     nextQuestion();
   } else if (e.key === 'ArrowLeft') {
     e.preventDefault();
