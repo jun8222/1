@@ -170,7 +170,7 @@ begin
   if to_regclass('public.note_clears') is not null then
     execute 'delete from public.note_clears where user_id = $1' using auth.uid();
   end if;
-  delete from public.cheers where target_id = auth.uid();
+  delete from public.cheers where to_user = auth.uid();
 end;
 $$;
 revoke all on function public.reset_my_records() from public, anon;
