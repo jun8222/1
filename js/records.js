@@ -88,6 +88,7 @@
       '<label class="rec-toggle"><input type="checkbox" id="rank-public-cb" onchange="toggleRankPublic(this.checked)"' + (currentUser && currentUser.rank_public ? ' checked' : '') + '> 내 이름을 랭킹·활동에 공개</label>' +
       '<div id="rank-box" class="rec-sub">불러오는 중…</div></div>';
     html += '<div class="rec-card"><div class="rec-title">👀 오늘의 활동 <span class="rec-sub">최근 24시간</span></div><div id="feed-box" class="rec-sub">불러오는 중…</div></div>';
+    html += '<div class="rec-card"><div class="rec-title">🧹 내 기록 초기화</div><div class="rec-sub" style="margin-bottom:10px">풀이 기록·오답노트·오늘의 문제·기록 탭 수치가 모두 사라져요. 되돌릴 수 없어요.</div><button id="reset-mine-btn" class="btn-action-sm btn-retry-wrong" onclick="resetMine()">내 기록 초기화</button></div>';
     html += '<div class="rec-card"><div class="rec-title">⚔️ 친구 대결</div>' +
       '<div class="rec-sub" style="margin-bottom:10px">같은 10문제를 각자 풀고 점수를 비교해요. 링크를 친구에게 보내세요.</div>' +
       '<button class="btn-result btn-review" id="duel-create-btn" style="cursor:pointer" onclick="createDuelNow()">⚔️ 대결 만들기</button>' +
@@ -224,6 +225,23 @@
   window.pickAvatar = async function (id) {
     try { currentUser = await Cloud.updateProfile({ avatar: id }); toast(id ? '캐릭터를 바꿨어요!' : '기본 캐릭터로 돌아왔어요.'); renderRecords(); }
     catch (e) { toast('저장하지 못했어요. 서버 설정(records.sql)을 다시 실행해 주세요.', 4000); }
+  };
+
+  var resetArmed = null;
+  window.resetMine = async function () {
+    var b = $('reset-mine-btn'); if (!b) return;
+    if (!resetArmed) {
+      b.textContent = '정말 삭제? 한 번 더 누르세요';
+      resetArmed = setTimeout(function () { resetArmed = null; var x = $('reset-mine-btn'); if (x) x.textContent = '내 기록 초기화'; }, 4000);
+      return;
+    }
+    clearTimeout(resetArmed); resetArmed = null; b.disabled = true;
+    try {
+      await Cloud.resetMyRecords();
+      try { Object.keys(localStorage).forEach(function (k) { if (/^(noteClears|pending|quizResume|resume)/i.test(k) || k.indexOf(currentUser.id) >= 0) localStorage.removeItem(k); }); } catch (e) { /* 무시 */ }
+      toast('기록을 초기화했어요.', 2000);
+      setTimeout(function () { location.reload(); }, 800);
+    } catch (e) { b.disabled = false; b.textContent = '내 기록 초기화'; toast('초기화하지 못했어요. 서버 설정(records.sql)을 다시 실행해 주세요.', 4000); }
   };
 
   window.toggleRankPublic = async function (on) {
