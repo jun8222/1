@@ -157,3 +157,21 @@ $$;
 
 revoke all on function public.weekly_ranking(), public.recent_activity(), public.duel_board(uuid), public.my_duels() from public, anon;
 grant execute on function public.weekly_ranking(), public.recent_activity(), public.duel_board(uuid), public.my_duels() to authenticated;
+
+-- 5. 내 기록 초기화 (본인 풀이 기록만 삭제)
+create or replace function public.reset_my_records()
+returns void
+language plpgsql security definer set search_path = public as $$
+begin
+  if auth.uid() is null then raise exception 'unauthorized' using errcode = '42501'; end if;
+  delete from public.attempts   where user_id = auth.uid();
+  delete from public.sessions   where user_id = auth.uid();
+  delete from public.daily_sets where user_id = auth.uid();
+  if to_regclass('public.note_clears') is not null then
+    execute 'delete from public.note_clears where user_id = $1' using auth.uid();
+  end if;
+  delete from public.cheers where target_id = auth.uid();
+end;
+$$;
+revoke all on function public.reset_my_records() from public, anon;
+grant execute on function public.reset_my_records() to authenticated;

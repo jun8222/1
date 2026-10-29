@@ -351,6 +351,9 @@ window.Cloud = (function () {
   async function adminSetMember(target, role, status) {
     check(await client.rpc('admin_set_member', { target: target, new_role: role, new_status: status }), '회원 변경');
   }
+  async function resetMyRecords() {
+    check(await client.rpc('reset_my_records'), '내 기록 초기화');
+  }
   async function adminResetMember(target) {
     check(await client.rpc('admin_reset_member', { target: target }), '기록 초기화');
   }
@@ -363,7 +366,7 @@ window.Cloud = (function () {
     listSessions: listSessions, loadQuestionStats: loadQuestionStats, loadAttemptHistory: loadAttemptHistory, getRanking: getRanking, toggleCheer: toggleCheer, getActivity: getActivity, createDuel: createDuel, getDuel: getDuel, saveDuelResult: saveDuelResult, myDuelResult: myDuelResult, duelBoard: duelBoard, deleteDuel: deleteDuel, myDuels: myDuels, loadRecentBySubject: loadRecentBySubject, loadNoteClears: loadNoteClears, saveNoteClears: saveNoteClears, loadAttemptsSince: loadAttemptsSince,
     getDailySet: getDailySet, saveDailySet: saveDailySet,
     createReport: createReport, listReports: listReports, setReportStatus: setReportStatus, deleteReport: deleteReport,
-    adminListMembers: adminListMembers, adminSetMember: adminSetMember, adminResetMember: adminResetMember,
+    adminListMembers: adminListMembers, adminSetMember: adminSetMember, adminResetMember: adminResetMember, resetMyRecords: resetMyRecords,
     newId: uuid
   };
 })();
