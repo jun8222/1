@@ -1273,7 +1273,7 @@ function renderCurrentQuestion() {
     btn.innerHTML =
       '<div class="option-top-row">' +
         '<span class="option-idx" id="opt-icon-' + optNum + '">' + optNum + '</span>' +
-        '<span>' + optText + '</span>' +
+        '<span class="option-txt">' + optText + '</span>' +
       '</div>' +
       '<div class="option-explanation" id="opt-expl-' + optNum + '">' + individualExpl + '</div>';
     optContainer.appendChild(btn);

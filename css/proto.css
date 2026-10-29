@@ -468,6 +468,7 @@
       flex-shrink: 0;
     }
 
+    .option-txt { display: block; min-height: 28px; line-height: 1.45; padding-top: calc((28px - 1.45em) / 2 + 1px); }
     .option-idx { line-height: 1; padding: 0 0 1px 0; box-sizing: border-box; font-variant-numeric: lining-nums; }
 
     .option-btn.correct-choice .option-idx {
