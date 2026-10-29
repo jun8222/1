@@ -156,7 +156,8 @@ select
   count(*)                                              as tries,
   count(*) filter (where correct)                       as rights,
   max(created_at)                                       as last_at,
-  (array_agg(correct order by created_at desc, id desc))[1] as last_correct
+  (array_agg(correct order by created_at desc, id desc))[1] as last_correct,
+  (array_agg(picked  order by created_at desc, id desc))[1] as last_picked
 from public.attempts
 group by user_id, subject_key, question_id;
 

@@ -200,16 +200,18 @@ window.Cloud = (function () {
     var out = {};
     var from = 0, size = 1000;
     for (;;) {
-      var res = await client.from('question_stats')
-        .select('subject_key,question_id,tries,rights,last_at,last_correct')
-        .eq('user_id', uid())
-        .order('subject_key').order('question_id')
-        .range(from, from + size - 1);
+      var q = function (cols) {
+        return client.from('question_stats').select(cols).eq('user_id', uid())
+          .order('subject_key').order('question_id').range(from, from + size - 1);
+      };
+      var res = await q('subject_key,question_id,tries,rights,last_at,last_correct,last_picked');
+      if (res.error) res = await q('subject_key,question_id,tries,rights,last_at,last_correct');   // 뷰 미갱신 대비
       var rows = check(res, '문항 통계 불러오기');
       rows.forEach(function (r) {
         out[r.subject_key + ':' + r.question_id] = {
           tries: Number(r.tries), rights: Number(r.rights),
-          lastAt: new Date(r.last_at).getTime(), lastCorrect: r.last_correct
+          lastAt: new Date(r.last_at).getTime(), lastCorrect: r.last_correct,
+          lastPicked: (r.last_picked === undefined ? null : r.last_picked)
         };
       });
       if (rows.length < size) break;
