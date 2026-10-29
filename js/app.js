@@ -1434,7 +1434,9 @@ function finishQuizSession() {
 
   renderBreakdown();
   const nTotal = quizQuestions.length;
-  $('resultPercent').textContent = (nTotal ? Math.round(correctCount / nTotal * 100) : 0) + '%';
+  const pctVal = nTotal ? Math.round(correctCount / nTotal * 100) : 0;
+  $('resultPercent').textContent = pctVal + '%';
+  $('resultPercent').closest('.score-circle').style.setProperty('--pct', (pctVal * 3.6) + 'deg');
   $('resultTotal').textContent = nTotal;
   $('resultCorrect').textContent = correctCount;
   $('resultWrong').textContent = currentSessionWrongItems.length;
