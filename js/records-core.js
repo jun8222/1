@@ -111,15 +111,15 @@
   /** 최근 weeks주 달력 (월요일 시작) → [[{day, n, lv}]*7 per week] */
   function calendar(sum, now, weeks) {
     now = now || new Date(); weeks = weeks || 17;
-    var dow = (now.getDay() + 6) % 7;                 // 월=0
-    var start = addDays(now, -dow - (weeks - 1) * 7);
+    // 오늘이 맨 오른쪽 아래 칸. 거꾸로 7일씩 한 줄 → 요일 맞춤 없이 빈 칸이 생기지 않음
+    var start = addDays(now, -(weeks * 7 - 1));
     var cols = [];
     for (var w = 0; w < weeks; w++) {
       var col = [];
       for (var d = 0; d < 7; d++) {
         var dt = addDays(start, w * 7 + d), k = dayKey(dt);
         var n = sum.days[k] ? sum.days[k].n : 0;
-        col.push({ day: k, n: n, future: dt > now, lv: n === 0 ? 0 : n < 10 ? 1 : n < 30 ? 2 : n < 60 ? 3 : 4 });
+        col.push({ day: k, n: n, future: false, lv: n === 0 ? 0 : n < 10 ? 1 : n < 30 ? 2 : n < 60 ? 3 : 4 });
       }
       cols.push(col);
     }
