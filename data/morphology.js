@@ -1,7 +1,7 @@
 window.quizDatabase = window.quizDatabase || {};
 
 window.quizDatabase.morphology = {
-  title: "치아형태학 (13~28)",
+  title: "치아형태학 모의고사 (13~28)",
   questions: [
       {
         "id": 1,

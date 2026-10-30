@@ -1,7 +1,7 @@
 window.quizDatabase = window.quizDatabase || {};
 
 window.quizDatabase.complete_denture = {
-  title: "총의치기공학 (35~58)",
+  title: "총의치기공학 모의고사 (35~58)",
   questions: [
     {
       "id": 1,

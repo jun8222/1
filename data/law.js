@@ -1,7 +1,7 @@
 window.quizDatabase = window.quizDatabase || {};
 
 window.quizDatabase.law = {
-  title: "의료관계법규 (76~95)",
+  title: "의료관계법규 모의고사 (76~95)",
   questions: [
     {
       id: 1,

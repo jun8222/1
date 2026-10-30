@@ -1,7 +1,7 @@
 window.quizDatabase = window.quizDatabase || {};
 
 window.quizDatabase.materials = {
-  title: "치과재료학 (41~75)",
+  title: "치과재료학 모의고사 (41~75)",
   questions: [
     {
         "id":  1,

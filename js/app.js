@@ -7,29 +7,29 @@
 
 const subjectMeta = [
   // 1교시
-  { key: 'anatomy', name: '구강해부학 (1~12)', period: 1 },
+  { key: 'anatomy', name: '구강해부학 모의고사 (1~12)', period: 1 },
   { key: 'anatomy_past', name: '구강해부학 국시기출 (19~25년)', period: 1 },
-  { key: 'morphology', name: '치아형태학 (13~28)', period: 1 },
+  { key: 'morphology', name: '치아형태학 모의고사 (13~28)', period: 1 },
   { key: 'morphology_past', name: '치아형태학 국시기출 (19~25년)', period: 1 },
-  { key: 'hygiene', name: '구강보건학 (29~40)', period: 1 },
+  { key: 'hygiene', name: '구강보건학 모의고사 (29~40)', period: 1 },
   { key: 'hygiene_past', name: '구강보건학 국시기출 (19~25년)', period: 1 },
-  { key: 'materials', name: '치과재료학 (41~75)', period: 1 },
+  { key: 'materials', name: '치과재료학 모의고사 (41~75)', period: 1 },
   { key: 'materials_past', name: '치과재료학 국시기출 (19~25년)', period: 1 },
-  { key: 'law', name: '의료관계법규 (76~95)', period: 1 },
+  { key: 'law', name: '의료관계법규 모의고사 (76~95)', period: 1 },
   { key: 'law_past', name: '의료관계법규 국시기출 (19~25년)', period: 1 },
 
   // 2교시
-  { key: 'crown_bridge', name: '관교의치기공학 (1~19)', period: 2 },
+  { key: 'crown_bridge', name: '관교의치기공학 모의고사 (1~19)', period: 2 },
   { key: 'crown_bridge_past', name: '관교의치기공학 국시기출 (19~25년)', period: 2 },
-  { key: 'porcelain', name: '도재기공학 (20~34)', period: 2 },
+  { key: 'porcelain', name: '도재기공학 모의고사 (20~34)', period: 2 },
   { key: 'porcelain_past', name: '도재기공학 국시기출 (19~25년)', period: 2 },
-  { key: 'complete_denture', name: '총의치기공학 (35~58)', period: 2 },
+  { key: 'complete_denture', name: '총의치기공학 모의고사 (35~58)', period: 2 },
   { key: 'complete_denture_past', name: '총의치기공학 국시기출 (19~25년)', period: 2 },
-  { key: 'partial_denture', name: '국소의치기공학 (59~82)', period: 2 },
+  { key: 'partial_denture', name: '국소의치기공학 모의고사 (59~82)', period: 2 },
   { key: 'partial_denture_past', name: '국소의치기공학 국시기출 (19~25년)', period: 2 },
-  { key: 'restorative', name: '충전기공학 (83~96)', period: 2 },
+  { key: 'restorative', name: '충전기공학 모의고사 (83~96)', period: 2 },
   { key: 'restorative_past', name: '충전기공학 국시기출 (19~25년)', period: 2 },
-  { key: 'orthodontics', name: '교정기공학 (97~110)', period: 2 },
+  { key: 'orthodontics', name: '교정기공학 모의고사 (97~110)', period: 2 },
   { key: 'orthodontics_past', name: '교정기공학 국시기출 (19~25년)', period: 2 }
 ];
 
@@ -1149,10 +1149,15 @@ function renderHistoryItem(rec) {
   '</div>';
 }
 
-function groupNameOf(meta) { return meta.name.replace(/\s*\(.*$/, '').replace(/\s*국시기출.*$/, '').trim(); }
-function setLabelOf(meta, gname) {
-  const rest = meta.name.slice(gname.length).trim();
-  return rest.replace(/[()]/g, '').replace(/\s+/g, ' ').trim() || meta.name;
+function groupNameOf(meta) { return meta.name.replace(/\s*(모의고사|국시기출).*$/, '').replace(/\s*\(.*$/, '').trim(); }
+function groupTitleOf(g) {
+  const base = g.sets.filter(function (m) { return !/_past$/.test(m.key); })[0];
+  const r = base && /\((\d+~\d+)\)/.exec(base.name);
+  return g.name + (r ? '(' + r[1] + ')' : '');
+}
+function setLabelOf(meta) {
+  if (/_past$/.test(meta.key)) { const r = /\(([^)]*)\)/.exec(meta.name); return '국시기출' + (r ? ' ' + r[1] : ''); }
+  return '모의고사';
 }
 function accColor(acc) { return acc === null ? '#64748b' : acc >= 80 ? '#22c55e' : acc >= 70 ? '#f59e0b' : '#ef4444'; }
 
@@ -1182,8 +1187,8 @@ function renderSubjectList() {
       const count = db[meta.key] && db[meta.key].questions ? db[meta.key].questions.length : 0;
       const pr = subjectProgress(meta.key, count);
       const mateWaiting = pr.partners && pr.partners.some(function (k) { return roundCache.sets[k] && roundCache.sets[k].waiting; });
-      const label = g.sets.length > 1 ? setLabelOf(meta, g.name) : meta.name;
-      const tag = pr.waiting ? '⏳ ' + (pr.partners && pr.partners[0] ? setLabelOf(subjectMeta.filter(function (m) { return m.key === pr.partners[0]; })[0] || meta, g.name) : '') + ' 기다리는 중'
+      const label = g.sets.length > 1 ? setLabelOf(meta) : meta.name;
+      const tag = pr.waiting ? '⏳ ' + (pr.partners && pr.partners[0] ? setLabelOf(subjectMeta.filter(function (m) { return m.key === pr.partners[0]; })[0] || meta) : '') + ' 기다리는 중'
                 : mateWaiting ? '남은 ' + (count - pr.solved) + '문제' : '';
       return '<div class="subject-card set-tile' + (pr.waiting ? ' wait' : '') + '" data-key="' + meta.key + '" title="' + esc(meta.name) + '" onclick="onSubjectStart(\'' + meta.key + '\')">' +
         '<div class="st-name">' + esc(label) + '</div><div class="st-meta">' + count + '문제</div>' +
@@ -1195,7 +1200,7 @@ function renderSubjectList() {
     const gacc = G ? G.acc : null, gpct = G ? G.pct : 0;
     const right = G ? (round + '회차' + (G.tries ? '' : ' · 시작 전')) : '';
     html += '<div class="subject-group' + (g.sets.length === 1 ? ' single' : '') + '">' +
-      '<div class="sg-head"><span class="sg-name">' + esc(g.name) + '</span>' +
+      '<div class="sg-head"><span class="sg-name">' + esc(groupTitleOf(g)) + '</span>' +
         (done ? '<span class="round-badge r' + Math.min(done, 3) + '">🏅 ' + done + '회독</span>' : '') +
         (isWeak(keys) ? '<span class="sg-weak">취약</span>' : '') +
         (right && G ? '<span class="sg-right">' + right + '</span>' : '') + '</div>' +

@@ -1,7 +1,7 @@
 window.quizDatabase = window.quizDatabase || {};
 
 window.quizDatabase.porcelain = {
-  title: "도재기공학 (20~34)",
+  title: "도재기공학 모의고사 (20~34)",
   questions: [
     {
       id: 1,
