@@ -131,6 +131,19 @@
     if (!url) return '<span class="lane-ch">' + emoji + '</span>';
     return '<img class="lane-img" src="' + url + '" alt="" loading="lazy" onerror="this.outerHTML=\'<span class=&quot;lane-ch&quot;>' + emoji + '</span>\'">';
   }
+  function podiumHtml(rows) {
+    var order = [1, 0, 2], cls = ['p1', 'p2', 'p3'];
+    return '<div class="rec-pod">' + order.map(function (i) {
+      var r = rows[i];
+      if (!r) return '<div class="pod-slot empty"><div class="pod-blk ' + cls[i] + '">' + (i + 1) + '</div></div>';
+      var lv = RC.levelInfo(Number(r.total_xp));
+      return '<div class="pod-slot' + (r.is_me ? ' me' : '') + '">' +
+        '<div class="pod-ch">' + (i === 0 ? '<span class="pod-crown">👑</span>' : '') + charHtml(r.avatar, lv.level) + '</div>' +
+        '<div class="pod-nm">' + esc(r.display_name || '-') + (r.is_me ? ' (나)' : '') + '</div>' +
+        '<div class="pod-n">' + Number(r.attempts) + '문제 · ' + pctText(r) + '</div>' +
+        '<div class="pod-blk ' + cls[i] + '" style="animation-delay:' + [0, .25, .45][i] + 's">' + (i + 1) + '</div></div>';
+    }).join('') + '</div><div class="pod-base"></div>';
+  }
   function pctText(r) { return r.attempts ? Math.round(r.rights / r.attempts * 100) + '%' : '-'; }
 
   // 이번 주 어워드 (재미 상): 조건을 못 채우면 주인공 없음
@@ -162,6 +175,8 @@
           (a.who ? '<div class="aw">' + esc(a.who.display_name || '-') + '</div><div class="av">' + esc(a.val) + '</div>' : '<div class="av">' + esc(a.hint) + '</div>') + '</div>';
       }).join('') + '</div>';
 
+      html += podiumHtml(rows);
+      html += '<div class="rec-sec">🏁 레이스</div>';
       html += '<div class="rec-race">' + rows.map(function (r, i) {
         var lv = RC.levelInfo(Number(r.total_xp)), f = Math.max(0.02, Number(r.attempts) / maxN);
         var chips = (winnerOf[r.user_id] || []).map(function (a) { return '<span class="lane-chip" title="' + a.name + '">' + a.icon + '</span>'; }).join('');
