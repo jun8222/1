@@ -1189,13 +1189,14 @@ function renderSubjectList() {
       const pr = subjectProgress(meta.key, count);
       const mateWaiting = pr.partners && pr.partners.some(function (k) { return roundCache.sets[k] && roundCache.sets[k].waiting; });
       const label = g.sets.length > 1 ? setLabelOf(meta) : meta.name;
-      const tag = pr.waiting ? '⏳ ' + (pr.partners && pr.partners[0] ? setLabelOf(subjectMeta.filter(function (m) { return m.key === pr.partners[0]; })[0] || meta) : '') + ' 기다리는 중'
-                : mateWaiting ? '남은 ' + (count - pr.solved) + '문제' : '';
-      return '<div class="subject-card set-tile' + (pr.waiting ? ' wait' : '') + '" data-key="' + meta.key + '" title="' + esc(meta.name) + '" onclick="onSubjectStart(\'' + meta.key + '\')">' +
-        '<div class="st-name">' + esc(label) + '</div><div class="st-meta">' + count + '문제</div>' +
+      const mateLabel = pr.partners && pr.partners[0] ? setLabelOf(subjectMeta.filter(function (m) { return m.key === pr.partners[0]; })[0] || meta) : '';
+      const chip = pr.waiting ? { t: '⏳ 대기', tip: mateLabel + '을(를) 다 풀면 함께 ' + (pr.round + 1) + '회차로 넘어가요' }
+                 : mateWaiting ? { t: '남은 ' + (count - pr.solved), tip: '이 모음을 다 풀면 함께 ' + (pr.round + 1) + '회차로 넘어가요' } : null;
+      return '<div class="subject-card set-tile' + (pr.waiting ? ' wait' : '') + '" data-key="' + meta.key + '" onclick="onSubjectStart(\'' + meta.key + '\')">' +
+        '<div class="st-head"><span class="st-name">' + esc(label) + '</span></div>' +
+        '<div class="st-meta"><span>' + count + '문제</span>' + (chip ? '<span class="st-chip' + (pr.waiting ? '' : ' left') + '" title="' + esc(chip.tip) + '">' + esc(chip.t) + '<span class="st-tip">' + esc(chip.tip) + '</span></span>' : '') + '</div>' +
         '<div class="st-bar"><div style="width:' + pr.pct + '%"></div></div>' +
-        '<div class="st-foot"><span>' + (pr.waiting ? '✓ 완료' : pr.solved + '/' + count) + '</span><b style="color:' + accColor(pr.acc) + '">' + (pr.acc === null ? '-' : pr.acc + '%') + '</b></div>' +
-        (tag ? '<div class="st-tag">' + esc(tag) + '</div>' : '') + '</div>';
+        '<div class="st-foot"><span>' + (pr.waiting ? '✓ 완료' : pr.solved + '/' + count) + '</span><b style="color:' + accColor(pr.acc) + '">' + (pr.acc === null ? '-' : pr.acc + '%') + '</b></div></div>';
     }).join('');
     const round = G ? G.round : 1, done = G ? G.done : 0;
     const gacc = G ? G.acc : null, gpct = G ? G.pct : 0;
