@@ -1,7 +1,7 @@
 window.quizDatabase = window.quizDatabase || {};
 
 window.quizDatabase.hygiene = {
-  "title": "구강보건학 (29~40)",
+  "title": "구강보건학 모의고사 (29~40)",
   "questions": [
     {
       "id": 1,

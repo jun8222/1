@@ -1,7 +1,7 @@
 window.quizDatabase = window.quizDatabase || {};
 
 window.quizDatabase.orthodontics = {
-  title: "교정기공학 (97~110)",
+  title: "교정기공학 모의고사 (97~110)",
   questions: [
       {
           "id":  1,

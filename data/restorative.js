@@ -1,7 +1,7 @@
 window.quizDatabase = window.quizDatabase || {};
 
 window.quizDatabase.restorative = {
-  "title": "충전기공학 (83~96)",
+  "title": "충전기공학 모의고사 (83~96)",
   "questions": [
     {
       "id": 1,

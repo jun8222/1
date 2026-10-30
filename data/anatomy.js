@@ -1,7 +1,7 @@
 window.quizDatabase = window.quizDatabase || {};
 
 window.quizDatabase.anatomy = {
-  title: "구강해부학 (1~12)",
+  title: "구강해부학 모의고사 (1~12)",
   questions: [
     {
       id: 1,

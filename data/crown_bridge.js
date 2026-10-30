@@ -1,7 +1,7 @@
 window.quizDatabase = window.quizDatabase || {};
 
 window.quizDatabase.crown_bridge = {
-  title: "관교의치기공학 (1~19)",
+  title: "관교의치기공학 모의고사 (1~19)",
   questions: [
       {
           "id": 1,

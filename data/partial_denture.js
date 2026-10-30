@@ -1,7 +1,7 @@
 window.quizDatabase = window.quizDatabase || {};
 
 window.quizDatabase.partial_denture = {
-  title: "국소의치기공학 (59~82)",
+  title: "국소의치기공학 모의고사 (59~82)",
   questions: [
     {
       id: 1,
