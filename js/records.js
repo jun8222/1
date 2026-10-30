@@ -71,15 +71,18 @@
 
     // 2) 달력
     var cal = RC.calendar(sum, new Date(), 17), dd = RC.daysToExam(new Date());
-    html += '<div class="rec-card"><div class="rec-title">📅 학습 달력 <span class="rec-sub">' + (dd > 0 ? '<b class="rec-dday">🎯 시험까지 D-' + dd + '</b> · ' : dd === 0 ? '<b class="rec-dday">🎯 D-DAY 화이팅!</b> · ' : '최근 17주 · ') + sum.activeDays + '일 학습</span></div><div class="rec-cal">' +
+    html += '<div class="rec-card"><div class="rec-title">📅 학습 달력 <span class="rec-sub">' + (dd > 0 ? '<b class="rec-dday">🎯 시험까지 D-' + dd + '</b> · ' : dd === 0 ? '<b class="rec-dday">🎯 D-DAY 화이팅!</b> · ' : '최근 17주 · ') + sum.activeDays + '일 학습</span></div><div class="rec-cal fx' + streakFx + '" id="rec-cal" style="--gc:' + stkColor(cal) + '">' +
       cal.map(function (col) {
         return '<div class="rec-col">' + col.map(function (c) {
-          return '<span class="rec-cell lv' + c.lv + (c.future ? ' future' : '') + (c.today ? ' today' : '') + (c.exam ? ' exam' : '') + '" title="' + c.day + (c.exam ? ' · 시험일 🎯' : c.future ? ' · 남은 날' : ' · ' + c.n + '문제') + '">' + (c.exam ? '🎯' : '') + '</span>';
+          return '<span class="rec-cell lv' + c.lv + (c.future ? ' future' : '') + (c.today ? ' today' : '') + (c.exam ? ' exam' : '') + (c.stk ? ' stk' : '') + '"' + (c.stk ? ' style="--k:' + (c.stk - 1) + '"' : '') + ' title="' + c.day + (c.exam ? ' · 시험일 🎯' : c.future ? ' · 남은 날' : ' · ' + c.n + '문제') + '">' + (c.exam ? '🎯' : '<i></i>') + '</span>';
         }).join('') + '</div>';
       }).join('') + '</div>' +
       (sum.firstDay ? '<div class="rec-sub" style="margin-top:8px">📌 첫 학습일 ' + sum.firstDay.replace(/-/g, '.') + ' · 시작한 지 ' + (Math.round((new Date(RC.dayKey(new Date()) + 'T00:00:00') - new Date(sum.firstDay + 'T00:00:00')) / 86400000) + 1) + '일째</div>' : '') +
-      '<div class="rec-legend">적음 <span class="rec-cell lv0"></span><span class="rec-cell lv1"></span><span class="rec-cell lv2"></span><span class="rec-cell lv3"></span><span class="rec-cell lv4"></span> 많음 <span class="rec-cell lv5" title="100문제 이상"></span><span class="rec-cell lv6" title="150문제 이상"></span><span class="rec-cell lv7" title="200문제 이상"></span></div>' +
+      '<div class="rec-legend">적음 <span class="rec-cell lv0"></span><span class="rec-cell lv1"></span><span class="rec-cell lv2"></span><span class="rec-cell lv3"></span><span class="rec-cell lv4"></span> 많음 <span class="rec-cell lv5" title="100문제 이상"><i></i></span><span class="rec-cell lv6" title="150문제 이상"><i></i></span><span class="rec-cell lv7" title="200문제 이상"><i></i></span></div>' +
       '<div class="rec-reset"><div id="reset-mine-warn" class="rec-reset-warn">풀이 기록·오답노트·달력·레벨이 모두 사라지고 되돌릴 수 없어요.</div><button id="reset-mine-btn" class="rec-reset-btn" onclick="resetMine()">🧹 기록 초기화</button></div></div>';
+
+    html = html.replace('<div class="rec-reset">', '<div class="fx-pick">🔥 연속 효과 <select onchange="setStreakFx(this.value)">' +
+      FX_NAMES.map(function (n, i) { return '<option value="' + i + '"' + (String(i) === String(streakFx) ? ' selected' : '') + '>' + n + '</option>'; }).join('') + '</select></div><div class="rec-reset">');
 
     // 3) 레이더
     var rItems = roundItems();
@@ -162,6 +165,19 @@
       return '<span>' + esc(i.name) + ' <b>' + i.show + '%</b> <small>(' + r + '회차' + (i.cur !== null ? ' · ' + i.tries + '회 풀이' : ' 완료') + ')</small></span>';
     }).join('') + '</div>';
   }
+
+  // ---------------------------------------------------------------- 연속 효과 (학습 달력)
+  var FX_NAMES = ['없음', '숨쉬는 빛', '흐르는 물결', '길이별 색', '네온 테두리', '오로라', '불티'];
+  var streakFx = '1';
+  try { var savedFx = localStorage.getItem('streakFx'); if (savedFx !== null && FX_NAMES[+savedFx]) streakFx = savedFx; } catch (e) { /* 무시 */ }
+  function stkColor(cal) {
+    var len = 0; cal.forEach(function (col) { col.forEach(function (c) { if (c.stkLen) len = c.stkLen; }); });
+    return len >= 21 ? 'rgba(255, 210, 80, .9)' : len >= 14 ? 'rgba(45, 212, 191, .85)' : len >= 7 ? 'rgba(255, 80, 80, .85)' : 'rgba(255, 154, 60, .85)';
+  }
+  window.setStreakFx = function (v) {
+    streakFx = v; try { localStorage.setItem('streakFx', v); } catch (e) { /* 무시 */ }
+    var el = $('rec-cal'); if (el) el.className = 'rec-cal fx' + v;
+  };
 
   // ---------------------------------------------------------------- 뱃지
   var badgeExtra = null, badgeExtraAt = 0, lastBadges = [], badgeCat = 'all';

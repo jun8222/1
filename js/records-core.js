@@ -267,13 +267,17 @@
     var today = dayKey(now), ex = exam === undefined ? EXAM_DATE : exam;
     var end = (ex && daysToExam(now, ex) >= 0) ? parseKey(ex) : parseKey(today);
     var start = addDays(end, -(weeks * 7 - 1));
+    // 지금 이어지고 있는 연속 기록 (오늘 풀었으면 오늘까지, 아니면 어제까지)
+    var stk = {}, run = [], cur = sum.days[today] ? parseKey(today) : addDays(parseKey(today), -1);
+    while (sum.days[dayKey(cur)]) { run.unshift(dayKey(cur)); cur = addDays(cur, -1); }
+    if (run.length >= 2) run.forEach(function (k, i) { stk[k] = i + 1; });
     var cols = [];
     for (var w = 0; w < weeks; w++) {
       var col = [];
       for (var d = 0; d < 7; d++) {
         var dt = addDays(start, w * 7 + d), k = dayKey(dt);
         var n = sum.days[k] ? sum.days[k].n : 0;
-        col.push({ day: k, n: n, future: k > today, today: k === today, exam: !!ex && k === ex,
+        col.push({ day: k, n: n, future: k > today, today: k === today, exam: !!ex && k === ex, stk: stk[k] || 0, stkLen: run.length >= 2 ? run.length : 0,
                    lv: n === 0 ? 0 : n < 10 ? 1 : n < 30 ? 2 : n < 60 ? 3 : n < 100 ? 4 : n < 150 ? 5 : n < 200 ? 6 : 7 });
       }
       cols.push(col);

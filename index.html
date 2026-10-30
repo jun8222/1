@@ -7,7 +7,7 @@
   <title>치과기공사 국가시험 퀴즈</title>
   
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="./css/proto.css?v=202610310020">
+  <link rel="stylesheet" href="./css/proto.css?v=202610310033">
   
   <style>
 
@@ -438,25 +438,40 @@
     .rec-lv-name { font-weight: 700; margin-bottom: 6px; }
     .rec-bar { height: 10px; border-radius: 6px; background: var(--border-color); overflow: hidden; margin-bottom: 4px; }
     .rec-bar > div { height: 100%; background: linear-gradient(90deg, #4facfe, #7c6cff); border-radius: 6px; }
-    .rec-cal { display: flex; gap: 3px; justify-content: center; overflow: hidden; }
+    .rec-cal { display: flex; gap: 3px; justify-content: center; padding: 6px 4px; }
     .rec-col { display: flex; flex-direction: column; gap: 3px; }
-    .rec-cell { display: inline-block; width: 15px; height: 15px; border-radius: 3px; background: rgba(128, 140, 170, 0.2); }
+    .rec-cell { display: inline-block; position: relative; width: 15px; height: 15px; border-radius: 3px; background: rgba(128, 140, 170, 0.2); }
+    .rec-cell > i { position: absolute; inset: 0; border-radius: inherit; overflow: hidden; pointer-events: none; }
     .rec-cell.lv1 { background: #9be9a8; } .rec-cell.lv2 { background: #40c463; } .rec-cell.lv3 { background: #30a14e; } .rec-cell.lv4 { background: #216e39; }
-    .rec-cell.lv5, .rec-cell.lv6 { position: relative; overflow: hidden; }
-    .rec-cell.lv5 { background: linear-gradient(135deg, #fff3b0, #f5c542 45%, #c8961e); }
-    .rec-cell.lv6 { background: linear-gradient(90deg, #ff5f6d, #ffc371, #47e891, #3fa9f5, #a66cff, #ff5f6d); background-size: 300% 100%; animation: recFlow 3s linear infinite; }
-    .rec-cell.lv5::after, .rec-cell.lv6::after { content: ''; position: absolute; inset: 0; background: linear-gradient(120deg, transparent 30%, rgba(255, 255, 255, .75) 50%, transparent 70%); transform: translateX(-120%); animation: recShine 2.4s infinite; }
-    .rec-cell.lv6::after { animation-duration: 1.8s; background: linear-gradient(120deg, transparent 30%, rgba(255, 255, 255, .8) 50%, transparent 70%); }
-    .rec-cell.lv7 { position: relative; overflow: hidden; background: radial-gradient(circle at 30% 30%, #7b5cff, #2a0f5c 60%, #0a0420); }
-    .rec-cell.lv7::before, .rec-cell.lv7::after { content: ''; position: absolute; width: 2px; height: 2px; border-radius: 50%; background: #fff; box-shadow: 0 0 3px 1px #fff; animation: recTwinkle 1.4s ease-in-out infinite; }
-    .rec-cell.lv7::before { top: 25%; left: 30%; }
-    .rec-cell.lv7::after { top: 60%; left: 65%; animation-delay: .7s; }
+        .rec-cell.lv5 { background: linear-gradient(135deg, #fff3b0, #f5c542 45%, #c8961e); }
+    .rec-cell.lv6 { background: linear-gradient(90deg, #ff5f6d, #ffc371, #47e891, #3fa9f5, #a66cff); }
+    .rec-cell.lv6 > i { background: linear-gradient(90deg, #ff5f6d, #ffc371, #47e891, #3fa9f5, #a66cff, #ff5f6d); background-size: 300% 100%; animation: recFlow 3s linear infinite; }
+    .rec-cell.lv5 > i::after, .rec-cell.lv6 > i::after { content: ''; position: absolute; inset: 0; background: linear-gradient(120deg, transparent 30%, rgba(255, 255, 255, .75) 50%, transparent 70%); transform: translateX(-120%); animation: recShine 2.4s infinite; }
+    .rec-cell.lv6 > i::after { animation-duration: 1.8s; background: linear-gradient(120deg, transparent 30%, rgba(255, 255, 255, .8) 50%, transparent 70%); }
+    .rec-cell.lv7 { background: radial-gradient(circle at 30% 30%, #7b5cff, #2a0f5c 60%, #0a0420); }
+    .rec-cell.lv7 > i::before, .rec-cell.lv7 > i::after { content: ''; position: absolute; width: 2px; height: 2px; border-radius: 50%; background: #fff; box-shadow: 0 0 3px 1px #fff; animation: recTwinkle 1.4s ease-in-out infinite; }
+    .rec-cell.lv7 > i::before { top: 25%; left: 30%; }
+    .rec-cell.lv7 > i::after { top: 60%; left: 65%; animation-delay: .7s; }
     @keyframes recTwinkle { 0%, 100% { opacity: .2; } 50% { opacity: 1; } }
     @keyframes recShine { 60%, 100% { transform: translateX(120%); } }
     @keyframes recFlow { to { background-position: 300% 0; } }
     .rec-cell.future { opacity: .45; }
     .rec-cell.lv0.future { opacity: .45; background: transparent; box-shadow: inset 0 0 0 1px rgba(128, 140, 170, 0.45); }
-    .rec-cell.today { box-shadow: 0 0 0 2px #4f6bff; }
+    .rec-cell.today { outline: 2px solid #4f6bff; outline-offset: 0; }
+    /* 연속 효과: fx1 숨쉬는 빛 · fx2 흐르는 물결 · fx3 길이별 색 · fx4 네온 · fx5 오로라 · fx6 불티 */
+    .fx1 .rec-cell.stk { animation: stkBreath 2.2s ease-in-out infinite; }
+    @keyframes stkBreath { 0%, 100% { box-shadow: 0 0 3px 1px rgba(255, 154, 60, .35); } 50% { box-shadow: 0 0 9px 3px rgba(255, 154, 60, .9); } }
+    .fx2 .rec-cell.stk { animation: stkWave 1.8s ease-in-out infinite; animation-delay: calc(var(--k) * .15s); }
+    @keyframes stkWave { 0%, 60%, 100% { box-shadow: 0 0 2px 0 rgba(255, 200, 80, .2); } 25% { box-shadow: 0 0 10px 3px rgba(255, 200, 80, .95); } }
+    .fx3 .rec-cell.stk { box-shadow: 0 0 7px 2px var(--gc); }
+    .fx4 .rec-cell.stk { box-shadow: 0 0 0 1.5px #ffd27a, 0 0 8px 2px rgba(255, 170, 60, .55); }
+    .fx5 .rec-cell.stk { animation: stkAurora 3s ease-in-out infinite; }
+    @keyframes stkAurora { 0%, 100% { box-shadow: 0 0 14px 6px rgba(255, 140, 60, .35); } 50% { box-shadow: 0 0 18px 8px rgba(255, 110, 90, .18); } }
+    .fx6 .rec-cell.stk { box-shadow: 0 0 5px 1px rgba(255, 154, 60, .6); }
+    .fx6 .rec-cell.stk::after { content: ''; position: absolute; left: 50%; bottom: 60%; width: 3px; height: 3px; border-radius: 50%; background: #ffcf6b; box-shadow: 0 0 4px 1px #ff9a3c; opacity: 0; animation: stkEmber 2.4s ease-out infinite; animation-delay: calc(var(--k) * .4s); }
+    @keyframes stkEmber { 0% { transform: translate(-50%, 0); opacity: 0; } 15% { opacity: 1; } 100% { transform: translate(calc(-50% + 4px), -16px); opacity: 0; } }
+    .fx-pick { margin-top: 10px; font-size: .76rem; color: var(--text-sub); display: flex; align-items: center; gap: 6px; }
+    .fx-pick select { background: var(--card-bg); color: var(--text-main); border: 1px solid var(--border-color); border-radius: 6px; padding: 3px 6px; font-size: .76rem; }
     .rec-cell.exam { opacity: 1 !important; background: #e5484d !important; box-shadow: none; font-size: 10px; line-height: 15px; text-align: center; overflow: hidden; }
     .rec-dday { color: #e5484d; font-weight: 700; }
     .note-source { margin-top: 12px; font-size: .88rem; }
@@ -1038,37 +1053,37 @@
   <script src="./js/config.js"></script>
 
   <!-- 11개 기본 과목 + 11개 기출 과목 스크립트 연결 -->
-  <script src="./data/anatomy.js?v=202610310020"></script>
-  <script src="./data/anatomy_past.js?v=202610310020"></script>
-  <script src="./data/morphology.js?v=202610310020"></script>
-  <script src="./data/morphology_past.js?v=202610310020"></script>
-  <script src="./data/hygiene.js?v=202610310020"></script>
-  <script src="./data/hygiene_past.js?v=202610310020"></script>
-  <script src="./data/materials.js?v=202610310020"></script>
-  <script src="./data/materials_past.js?v=202610310020"></script>
-  <script src="./data/law.js?v=202610310020"></script>
-  <script src="./data/law_past.js?v=202610310020"></script>
+  <script src="./data/anatomy.js?v=202610310033"></script>
+  <script src="./data/anatomy_past.js?v=202610310033"></script>
+  <script src="./data/morphology.js?v=202610310033"></script>
+  <script src="./data/morphology_past.js?v=202610310033"></script>
+  <script src="./data/hygiene.js?v=202610310033"></script>
+  <script src="./data/hygiene_past.js?v=202610310033"></script>
+  <script src="./data/materials.js?v=202610310033"></script>
+  <script src="./data/materials_past.js?v=202610310033"></script>
+  <script src="./data/law.js?v=202610310033"></script>
+  <script src="./data/law_past.js?v=202610310033"></script>
 
-  <script src="./data/crown_bridge.js?v=202610310020"></script>
-  <script src="./data/crown_bridge_past.js?v=202610310020"></script>
-  <script src="./data/porcelain.js?v=202610310020"></script>
-  <script src="./data/porcelain_past.js?v=202610310020"></script>
-  <script src="./data/complete_denture.js?v=202610310020"></script>
-  <script src="./data/complete_denture_past.js?v=202610310020"></script>
-  <script src="./data/partial_denture.js?v=202610310020"></script>
-  <script src="./data/partial_denture_past.js?v=202610310020"></script>
-  <script src="./data/restorative.js?v=202610310020"></script>
-  <script src="./data/restorative_past.js?v=202610310020"></script>
-  <script src="./data/orthodontics.js?v=202610310020"></script>
-  <script src="./data/orthodontics_past.js?v=202610310020"></script>
-  <script src="./data/review.js?v=202610310020"></script>
+  <script src="./data/crown_bridge.js?v=202610310033"></script>
+  <script src="./data/crown_bridge_past.js?v=202610310033"></script>
+  <script src="./data/porcelain.js?v=202610310033"></script>
+  <script src="./data/porcelain_past.js?v=202610310033"></script>
+  <script src="./data/complete_denture.js?v=202610310033"></script>
+  <script src="./data/complete_denture_past.js?v=202610310033"></script>
+  <script src="./data/partial_denture.js?v=202610310033"></script>
+  <script src="./data/partial_denture_past.js?v=202610310033"></script>
+  <script src="./data/restorative.js?v=202610310033"></script>
+  <script src="./data/restorative_past.js?v=202610310033"></script>
+  <script src="./data/orthodontics.js?v=202610310033"></script>
+  <script src="./data/orthodontics_past.js?v=202610310033"></script>
+  <script src="./data/review.js?v=202610310033"></script>
 
   <!-- 앱 로직 (클라우드 연동 / 오늘의 문제 / 화면) -->
-  <script src="./js/source.js?v=202610310020"></script>
-  <script src="./js/records-core.js?v=202610310020"></script>
-  <script src="./js/daily.js?v=202610310020"></script>
-  <script src="./js/cloud.js?v=202610310020"></script>
-  <script src="./js/app.js?v=202610310020"></script>
-  <script src="./js/records.js?v=202610310020"></script>
+  <script src="./js/source.js?v=202610310033"></script>
+  <script src="./js/records-core.js?v=202610310033"></script>
+  <script src="./js/daily.js?v=202610310033"></script>
+  <script src="./js/cloud.js?v=202610310033"></script>
+  <script src="./js/app.js?v=202610310033"></script>
+  <script src="./js/records.js?v=202610310033"></script>
 </body>
 </html>

@@ -80,6 +80,11 @@ assert.deepStrictEqual(gr.sets.m.partners, ['m_past']);
   assert.ok(after.filter(x => x.cat === 'exam').every(x => x.got));   // 시험 후 못 받은 시험 뱃지 숨김
 }
 function BADGE_IDS_UNIQUE(list) { return new Set(list.map(x => x.id)).size === list.length; }
+{ // 연속 기록 표시
+  const now3 = new Date(2026, 10, 5, 12), rows3 = [3, 4].map(d => ({ created_at: new Date(2026, 10, d, 9).toISOString(), subject_key: 'law', correct: true }));
+  const c3 = [].concat(...R.calendar(R.summarize(rows3, now3), now3, 17, null));
+  assert.deepStrictEqual(c3.filter(c => c.stk).map(c => [c.day, c.stk, c.stkLen]), [['2026-11-03', 1, 2], ['2026-11-04', 2, 2]]);
+}
 console.log('records tests passed');
 // ---- 캐릭터 (잠금 없음)
 assert.strictEqual(R.avatarList().length, 72);
