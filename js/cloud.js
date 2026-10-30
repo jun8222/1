@@ -244,7 +244,7 @@ window.Cloud = (function () {
   async function loadAttemptHistory() {
     var rows = [], from = 0, size = 1000;
     for (;;) {
-      var res = await client.from('attempts').select('created_at,subject_key,question_id,correct,source')
+      var res = await client.from('attempts').select('created_at,subject_key,question_id,correct,source,picked,session_id')
         .eq('user_id', uid()).order('id').range(from, from + size - 1);
       var part = check(res, '풀이 이력 불러오기');
       rows = rows.concat(part);
@@ -252,6 +252,11 @@ window.Cloud = (function () {
       from += size;
     }
     return rows;
+  }
+  async function myBadgeStats() {
+    var res = await client.rpc('my_badge_stats');
+    if (res.error) return {};
+    return (res.data && res.data[0]) || {};
   }
   async function getRanking(period) {
     var res = await client.rpc('ranking', { period: period || 'week' });
@@ -369,7 +374,7 @@ window.Cloud = (function () {
     signInWithGoogle: signInWithGoogle, signOut: signOut,
     getProfile: getProfile, updateProfile: updateProfile,
     logAttempt: logAttempt, saveSession: saveSession, flush: flush, pendingCount: pendingCount,
-    listSessions: listSessions, loadQuestionStats: loadQuestionStats, loadAttemptHistory: loadAttemptHistory, getRanking: getRanking, toggleCheer: toggleCheer, getActivity: getActivity, createDuel: createDuel, getDuel: getDuel, saveDuelResult: saveDuelResult, myDuelResult: myDuelResult, duelBoard: duelBoard, deleteDuel: deleteDuel, myDuels: myDuels, loadRecentBySubject: loadRecentBySubject, loadNoteClears: loadNoteClears, saveNoteClears: saveNoteClears, loadAttemptsSince: loadAttemptsSince,
+    listSessions: listSessions, loadQuestionStats: loadQuestionStats, loadAttemptHistory: loadAttemptHistory, getRanking: getRanking, myBadgeStats: myBadgeStats, toggleCheer: toggleCheer, getActivity: getActivity, createDuel: createDuel, getDuel: getDuel, saveDuelResult: saveDuelResult, myDuelResult: myDuelResult, duelBoard: duelBoard, deleteDuel: deleteDuel, myDuels: myDuels, loadRecentBySubject: loadRecentBySubject, loadNoteClears: loadNoteClears, saveNoteClears: saveNoteClears, loadAttemptsSince: loadAttemptsSince,
     getDailySet: getDailySet, saveDailySet: saveDailySet,
     createReport: createReport, listReports: listReports, setReportStatus: setReportStatus, deleteReport: deleteReport,
     adminListMembers: adminListMembers, adminSetMember: adminSetMember, adminResetMember: adminResetMember, resetMyRecords: resetMyRecords,

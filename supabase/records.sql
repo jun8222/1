@@ -211,3 +211,19 @@ language sql stable security definer set search_path = public as $$
 $$;
 revoke all on function public.ranking(text) from public, anon;
 grant execute on function public.ranking(text) to authenticated;
+
+-- 7. 뱃지용 내 통계 (대결 참가·승리, 받은 응원, 보낸 신고)
+create or replace function public.my_badge_stats()
+returns table (duels_played bigint, duel_wins bigint, cheers_got bigint, reports_sent bigint)
+language sql stable security definer set search_path = public as $$
+  select
+    (select count(*) from public.duel_results r where r.user_id = auth.uid()),
+    (select count(*) from public.duel_results r
+       where r.user_id = auth.uid()
+         and (select count(*) from public.duel_results o where o.duel_id = r.duel_id) >= 2
+         and r.correct > coalesce((select max(o.correct) from public.duel_results o where o.duel_id = r.duel_id and o.user_id <> r.user_id), -1)),
+    (select count(*) from public.cheers c where c.to_user = auth.uid()),
+    (select count(*) from public.reports p where p.user_id = auth.uid());
+$$;
+revoke all on function public.my_badge_stats() from public, anon;
+grant execute on function public.my_badge_stats() to authenticated;

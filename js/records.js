@@ -47,7 +47,14 @@
       var o = sum.groups[g.key], acc = o && o.n ? o.ok / o.n : 0;
       if (totalBy[g.key] && (solvedBy[g.key] || 0) / totalBy[g.key] >= 0.9 && acc >= 0.8) conquest[g.key] = true;
     });
-    var bs = RC.badges({ sum: sum, cleared: cleared, conquest: conquest });
+    if (!badgeExtra || Date.now() - badgeExtraAt > 60000) {
+      try { badgeExtra = await Cloud.myBadgeStats(); badgeExtraAt = Date.now(); } catch (e) { badgeExtra = badgeExtra || {}; }
+    }
+    var periods = {};
+    (typeof subjectMeta !== 'undefined' ? subjectMeta : []).forEach(function (m) { periods[RC.groupOf(m.key)] = m.period; });
+    var gr = RC.groupRounds(histCache, window.subjectIdsBy ? window.subjectIdsBy() : {});
+    var bs = RC.badges({ sum: sum, cleared: cleared, conquest: conquest, rows: histCache, gr: gr, periods: periods,
+                         now: new Date(), dailyGoal: (currentUser && currentUser.daily_goal) || 30, extra: badgeExtra || {} });
 
     var html = '';
     // 1) 스트릭 + 레벨
@@ -81,12 +88,8 @@
       radarSvg(rItems) + roundCompare(rItems) + weakList(rItems) + '</div>';
 
     // 4) 뱃지
-    var gotN = bs.filter(function (b) { return b.got; }).length;
-    html += '<div class="rec-card"><div class="rec-title">🎖 뱃지 <span class="rec-sub">' + gotN + ' / ' + bs.length + '</span></div><div class="rec-badges">' +
-      bs.map(function (b) {
-        return '<div class="rec-badge' + (b.got ? ' got' : '') + '" title="' + esc(b.desc) + '"><div class="bi">' + (b.got ? b.icon : '🔒') + '</div><div class="bn">' + esc(b.name) + '</div>' +
-          (!b.got && b.prog ? '<div class="bp">' + esc(b.prog) + '</div>' : '') + '</div>';
-      }).join('') + '</div></div>';
+    lastBadges = bs;
+    html += '<div class="rec-card" id="badge-card">' + badgeCardInner() + '</div>';
 
     // 5) 랭킹 · 피드 · 대결 (서버 기능: 자리 먼저 만들고 비동기로 채움)
     html += '<div class="rec-card"><div class="rec-title">🏆 랭킹 <span class="rec-sub">푼 문제 수 기준</span></div>' +
@@ -159,6 +162,31 @@
       return '<span>' + esc(i.name) + ' <b>' + i.show + '%</b> <small>(' + r + '회차' + (i.cur !== null ? ' · ' + i.tries + '회 풀이' : ' 완료') + ')</small></span>';
     }).join('') + '</div>';
   }
+
+  // ---------------------------------------------------------------- 뱃지
+  var badgeExtra = null, badgeExtraAt = 0, lastBadges = [], badgeCat = 'all';
+  try { badgeCat = localStorage.getItem('badgeCat') || 'all'; } catch (e) { /* 무시 */ }
+  function badgeCardInner() {
+    var bs = lastBadges, gotN = bs.filter(function (b) { return b.got; }).length;
+    var cats = [['all', '전체']].concat(RC.BADGE_CATS).filter(function (c) { return c[0] === 'all' || bs.some(function (b) { return b.cat === c[0]; }); });
+    if (!cats.some(function (c) { return c[0] === badgeCat; })) badgeCat = 'all';
+    var list = bs.filter(function (b) { return badgeCat === 'all' || b.cat === badgeCat; })
+      .map(function (b, i) { return { b: b, i: i }; })
+      .sort(function (x, y) { return (y.b.got - x.b.got) || (x.i - y.i); }).map(function (x) { return x.b; });
+    return '<div class="rec-title">🎖 뱃지 <span class="rec-sub">' + gotN + ' / ' + bs.length + '</span></div>' +
+      '<div class="badge-tabs">' + cats.map(function (c) {
+        var n = bs.filter(function (b) { return (c[0] === 'all' || b.cat === c[0]) && b.got; }).length;
+        return '<button type="button" class="' + (c[0] === badgeCat ? 'on' : '') + '" onclick="setBadgeCat(\'' + c[0] + '\')">' + c[1] + (n ? ' <small>' + n + '</small>' : '') + '</button>';
+      }).join('') + '</div>' +
+      '<div class="rec-badges">' + list.map(function (b) {
+        return '<div class="rec-badge t' + b.tier + (b.got ? ' got' : '') + '" title="' + esc(b.desc) + '"><div class="bi">' + (b.got ? b.icon : '🔒') + '</div><div class="bn">' + esc(b.name) + '</div>' +
+          (!b.got && b.prog ? '<div class="bp">' + esc(String(b.prog)) + '</div>' : '') + '<div class="bd">' + esc(b.desc) + '</div></div>';
+      }).join('') + '</div>';
+  }
+  window.setBadgeCat = function (c) {
+    badgeCat = c; try { localStorage.setItem('badgeCat', c); } catch (e) { /* 무시 */ }
+    var el = $('badge-card'); if (el) el.innerHTML = badgeCardInner();
+  };
 
   // ---------------------------------------------------------------- 랭킹 · 피드
   var CHARS = ['🌱', '🔧', '🦷', '⚙️', '🏅', '👑'];
