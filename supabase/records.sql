@@ -175,3 +175,39 @@ end;
 $$;
 revoke all on function public.reset_my_records() from public, anon;
 grant execute on function public.reset_my_records() to authenticated;
+
+-- 6. 기간별 랭킹: period = 'day'(오늘) | 'two'(어제+오늘, 이틀 모두 푼 사람만) | 'week'(이번 주)
+create or replace function public.ranking(period text default 'week')
+returns table (user_id uuid, display_name text, attempts bigint, rights bigint, total_xp bigint,
+               active_days bigint, night_n bigint, cheers bigint, cheered_by_me boolean, is_me boolean, avatar text)
+language sql stable security definer set search_path = public as $$
+  select p.id, p.display_name,
+         count(*) filter (where a.created_at >= ws.s),
+         count(*) filter (where a.created_at >= ws.s and a.correct),
+         count(*) + count(*) filter (where a.correct),
+         count(distinct (a.created_at at time zone 'Asia/Seoul')::date) filter (where a.created_at >= ws.s),
+         count(*) filter (where a.created_at >= ws.s and extract(hour from a.created_at at time zone 'Asia/Seoul') < 5),
+         (select count(*) from public.cheers c
+            where c.to_user = p.id and c.week_start = (date_trunc('week', now() at time zone 'Asia/Seoul'))::date),
+         exists (select 1 from public.cheers c
+            where c.to_user = p.id and c.from_user = auth.uid() and c.week_start = (date_trunc('week', now() at time zone 'Asia/Seoul'))::date),
+         (p.id = auth.uid()),
+         p.avatar
+  from public.profiles p
+  join public.attempts a on a.user_id = p.id
+  cross join (select case coalesce(period, 'week')
+      when 'day' then date_trunc('day', now() at time zone 'Asia/Seoul') at time zone 'Asia/Seoul'
+      when 'two' then (date_trunc('day', now() at time zone 'Asia/Seoul') - interval '1 day') at time zone 'Asia/Seoul'
+      else date_trunc('week', now() at time zone 'Asia/Seoul') at time zone 'Asia/Seoul' end as s) ws
+  where public.is_approved()
+    and p.status = 'approved'
+    and (p.rank_public or p.id = auth.uid())
+  group by p.id, p.display_name, p.avatar, ws.s
+  having count(*) filter (where a.created_at >= ws.s) > 0
+     and (coalesce(period, 'week') <> 'two'
+          or count(distinct (a.created_at at time zone 'Asia/Seoul')::date) filter (where a.created_at >= ws.s) = 2)
+  order by 3 desc, 4 desc
+  limit 50;
+$$;
+revoke all on function public.ranking(text) from public, anon;
+grant execute on function public.ranking(text) to authenticated;

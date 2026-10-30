@@ -7,7 +7,7 @@
   <title>치과기공사 국가시험 퀴즈</title>
   
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="./css/proto.css?v=202610302017">
+  <link rel="stylesheet" href="./css/proto.css?v=202610302243">
   
   <style>
 
@@ -529,6 +529,10 @@
     .avatar-opt.locked img { filter: grayscale(1); opacity: .35; }
     .avatar-opt .lock { position: absolute; inset: auto 0 6px 0; font-size: .62rem; font-weight: 700; }
     .avatar-opt .ae { font-size: 1.6rem; } .avatar-opt small { font-size: .62rem; }
+    .rank-seg { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); background: rgba(128, 140, 170, 0.15); border-radius: 10px; padding: 3px; margin: 8px 0 4px; }
+    .rank-seg button { background: transparent; border: none; color: var(--text-sub); padding: 7px 0; border-radius: 8px; font-size: .85rem; cursor: pointer; }
+    .rank-seg button.on { background: #4f6bff; color: #fff; font-weight: 600; }
+    .rank-desc { text-align: center; font-size: .72rem; margin-bottom: 8px; }
     .rec-pod { display: flex; align-items: flex-end; justify-content: center; gap: 8px; margin-top: 26px; }
     .pod-slot { flex: 1; max-width: 110px; display: flex; flex-direction: column; align-items: center; text-align: center; }
     .pod-slot.empty { opacity: .35; }
@@ -971,37 +975,37 @@
   <script src="./js/config.js"></script>
 
   <!-- 11개 기본 과목 + 11개 기출 과목 스크립트 연결 -->
-  <script src="./data/anatomy.js?v=202610302017"></script>
-  <script src="./data/anatomy_past.js?v=202610302017"></script>
-  <script src="./data/morphology.js?v=202610302017"></script>
-  <script src="./data/morphology_past.js?v=202610302017"></script>
-  <script src="./data/hygiene.js?v=202610302017"></script>
-  <script src="./data/hygiene_past.js?v=202610302017"></script>
-  <script src="./data/materials.js?v=202610302017"></script>
-  <script src="./data/materials_past.js?v=202610302017"></script>
-  <script src="./data/law.js?v=202610302017"></script>
-  <script src="./data/law_past.js?v=202610302017"></script>
+  <script src="./data/anatomy.js?v=202610302243"></script>
+  <script src="./data/anatomy_past.js?v=202610302243"></script>
+  <script src="./data/morphology.js?v=202610302243"></script>
+  <script src="./data/morphology_past.js?v=202610302243"></script>
+  <script src="./data/hygiene.js?v=202610302243"></script>
+  <script src="./data/hygiene_past.js?v=202610302243"></script>
+  <script src="./data/materials.js?v=202610302243"></script>
+  <script src="./data/materials_past.js?v=202610302243"></script>
+  <script src="./data/law.js?v=202610302243"></script>
+  <script src="./data/law_past.js?v=202610302243"></script>
 
-  <script src="./data/crown_bridge.js?v=202610302017"></script>
-  <script src="./data/crown_bridge_past.js?v=202610302017"></script>
-  <script src="./data/porcelain.js?v=202610302017"></script>
-  <script src="./data/porcelain_past.js?v=202610302017"></script>
-  <script src="./data/complete_denture.js?v=202610302017"></script>
-  <script src="./data/complete_denture_past.js?v=202610302017"></script>
-  <script src="./data/partial_denture.js?v=202610302017"></script>
-  <script src="./data/partial_denture_past.js?v=202610302017"></script>
-  <script src="./data/restorative.js?v=202610302017"></script>
-  <script src="./data/restorative_past.js?v=202610302017"></script>
-  <script src="./data/orthodontics.js?v=202610302017"></script>
-  <script src="./data/orthodontics_past.js?v=202610302017"></script>
-  <script src="./data/review.js?v=202610302017"></script>
+  <script src="./data/crown_bridge.js?v=202610302243"></script>
+  <script src="./data/crown_bridge_past.js?v=202610302243"></script>
+  <script src="./data/porcelain.js?v=202610302243"></script>
+  <script src="./data/porcelain_past.js?v=202610302243"></script>
+  <script src="./data/complete_denture.js?v=202610302243"></script>
+  <script src="./data/complete_denture_past.js?v=202610302243"></script>
+  <script src="./data/partial_denture.js?v=202610302243"></script>
+  <script src="./data/partial_denture_past.js?v=202610302243"></script>
+  <script src="./data/restorative.js?v=202610302243"></script>
+  <script src="./data/restorative_past.js?v=202610302243"></script>
+  <script src="./data/orthodontics.js?v=202610302243"></script>
+  <script src="./data/orthodontics_past.js?v=202610302243"></script>
+  <script src="./data/review.js?v=202610302243"></script>
 
   <!-- 앱 로직 (클라우드 연동 / 오늘의 문제 / 화면) -->
-  <script src="./js/source.js?v=202610302017"></script>
-  <script src="./js/records-core.js?v=202610302017"></script>
-  <script src="./js/daily.js?v=202610302017"></script>
-  <script src="./js/cloud.js?v=202610302017"></script>
-  <script src="./js/app.js?v=202610302017"></script>
-  <script src="./js/records.js?v=202610302017"></script>
+  <script src="./js/source.js?v=202610302243"></script>
+  <script src="./js/records-core.js?v=202610302243"></script>
+  <script src="./js/daily.js?v=202610302243"></script>
+  <script src="./js/cloud.js?v=202610302243"></script>
+  <script src="./js/app.js?v=202610302243"></script>
+  <script src="./js/records.js?v=202610302243"></script>
 </body>
 </html>
