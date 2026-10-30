@@ -208,13 +208,17 @@ window.addEventListener('resize', fitContextBoxes);
 })();
 
 // ---------------------------------------------------------------- 팁 · 근거 · 플래그
-function showTipAndSource(q) {
-  if (q.tip) { $('tipText').textContent = q.tip; $('tipBox').classList.add('show'); }
+function sourceParts(q) {
   const parts = [];
   if (q.source) parts.push('📖 ' + esc(window.formatSource ? window.formatSource(q.source) : q.source));
   if (q.flag === '정답변경') parts.push('🔄 교재 근거에 맞춰 정답을 바꾼 문항이에요' + (q.flagNote ? ': ' + esc(q.flagNote) : ''));
   if (q.flag === '정답불일치') parts.push('⚠ 교재 기준과 기출 정답이 다를 수 있어요' + (q.flagNote ? ': ' + esc(q.flagNote) : ''));
   if (q.flag === '출처외') parts.push('ℹ 교재에 명확한 근거가 없어 일반 지식으로 쓴 해설이에요' + (q.flagNote ? ': ' + esc(q.flagNote) : ''));
+  return parts;
+}
+function showTipAndSource(q) {
+  if (q.tip) { $('tipText').textContent = q.tip; $('tipBox').classList.add('show'); }
+  const parts = sourceParts(q);
   if (parts.length) {
     $('sourceText').innerHTML = parts.join('<br>');
     $('sourceToggle').classList.add('show');
@@ -370,6 +374,7 @@ function noteItemHtml(e, resolved) {
   const q = e.q;
   const expl = (q.commonExplanations || []).length ? q.commonExplanations.map(esc).join('<br>') : '';
   const ansText = esc(q.options[q.answer - 1] || '');
+  const src = sourceParts(q);
   return '<div class="wrong-item" style="margin-bottom: 12px;' + (resolved ? ' opacity: 0.85;' : '') + '">' +
     '<div class="wrong-item-header">' +
       '<div class="wrong-question">' + esc(q.question) + '</div>' +
@@ -384,6 +389,7 @@ function noteItemHtml(e, resolved) {
     '<div class="wrong-answer-line">✓ 정답 ' + q.answer + '. ' + ansText + '</div>' +
     (expl ? '<div class="wrong-explanation" style="margin-top: 12px;"><div class="wrong-explanation-label">💡 해설</div><div class="wrong-explanation-text">' + expl + '</div></div>' : '') +
     (q.tip ? '<div class="wrong-tip" style="margin-top: 12px;"><div class="wrong-tip-label">🎯 팁</div><div>' + esc(q.tip) + '</div></div>' : '') +
+    (src.length ? '<details class="note-source"><summary>📖 근거 보기</summary><div class="note-source-text">' + src.join('<br>') + '</div></details>' : '') +
   '</div>';
 }
 
