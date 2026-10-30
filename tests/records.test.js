@@ -52,6 +52,8 @@ const past = R.dayKey(new Date(now.getFullYear(), now.getMonth(), now.getDate() 
 assert.strictEqual([].concat(...R.calendar(s, now, 17, past))[118].day, R.dayKey(now));   // 시험 지나면 오늘이 끝
 assert.strictEqual(R.daysToExam(new Date(2026, 9, 30, 15), '2026-11-28'), 29);
 assert.strictEqual(R.daysToExam(new Date(2026, 10, 28, 23), '2026-11-28'), 0);
+const lvOf = n => [].concat(...R.calendar({ days: { [R.dayKey(now)]: { n: n } } }, now, 17, null))[118].lv;
+assert.deepStrictEqual([0, 9, 29, 59, 99, 100, 149, 150, 300].map(lvOf), [0, 1, 2, 3, 4, 5, 5, 6, 6]);
 console.log('records tests passed');
 // ---- 캐릭터 (잠금 없음)
 assert.strictEqual(R.avatarList().length, 72);
