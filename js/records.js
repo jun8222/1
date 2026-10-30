@@ -115,7 +115,7 @@
     });
   }
   function radarSvg(items) {
-    var S = 300, c = S / 2, R = 92, n = items.length;
+    var S = 300, c = S / 2, R = 88, n = items.length;
     function pt(idx, r) { var a = -Math.PI / 2 + idx * 2 * Math.PI / n; return [c + r * Math.cos(a), c + r * Math.sin(a)]; }
     function v(x) { return Math.max((x || 0) / 100, 0.02); }
     var svg = '<svg viewBox="0 0 ' + S + ' ' + S + '" class="rec-radar" role="img" aria-label="과목별 정답률 레이더 차트">';
@@ -130,7 +130,9 @@
     items.forEach(function (it, k) {
       var p = pt(k, R * v(it.show)), l = pt(k, R + 22);
       if (it.show !== null) svg += '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="3" fill="#4facfe"/>';
-      svg += '<text x="' + l[0] + '" y="' + l[1] + '" text-anchor="middle" dominant-baseline="middle" font-size="10" fill="var(--text-sub)"' + (it.show === null ? ' opacity=".5"' : '') + '>' + esc(it.name) + '</text>';
+      var lift = it.round > 1 ? 6 : 0;
+      svg += '<text x="' + l[0] + '" y="' + (l[1] - lift) + '" text-anchor="middle" dominant-baseline="middle" font-size="10" fill="var(--text-sub)"' + (it.show === null ? ' opacity=".5"' : '') + '>' + esc(it.name) + '</text>';
+      if (it.round > 1) svg += '<text x="' + l[0] + '" y="' + (l[1] + 7) + '" text-anchor="middle" dominant-baseline="middle" font-size="9" font-weight="700" fill="#e0a800">' + it.round + '회차</text>';
     });
     return svg + '</svg>';
   }
@@ -140,6 +142,7 @@
     if (!w.length) return '';
     return '<div class="rec-rounds"><b>회차 비교</b>' + w.map(function (i) {
       var hist = i.history.map(function (a, k) { return (k + 1) + '회차 ' + (a === null ? '-' : a + '%'); });
+      if (hist.length > 2) hist = [hist[0], '…', hist[hist.length - 1]];   // 처음 · 직전만
       var line = hist.join(' → ') + ' → ' + i.round + '회차 ' + (i.cur === null ? '시작 전' : i.cur + '%');
       var d = i.cur !== null && i.last !== null ? i.cur - i.last : null;
       return '<div class="rr"><span class="rr-n">' + esc(i.name) + '</span><span class="rr-v">' + esc(line) +
