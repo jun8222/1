@@ -1173,12 +1173,13 @@ function renderSubjectList() {
     if (periodVal !== 'all' && meta.period !== parseInt(periodVal, 10)) return;
     const gkey = window.RecordsCore ? window.RecordsCore.groupOf(meta.key) : meta.key;
     let g = byKey[gkey];
-    if (!g) { g = byKey[gkey] = { key: gkey, name: groupNameOf(meta), sets: [] }; groups.push(g); }
+    if (!g) { g = byKey[gkey] = { key: gkey, name: groupNameOf(meta), period: meta.period, sets: [] }; groups.push(g); }
     g.sets.push(meta);
   });
 
-  let html = '';
+  const secHtml = { 1: '', 2: '', 0: '' }, secSum = { 1: [0, 0, 0], 2: [0, 0, 0], 0: [0, 0, 0] };
   groups.forEach(function (g) {
+    let html = '';
     const names = g.name + ' ' + g.sets.map(function (m) { return m.name; }).join(' ');
     if (searchVal && !names.toLowerCase().includes(searchVal)) return;
     const G = roundCache.groups && roundCache.groups[g.key];
@@ -1207,8 +1208,35 @@ function renderSubjectList() {
       (G ? '<div class="sg-row"><span>진도</span><div class="sg-bar"><div style="width:' + gpct + '%"></div></div><b>' + gpct + '%</b></div>' +
            '<div class="sg-row"><span>정답률</span><div class="sg-bar acc" style="--c:' + accColor(gacc) + '"><div style="width:' + (gacc || 0) + '%"></div></div><b style="color:' + accColor(gacc) + '">' + (gacc === null ? '-' : gacc + '%') + '</b></div>' : '') +
       '<div class="sg-sets">' + tiles + '</div></div>';
+    const pk = g.period === 1 || g.period === 2 ? g.period : 0;
+    secHtml[pk] += html; secSum[pk][0]++;
+    if (G) { secSum[pk][1] += G.solved; secSum[pk][2] += G.total; }
   });
-  if (grid._html !== html) { grid.innerHTML = html; grid._html = html; }
+  let out = '';
+  [[1, '1교시', 'p1'], [2, '2교시', 'p2'], [0, '기타', 'p0']].forEach(function (sec) {
+    const body = secHtml[sec[0]]; if (!body) return;
+    const sm = secSum[sec[0]], folded = !!foldedPeriods[sec[0]];
+    const pct = sm[2] ? Math.round(sm[1] / sm[2] * 100) : 0;
+    out += '<section class="period-sec ' + sec[2] + (folded ? ' folded' : '') + '">' +
+      '<div class="ps-head"><span class="ps-pill">' + sec[1] + '</span>' +
+        '<span class="ps-info">' + sm[0] + '과목' + (sec[0] ? ' · 진도 ' + pct + '%' : '') + '</span>' +
+        (sec[0] ? '<span class="ps-mini"><span style="width:' + pct + '%"></span></span>' : '') +
+        '<button type="button" class="ps-fold" onclick="togglePeriodFold(' + sec[0] + ')">' + (folded ? '펼치기 ▾' : '접기 ▴') + '</button></div>' +
+      '<div class="ps-body">' + (folded ? '' : body) + '</div></section>';
+  });
+  if (grid._html !== out) { grid.innerHTML = out; grid._html = out; }
+}
+let foldedPeriods = {};
+try { foldedPeriods = JSON.parse(localStorage.getItem('foldedPeriods') || '{}') || {}; } catch (e) { foldedPeriods = {}; }
+function togglePeriodFold(p) {
+  foldedPeriods[p] = !foldedPeriods[p];
+  try { localStorage.setItem('foldedPeriods', JSON.stringify(foldedPeriods)); } catch (e) { /* 무시 */ }
+  renderSubjectList();
+}
+function setPeriodFilter(v) {
+  $('period-filter').value = v;
+  document.querySelectorAll('#period-seg button').forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-v') === v); });
+  renderSubjectList();
 }
 
 function filterSubjects() { renderSubjectList(); }

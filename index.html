@@ -7,7 +7,7 @@
   <title>치과기공사 국가시험 퀴즈</title>
   
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="./css/proto.css?v=202610302357">
+  <link rel="stylesheet" href="./css/proto.css?v=202610310000">
   
   <style>
 
@@ -529,7 +529,23 @@
     .avatar-opt.locked img { filter: grayscale(1); opacity: .35; }
     .avatar-opt .lock { position: absolute; inset: auto 0 6px 0; font-size: .62rem; font-weight: 700; }
     .avatar-opt .ae { font-size: 1.6rem; } .avatar-opt small { font-size: .62rem; }
-    #subjectGrid { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
+    #subjectGrid { display: block; }
+    .period-sec { margin-bottom: 18px; }
+    .ps-head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .ps-pill { color: #fff; background: #4f6bff; border-radius: 8px; padding: 4px 10px; font-weight: 700; font-size: .88rem; white-space: nowrap; }
+    .period-sec.p2 .ps-pill { background: #8b5cf6; }
+    .period-sec.p0 .ps-pill { background: #64748b; }
+    .ps-info { font-size: .76rem; color: var(--text-sub); white-space: nowrap; }
+    .ps-mini { flex: 1; max-width: 220px; height: 6px; border-radius: 4px; background: rgba(79, 172, 254, 0.18); overflow: hidden; }
+    .ps-mini > span { display: block; height: 100%; background: linear-gradient(90deg, #4facfe, #7c6cff); }
+    .ps-fold { margin-left: auto; background: transparent; border: 1px solid var(--border-color); color: var(--text-sub); border-radius: 12px; padding: 3px 10px; font-size: .75rem; cursor: pointer; white-space: nowrap; }
+    .ps-body { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; border-left: 3px solid #4f6bff; padding-left: 12px; }
+    .period-sec.p2 .ps-body { border-left-color: #8b5cf6; }
+    .period-sec.p0 .ps-body { border-left-color: #64748b; }
+    .period-sec.folded .ps-body { display: none; }
+    .period-seg { display: inline-flex; background: rgba(128, 140, 170, 0.15); border-radius: 9px; padding: 3px; }
+    .period-seg button { background: transparent; border: none; color: var(--text-sub); padding: 5px 12px; border-radius: 7px; font-size: .85rem; cursor: pointer; }
+    .period-seg button.on { background: #4f6bff; color: #fff; font-weight: 600; }
     .subject-group { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 14px; padding: 14px; }
     .sg-head { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
     .sg-name { font-weight: 700; font-size: 1.02rem; }
@@ -552,7 +568,7 @@
     .st-bar > div { height: 100%; background: #4facfe; }
     .st-foot { display: flex; justify-content: space-between; font-size: .76rem; color: var(--text-sub); }
     .st-tag { font-size: .68rem; color: var(--text-sub); margin-top: 3px; }
-    @media (max-width: 640px) { #subjectGrid { grid-template-columns: 1fr; } }
+    @media (max-width: 640px) { .ps-body { grid-template-columns: 1fr; padding-left: 8px; } }
     .radar-legend { display: flex; gap: 14px; justify-content: center; font-size: .72rem; color: var(--text-sub); margin: 4px 0 -4px; }
     .radar-legend i { display: inline-block; width: 14px; border-top: 2px solid #4facfe; margin-right: 5px; vertical-align: 3px; }
     .radar-legend i.prv { border-top: 2px dashed #9aa3c0; }
@@ -793,11 +809,12 @@
 
       <div id="study-tab" class="tab-content active">
         <div class="sub-filter-row">
-          <select class="select-dropdown" id="period-filter" onchange="filterSubjects()">
+          <select class="select-dropdown" id="period-filter" style="display:none" onchange="filterSubjects()">
             <option value="all">전체 교시</option>
             <option value="1">1교시</option>
             <option value="2">2교시</option>
           </select>
+          <span class="period-seg" id="period-seg"><button type="button" data-v="all" class="on" onclick="setPeriodFilter('all')">전체</button><button type="button" data-v="1" onclick="setPeriodFilter('1')">1교시</button><button type="button" data-v="2" onclick="setPeriodFilter('2')">2교시</button></span>
           <label title="문제 출제 순서를 무작위로 섞습니다"><input type="checkbox" id="toggle-shuffle-questions"> 문제 섞기</label>
           <label title="1~5번 선택지 순서를 무작위로 섞습니다"><input type="checkbox" id="toggle-shuffle-options"> 선택지 섞기</label>
           <input type="text" id="subject-search" placeholder="과목 검색" oninput="filterSubjects()">
@@ -1014,37 +1031,37 @@
   <script src="./js/config.js"></script>
 
   <!-- 11개 기본 과목 + 11개 기출 과목 스크립트 연결 -->
-  <script src="./data/anatomy.js?v=202610302357"></script>
-  <script src="./data/anatomy_past.js?v=202610302357"></script>
-  <script src="./data/morphology.js?v=202610302357"></script>
-  <script src="./data/morphology_past.js?v=202610302357"></script>
-  <script src="./data/hygiene.js?v=202610302357"></script>
-  <script src="./data/hygiene_past.js?v=202610302357"></script>
-  <script src="./data/materials.js?v=202610302357"></script>
-  <script src="./data/materials_past.js?v=202610302357"></script>
-  <script src="./data/law.js?v=202610302357"></script>
-  <script src="./data/law_past.js?v=202610302357"></script>
+  <script src="./data/anatomy.js?v=202610310000"></script>
+  <script src="./data/anatomy_past.js?v=202610310000"></script>
+  <script src="./data/morphology.js?v=202610310000"></script>
+  <script src="./data/morphology_past.js?v=202610310000"></script>
+  <script src="./data/hygiene.js?v=202610310000"></script>
+  <script src="./data/hygiene_past.js?v=202610310000"></script>
+  <script src="./data/materials.js?v=202610310000"></script>
+  <script src="./data/materials_past.js?v=202610310000"></script>
+  <script src="./data/law.js?v=202610310000"></script>
+  <script src="./data/law_past.js?v=202610310000"></script>
 
-  <script src="./data/crown_bridge.js?v=202610302357"></script>
-  <script src="./data/crown_bridge_past.js?v=202610302357"></script>
-  <script src="./data/porcelain.js?v=202610302357"></script>
-  <script src="./data/porcelain_past.js?v=202610302357"></script>
-  <script src="./data/complete_denture.js?v=202610302357"></script>
-  <script src="./data/complete_denture_past.js?v=202610302357"></script>
-  <script src="./data/partial_denture.js?v=202610302357"></script>
-  <script src="./data/partial_denture_past.js?v=202610302357"></script>
-  <script src="./data/restorative.js?v=202610302357"></script>
-  <script src="./data/restorative_past.js?v=202610302357"></script>
-  <script src="./data/orthodontics.js?v=202610302357"></script>
-  <script src="./data/orthodontics_past.js?v=202610302357"></script>
-  <script src="./data/review.js?v=202610302357"></script>
+  <script src="./data/crown_bridge.js?v=202610310000"></script>
+  <script src="./data/crown_bridge_past.js?v=202610310000"></script>
+  <script src="./data/porcelain.js?v=202610310000"></script>
+  <script src="./data/porcelain_past.js?v=202610310000"></script>
+  <script src="./data/complete_denture.js?v=202610310000"></script>
+  <script src="./data/complete_denture_past.js?v=202610310000"></script>
+  <script src="./data/partial_denture.js?v=202610310000"></script>
+  <script src="./data/partial_denture_past.js?v=202610310000"></script>
+  <script src="./data/restorative.js?v=202610310000"></script>
+  <script src="./data/restorative_past.js?v=202610310000"></script>
+  <script src="./data/orthodontics.js?v=202610310000"></script>
+  <script src="./data/orthodontics_past.js?v=202610310000"></script>
+  <script src="./data/review.js?v=202610310000"></script>
 
   <!-- 앱 로직 (클라우드 연동 / 오늘의 문제 / 화면) -->
-  <script src="./js/source.js?v=202610302357"></script>
-  <script src="./js/records-core.js?v=202610302357"></script>
-  <script src="./js/daily.js?v=202610302357"></script>
-  <script src="./js/cloud.js?v=202610302357"></script>
-  <script src="./js/app.js?v=202610302357"></script>
-  <script src="./js/records.js?v=202610302357"></script>
+  <script src="./js/source.js?v=202610310000"></script>
+  <script src="./js/records-core.js?v=202610310000"></script>
+  <script src="./js/daily.js?v=202610310000"></script>
+  <script src="./js/cloud.js?v=202610310000"></script>
+  <script src="./js/app.js?v=202610310000"></script>
+  <script src="./js/records.js?v=202610310000"></script>
 </body>
 </html>
