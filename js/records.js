@@ -71,7 +71,7 @@
         }).join('') + '</div>';
       }).join('') + '</div>' +
       (sum.firstDay ? '<div class="rec-sub" style="margin-top:8px">📌 첫 학습일 ' + sum.firstDay.replace(/-/g, '.') + ' · 시작한 지 ' + (Math.round((new Date(RC.dayKey(new Date()) + 'T00:00:00') - new Date(sum.firstDay + 'T00:00:00')) / 86400000) + 1) + '일째</div>' : '') +
-      '<div class="rec-legend">적음 <span class="rec-cell lv0"></span><span class="rec-cell lv1"></span><span class="rec-cell lv2"></span><span class="rec-cell lv3"></span><span class="rec-cell lv4"></span> 많음 <span class="rec-cell lv5" title="100문제 이상"></span><span class="rec-cell lv6" title="150문제 이상"></span></div>' +
+      '<div class="rec-legend">적음 <span class="rec-cell lv0"></span><span class="rec-cell lv1"></span><span class="rec-cell lv2"></span><span class="rec-cell lv3"></span><span class="rec-cell lv4"></span> 많음 <span class="rec-cell lv5" title="100문제 이상"></span><span class="rec-cell lv6" title="150문제 이상"></span><span class="rec-cell lv7" title="200문제 이상"></span></div>' +
       '<div class="rec-reset"><div id="reset-mine-warn" class="rec-reset-warn">풀이 기록·오답노트·달력·레벨이 모두 사라지고 되돌릴 수 없어요.</div><button id="reset-mine-btn" class="rec-reset-btn" onclick="resetMine()">🧹 기록 초기화</button></div></div>';
 
     // 3) 레이더
