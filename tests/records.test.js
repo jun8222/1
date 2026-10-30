@@ -54,6 +54,15 @@ assert.strictEqual(R.daysToExam(new Date(2026, 9, 30, 15), '2026-11-28'), 29);
 assert.strictEqual(R.daysToExam(new Date(2026, 10, 28, 23), '2026-11-28'), 0);
 const lvOf = n => [].concat(...R.calendar({ days: { [R.dayKey(now)]: { n: n } } }, now, 17, null))[118].lv;
 assert.deepStrictEqual([0, 9, 29, 59, 99, 100, 149, 150, 199, 200, 300].map(lvOf), [0, 1, 2, 3, 4, 5, 5, 6, 6, 7, 7]);
+// 회독
+const A = (q, c) => ({ subject_key: 'x', question_id: q, correct: c });
+let rr = R.rounds([A(1, 1), A(2, 0), A(2, 1)], { x: [1, 2, 3] }).x;
+assert.deepStrictEqual([rr.round, rr.done, rr.solved, rr.pct, rr.acc], [1, 0, 2, 67, 67]);
+rr = R.rounds([A(1, 1), A(2, 0), A(3, 1), A(9, 0), A(1, 1)], { x: [1, 2, 3] }).x;   // 9는 없는 문항 → 무시
+assert.deepStrictEqual([rr.round, rr.done, rr.solved, rr.acc, rr.prev], [2, 1, 1, 100, [67]]);
+assert.ok(rr.seen[1] && !rr.seen[2]);
+rr = R.rounds([A(1, 0), A(2, 0), A(1, 1), A(2, 1)], { x: [1, 2] }).x;
+assert.deepStrictEqual([rr.round, rr.done, rr.acc, rr.prev], [3, 2, null, [0, 100]]);
 console.log('records tests passed');
 // ---- 캐릭터 (잠금 없음)
 assert.strictEqual(R.avatarList().length, 72);

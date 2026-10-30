@@ -244,7 +244,7 @@ window.Cloud = (function () {
   async function loadAttemptHistory() {
     var rows = [], from = 0, size = 1000;
     for (;;) {
-      var res = await client.from('attempts').select('created_at,subject_key,correct')
+      var res = await client.from('attempts').select('created_at,subject_key,question_id,correct')
         .eq('user_id', uid()).order('id').range(from, from + size - 1);
       var part = check(res, '풀이 이력 불러오기');
       rows = rows.concat(part);

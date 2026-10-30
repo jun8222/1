@@ -109,6 +109,32 @@
     });
   }
 
+  // ---- 회독: 과목 문제를 전부 한 번씩 풀면 1회독 완료 → 다음 회차는 진도·정답률을 새로 셈
+  /** rows: 시간순 [{subject_key, question_id, correct}], idsBy: {과목키: [문항id...]} */
+  function rounds(rows, idsBy) {
+    var out = {};
+    Object.keys(idsBy).forEach(function (k) {
+      var valid = {}; idsBy[k].forEach(function (id) { valid[id] = true; });
+      out[k] = { total: idsBy[k].length, valid: valid, done: 0, seen: {}, solved: 0, tries: 0, rights: 0, prev: [] };
+    });
+    rows.forEach(function (r) {
+      var o = out[r.subject_key]; if (!o || !o.total || !o.valid[r.question_id]) return;
+      o.tries++; if (r.correct) o.rights++;
+      if (!o.seen[r.question_id]) { o.seen[r.question_id] = true; o.solved++; }
+      if (o.solved >= o.total) {
+        o.prev.push(Math.round(o.rights / o.tries * 100));
+        o.done++; o.seen = {}; o.solved = 0; o.tries = 0; o.rights = 0;
+      }
+    });
+    Object.keys(out).forEach(function (k) {
+      var o = out[k]; delete o.valid;
+      o.round = o.done + 1;
+      o.pct = o.total ? Math.round(o.solved / o.total * 100) : 0;
+      o.acc = o.tries ? Math.round(o.rights / o.tries * 100) : null;
+    });
+    return out;
+  }
+
   // ---- 시험일 (전체 사용자 공통)
   var EXAM_DATE = '2026-11-28';
   function parseKey(k) { var p = k.split('-'); return new Date(+p[0], +p[1] - 1, +p[2]); }
@@ -160,5 +186,5 @@
     return a ? './assets/avatars/' + a.file + '?v=2' : null;
   }
 
-  return { avatarList: avatarList, avatarInfo: avatarInfo, avatarUrl: avatarUrl, GROUPS: GROUPS, LEVELS: LEVELS, groupOf: groupOf, dayKey: dayKey, summarize: summarize, levelInfo: levelInfo, badges: badges, radar: radar, calendar: calendar, daysToExam: daysToExam, EXAM_DATE: EXAM_DATE };
+  return { avatarList: avatarList, avatarInfo: avatarInfo, avatarUrl: avatarUrl, GROUPS: GROUPS, LEVELS: LEVELS, groupOf: groupOf, dayKey: dayKey, summarize: summarize, levelInfo: levelInfo, badges: badges, radar: radar, calendar: calendar, daysToExam: daysToExam, EXAM_DATE: EXAM_DATE, rounds: rounds };
 });
