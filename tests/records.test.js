@@ -32,7 +32,7 @@ assert.ok(!got.includes('s7') && !got.includes('t100') && !got.includes('c_anato
 const rd = R.radar(s);
 assert.strictEqual(rd.length, 11);
 assert.strictEqual(rd.find(x => x.key === 'law').acc, 0.5);
-const cal = R.calendar(s, now, 17);
+const cal = R.calendar(s, now, 17, null);
 assert.strictEqual(cal.length, 17); assert.strictEqual(cal[16].length, 7);
 const flat = [].concat(...cal);
 assert.strictEqual(flat.length, 119);
@@ -42,6 +42,16 @@ assert.strictEqual(flat.find(c => c.day === '2026-10-28').n, 6);
 assert.strictEqual(flat.find(c => c.day === '2026-10-28').lv, 1);
 assert.strictEqual(s.firstDay, Object.keys(s.days).sort()[0]);
 assert.strictEqual(R.summarize([], now).firstDay, null);
+// 시험일 달력
+const ex = R.dayKey(new Date(now.getFullYear(), now.getMonth(), now.getDate() + 29));
+const calE = [].concat(...R.calendar(s, now, 17, ex));
+assert.strictEqual(calE[118].day, ex); assert.ok(calE[118].exam);
+assert.strictEqual(calE.filter(c => c.future).length, 29);
+assert.ok(calE[118 - 29].today);
+const past = R.dayKey(new Date(now.getFullYear(), now.getMonth(), now.getDate() - 3));
+assert.strictEqual([].concat(...R.calendar(s, now, 17, past))[118].day, R.dayKey(now));   // 시험 지나면 오늘이 끝
+assert.strictEqual(R.daysToExam(new Date(2026, 9, 30, 15), '2026-11-28'), 29);
+assert.strictEqual(R.daysToExam(new Date(2026, 10, 28, 23), '2026-11-28'), 0);
 console.log('records tests passed');
 // ---- 캐릭터 (잠금 없음)
 assert.strictEqual(R.avatarList().length, 72);

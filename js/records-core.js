@@ -109,18 +109,30 @@
     });
   }
 
-  /** 최근 weeks주 달력 (월요일 시작) → [[{day, n, lv}]*7 per week] */
-  function calendar(sum, now, weeks) {
+  // ---- 시험일 (전체 사용자 공통)
+  var EXAM_DATE = '2026-11-28';
+  function parseKey(k) { var p = k.split('-'); return new Date(+p[0], +p[1] - 1, +p[2]); }
+  /** 오늘 기준 시험까지 남은 날 (당일 0, 지나면 음수) */
+  function daysToExam(now, exam) {
+    now = now || new Date();
+    var a = parseKey(dayKey(now)), b = parseKey(exam || EXAM_DATE);
+    return Math.round((b - a) / 86400000);
+  }
+
+  /** 달력: 맨 오른쪽 아래 칸 = 시험일(시험 전) 또는 오늘(시험 후). 7일씩 한 줄, 거꾸로 채움 */
+  function calendar(sum, now, weeks, exam) {
     now = now || new Date(); weeks = weeks || 17;
-    // 오늘이 맨 오른쪽 아래 칸. 거꾸로 7일씩 한 줄 → 요일 맞춤 없이 빈 칸이 생기지 않음
-    var start = addDays(now, -(weeks * 7 - 1));
+    var today = dayKey(now), ex = exam === undefined ? EXAM_DATE : exam;
+    var end = (ex && daysToExam(now, ex) >= 0) ? parseKey(ex) : parseKey(today);
+    var start = addDays(end, -(weeks * 7 - 1));
     var cols = [];
     for (var w = 0; w < weeks; w++) {
       var col = [];
       for (var d = 0; d < 7; d++) {
         var dt = addDays(start, w * 7 + d), k = dayKey(dt);
         var n = sum.days[k] ? sum.days[k].n : 0;
-        col.push({ day: k, n: n, future: false, lv: n === 0 ? 0 : n < 10 ? 1 : n < 30 ? 2 : n < 60 ? 3 : 4 });
+        col.push({ day: k, n: n, future: k > today, today: k === today, exam: !!ex && k === ex,
+                   lv: n === 0 ? 0 : n < 10 ? 1 : n < 30 ? 2 : n < 60 ? 3 : 4 });
       }
       cols.push(col);
     }
@@ -148,5 +160,5 @@
     return a ? './assets/avatars/' + a.file + '?v=2' : null;
   }
 
-  return { avatarList: avatarList, avatarInfo: avatarInfo, avatarUrl: avatarUrl, GROUPS: GROUPS, LEVELS: LEVELS, groupOf: groupOf, dayKey: dayKey, summarize: summarize, levelInfo: levelInfo, badges: badges, radar: radar, calendar: calendar };
+  return { avatarList: avatarList, avatarInfo: avatarInfo, avatarUrl: avatarUrl, GROUPS: GROUPS, LEVELS: LEVELS, groupOf: groupOf, dayKey: dayKey, summarize: summarize, levelInfo: levelInfo, badges: badges, radar: radar, calendar: calendar, daysToExam: daysToExam, EXAM_DATE: EXAM_DATE };
 });
