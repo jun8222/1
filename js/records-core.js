@@ -80,26 +80,120 @@
   /**
    * ctx: { sum, cleared(오답 극복 문항 수), conquest: {groupKey: true} }
    */
+  // 뱃지. cat: exam(시험 대비) steady(꾸준함) amount(양) round(회독) skill(실력) fun(재미·함께), tier: 1 동 · 2 은 · 3 금
+  var BADGE_CATS = [['exam', '시험 대비'], ['steady', '꾸준함'], ['amount', '양'], ['round', '회독'], ['skill', '실력'], ['fun', '재미']];
   function badges(ctx) {
-    var s = ctx.sum, out = [];
-    function add(id, icon, name, desc, got, prog) { out.push({ id: id, icon: icon, name: name, desc: desc, got: !!got, prog: prog || '' }); }
-    add('first', '🎯', '첫 걸음', '문제를 처음 풀었어요', s.total >= 1, Math.min(s.total, 1) + '/1');
-    [100, 500, 1000, 3000].forEach(function (n) {
-      add('t' + n, n >= 1000 ? '🏆' : '📚', n + '문제 돌파', '문제를 ' + n + '번 풀었어요', s.total >= n, Math.min(s.total, n) + '/' + n);
+    var s = ctx.sum, out = [], rows = ctx.rows || [], gr = ctx.gr || { sets: {}, groups: {} };
+    var now = ctx.now || new Date(), exam = ctx.exam || EXAM_DATE, extra = ctx.extra || {};
+    function add(cat, tier, id, icon, name, desc, got, cur, goal) {
+      out.push({ id: id, cat: cat, tier: tier, icon: icon, name: name, desc: desc, got: !!got,
+                 prog: goal ? Math.min(cur, goal) + '/' + goal : (cur || '') });
+    }
+    function cnt(arr, f) { var n = 0; arr.forEach(function (x) { if (f(x)) n++; }); return n; }
+
+    // ---- 시험 대비 (D-day 기준)
+    var ex = parseKey(exam), today = dayKey(now);
+    function dk(n) { return dayKey(addDays(ex, -n)); }   // D-n
+    function activeIn(from, to) { var n = 0; for (var d = from; d >= to; d--) if (s.days[dk(d)]) n++; return n; }
+    var firstDay = Object.keys(s.days).sort()[0];
+    add('exam', 1, 'x_start', '🚀', 'D-28 출발', '시험 4주 전(D-28)까지 공부를 시작했어요', firstDay && firstDay <= dk(28), firstDay && firstDay <= dk(28) ? 1 : 0, 1);
+    [[28, 22, '1주차'], [21, 15, '2주차'], [14, 8, '3주차']].forEach(function (w, i) {
+      add('exam', 2, 'x_w' + (i + 1), '📆', w[2] + ' 완주', 'D-' + w[0] + '~D-' + w[1] + ' 중 5일 이상 공부했어요', activeIn(w[0], w[1]) >= 5, activeIn(w[0], w[1]), 5);
     });
-    [3, 7, 14, 30].forEach(function (n) {
-      add('s' + n, '🔥', n + '일 연속', n + '일 연속으로 풀었어요', s.bestStreak >= n, Math.min(s.bestStreak, n) + '/' + n);
+    add('exam', 3, 'x_last', '🏁', '마지막 주 매일', 'D-7~D-1 하루도 빠지지 않았어요', activeIn(7, 1) >= 7, activeIn(7, 1), 7);
+    add('exam', 2, 'x_eve', '🌙', '시험 전날까지', '시험 전날(D-1)에도 공부했어요', !!s.days[dk(1)], s.days[dk(1)] ? 1 : 0, 1);
+
+    // ---- 꾸준함
+    [[3, 1], [7, 1], [14, 2], [21, 2], [28, 3]].forEach(function (x) {
+      add('steady', x[1], 's' + x[0], '🔥', x[0] + '일 연속', x[0] + '일 연속으로 풀었어요', s.bestStreak >= x[0], s.bestStreak, x[0]);
     });
-    add('day50', '⚡', '하루 50문제', '하루에 50문제를 풀었어요', s.bestDay >= 50, Math.min(s.bestDay, 50) + '/50');
-    add('clear10', '💪', '오답 10개 극복', '틀렸던 문제 10개를 다시 맞혔어요', ctx.cleared >= 10, Math.min(ctx.cleared, 10) + '/10');
-    add('clear50', '🛡️', '오답 50개 극복', '틀렸던 문제 50개를 다시 맞혔어요', ctx.cleared >= 50, Math.min(ctx.cleared, 50) + '/50');
-    add('acc80', '🎓', '정답률 80%', '100문제 이상 풀고 정답률 80% 이상', s.total >= 100 && s.rights / s.total >= 0.8,
-      s.total ? Math.round(s.rights / s.total * 100) + '%' : '0%');
+    [[10, 1], [20, 2]].forEach(function (x) {
+      add('steady', x[1], 'ad' + x[0], '📅', '누적 ' + x[0] + '일', '공부한 날이 모두 ' + x[0] + '일이에요', s.activeDays >= x[0], s.activeDays, x[0]);
+    });
+
+    // ---- 양
+    add('amount', 1, 'first', '🎯', '첫 걸음', '문제를 처음 풀었어요', s.total >= 1, s.total, 1);
+    [[100, 1], [500, 1], [1000, 2], [2090, 2], [3000, 3], [5000, 3]].forEach(function (x) {
+      add('amount', x[1], 't' + x[0], x[0] >= 1000 ? '🏆' : '📚', x[0].toLocaleString() + '문제 돌파', '문제를 ' + x[0].toLocaleString() + '번 풀었어요' + (x[0] === 2090 ? ' (전체 문제 수만큼)' : ''), s.total >= x[0], s.total, x[0]);
+    });
+    [[50, 1, '⚡'], [100, 2, '🌟'], [150, 3, '🌈'], [200, 3, '🌌']].forEach(function (x) {
+      add('amount', x[1], 'day' + x[0], x[2], '하루 ' + x[0] + '문제', '하루에 ' + x[0] + '문제를 풀었어요', s.bestDay >= x[0], s.bestDay, x[0]);
+    });
+    var goal = ctx.dailyGoal || 30, dailyBy = {};
+    rows.forEach(function (r) { if (r.source === 'daily') { var k = dayKey(new Date(r.created_at)); dailyBy[k] = (dailyBy[k] || 0) + 1; } });
+    var dailyDone = cnt(Object.keys(dailyBy), function (k) { return dailyBy[k] >= goal; });
+    [[7, 1], [20, 2]].forEach(function (x) {
+      add('amount', x[1], 'daily' + x[0], '🗓️', '오늘의 문제 ' + x[0] + '번', '오늘의 문제를 ' + x[0] + '번 끝까지 풀었어요', dailyDone >= x[0], dailyDone, x[0]);
+    });
+
+    // ---- 회독
+    var G = Object.keys(gr.groups).map(function (k) { return gr.groups[k]; }).filter(function (g) { return g.sets.length; });
+    var S = Object.keys(gr.sets).map(function (k) { return gr.sets[k]; }).filter(function (o) { return o.total; });
+    var periods = ctx.periods || {};
+    function setDone(o) { return o.prev.length > 0 || o.waiting; }
+    var maxDone = Math.max.apply(null, [0].concat(G.map(function (g) { return g.done; })));
+    add('round', 1, 'r_first', '📖', '첫 1회독', '한 과목을 처음 1회독했어요', maxDone >= 1, maxDone >= 1 ? 1 : 0, 1);
+    [1, 2].forEach(function (p) {
+      var gs = G.filter(function (g) { return periods[g.key] === p; });
+      var d = cnt(gs, function (g) { return g.done >= 1; });
+      add('round', 2, 'r_p' + p, p === 1 ? '1️⃣' : '2️⃣', p + '교시 완주', p + '교시 모든 과목을 1회독했어요', gs.length && d === gs.length, d, gs.length);
+    });
+    var all1 = cnt(G, function (g) { return g.done >= 1; }), all2 = cnt(G, function (g) { return g.done >= 2; });
+    add('round', 3, 'r_all1', '🎓', '전 과목 1회독', '모든 과목을 1회독했어요 (시험 전 목표!)', G.length && all1 === G.length, all1, G.length);
+    add('round', 3, 'r_all2', '👑', '전 과목 2회독', '모든 과목을 2회독했어요', G.length && all2 === G.length, all2, G.length);
+    add('round', 2, 'r_3', '🔁', '한 과목 3회독', '한 과목을 3번 돌렸어요', maxDone >= 3, maxDone, 3);
+    var past = S.filter(function (o) { return /_past$/.test(o.key); }), mock = S.filter(function (o) { return !/_past$/.test(o.key); });
+    add('round', 2, 'r_past', '📜', '국시기출 마스터', '모든 국시기출 모음을 1회독했어요', past.length && cnt(past, setDone) === past.length, cnt(past, setDone), past.length);
+    add('round', 2, 'r_mock', '📝', '모의고사 마스터', '모든 모의고사 모음을 1회독했어요', mock.length && cnt(mock, setDone) === mock.length, cnt(mock, setDone), mock.length);
+    var bestUp = 0;
+    G.forEach(function (g) {
+      var seq = g.prev.slice(); if (g.acc !== null && g.tries >= 10) seq.push(g.acc);
+      for (var i = 1; i < seq.length; i++) if (seq[i] !== null && seq[i - 1] !== null) bestUp = Math.max(bestUp, seq[i] - seq[i - 1]);
+    });
+    add('round', 2, 'r_up10', '📈', '실력 상승', '지난 회차보다 정답률이 10%p 올랐어요', bestUp >= 10, bestUp + '%p', 0);
+    add('round', 3, 'r_up20', '🚀', '실력 급상승', '지난 회차보다 정답률이 20%p 올랐어요', bestUp >= 20, bestUp + '%p', 0);
+
+    // ---- 실력
+    add('skill', 1, 'acc80', '🎓', '정답률 80%', '100문제 이상 풀고 정답률 80% 이상', s.total >= 100 && s.rights / s.total >= 0.8, s.total ? Math.round(s.rights / s.total * 100) + '%' : '0%', 0);
+    add('skill', 3, 'acc90', '💎', '정답률 90%', '300문제 이상 풀고 정답률 90% 이상', s.total >= 300 && s.rights / s.total >= 0.9, s.total ? Math.round(s.rights / s.total * 100) + '%' : '0%', 0);
+    var run = 0, bestRun = 0;
+    rows.forEach(function (r) { if (r.correct) { run++; if (run > bestRun) bestRun = run; } else run = 0; });
+    add('skill', 1, 'run10', '✨', '연속 정답 10', '10문제를 연속으로 맞혔어요', bestRun >= 10, bestRun, 10);
+    add('skill', 2, 'run30', '🎇', '연속 정답 30', '30문제를 연속으로 맞혔어요', bestRun >= 30, bestRun, 30);
+    var sess = {};
+    rows.forEach(function (r) { if (!r.session_id) return; var o = sess[r.session_id] || (sess[r.session_id] = { n: 0, ok: 0 }); o.n++; if (r.correct) o.ok++; });
+    var perfect = cnt(Object.keys(sess), function (k) { return sess[k].n >= 10 && sess[k].ok === sess[k].n; });
+    add('skill', 2, 'perfect', '💯', '만점 회차', '10문제 이상 푼 회차를 모두 맞혔어요', perfect >= 1, perfect >= 1 ? 1 : 0, 1);
+    [[10, 1, '💪'], [50, 1, '🛡️'], [100, 2, '🏋️'], [300, 3, '🦾']].forEach(function (x) {
+      add('skill', x[1], 'clear' + x[0], x[2], '오답 ' + x[0] + '개 극복', '틀렸던 문제 ' + x[0] + '개를 다시 맞혔어요', ctx.cleared >= x[0], ctx.cleared, x[0]);
+    });
+    var win = {}, weakEver = {}, escaped = false;
+    rows.forEach(function (r) {
+      if (r.source === 'retry') return;
+      var w = win[r.subject_key] || (win[r.subject_key] = []); w.push(r.correct ? 1 : 0); if (w.length > 30) w.shift();
+      var ok = w.reduce(function (a, b) { return a + b; }, 0), weak = w.length >= 20 && ok / w.length < 0.7;
+      if (weak) weakEver[r.subject_key] = true; else if (weakEver[r.subject_key] && w.length >= 20) escaped = true;
+    });
+    add('skill', 2, 'unweak', '🌱', '취약 탈출', '취약했던 모음에서 취약을 벗어났어요', escaped, escaped ? 1 : 0, 1);
     GROUPS.forEach(function (g) {
-      add('c_' + g.key, '🏅', g.name + ' 정복', '문제의 90% 이상을 풀고 정답률 80% 이상', ctx.conquest && ctx.conquest[g.key], '');
+      add('skill', 2, 'c_' + g.key, '🏅', g.name + ' 정복', '문제의 90% 이상을 풀고 정답률 80% 이상', ctx.conquest && ctx.conquest[g.key], '', 0);
     });
+
+    // ---- 재미 · 함께
+    var night = cnt(rows, function (r) { return new Date(r.created_at).getHours() < 5; });
+    add('fun', 2, 'owl', '🦉', '올빼미', '새벽 0~5시에 50문제를 풀었어요', night >= 50, night, 50);
+    var dk2 = cnt(rows, function (r) { return r.picked === -1; });
+    add('fun', 1, 'honest', '🙋', '정직왕', '"모르시겠어요?"를 20번 눌렀어요', dk2 >= 20, dk2, 20);
+    add('fun', 1, 'report', '🚩', '첫 신고', '문제 오류를 처음 신고했어요', (extra.reports_sent || 0) >= 1, extra.reports_sent || 0, 1);
+    add('fun', 1, 'duel1', '⚔️', '첫 대결', '친구 대결에 처음 참가했어요', (extra.duels_played || 0) >= 1, extra.duels_played || 0, 1);
+    add('fun', 2, 'win1', '🥊', '대결 승리', '친구 대결에서 이겼어요', (extra.duel_wins || 0) >= 1, extra.duel_wins || 0, 1);
+    add('fun', 2, 'cheer10', '👏', '응원 10개', '응원을 10개 받았어요', (extra.cheers_got || 0) >= 10, extra.cheers_got || 0, 10);
+
+    // 시험이 끝나면 못 받은 시험 대비 뱃지는 숨김
+    if (today > exam) out = out.filter(function (b) { return b.cat !== 'exam' || b.got; });
     return out;
   }
+
 
   /** 레이더 차트용: 그룹별 정답률(0~1)·시도 */
   function radar(sum) {
@@ -208,5 +302,5 @@
     return a ? './assets/avatars/' + a.file + '?v=2' : null;
   }
 
-  return { avatarList: avatarList, avatarInfo: avatarInfo, avatarUrl: avatarUrl, GROUPS: GROUPS, LEVELS: LEVELS, groupOf: groupOf, dayKey: dayKey, summarize: summarize, levelInfo: levelInfo, badges: badges, radar: radar, calendar: calendar, daysToExam: daysToExam, EXAM_DATE: EXAM_DATE, groupRounds: groupRounds };
+  return { avatarList: avatarList, avatarInfo: avatarInfo, avatarUrl: avatarUrl, GROUPS: GROUPS, LEVELS: LEVELS, groupOf: groupOf, dayKey: dayKey, summarize: summarize, levelInfo: levelInfo, badges: badges, radar: radar, calendar: calendar, daysToExam: daysToExam, EXAM_DATE: EXAM_DATE, groupRounds: groupRounds, BADGE_CATS: BADGE_CATS };
 });

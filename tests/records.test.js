@@ -25,7 +25,7 @@ assert.strictEqual(R.levelInfo(100).name, '수습 기공사');
 assert.strictEqual(R.levelInfo(5000).name, '명장');
 assert.strictEqual(R.levelInfo(5000).pct, 100);
 assert.strictEqual(R.levelInfo(200).toNext, 100);
-const b = R.badges({ sum: s, cleared: 12, conquest: { law: true } });
+const b = R.badges({ sum: s, cleared: 12, conquest: { law: true }, now: now });
 const got = b.filter(x => x.got).map(x => x.id);
 assert.ok(got.includes('first') && got.includes('s3') && got.includes('clear10') && got.includes('c_law'));
 assert.ok(!got.includes('s7') && !got.includes('t100') && !got.includes('c_anatomy'));
@@ -66,6 +66,20 @@ assert.deepStrictEqual([gr.groups.m.round, gr.groups.m.done, gr.groups.m.prev, g
 assert.deepStrictEqual([gr.sets.m.solved, gr.sets.m_past.solved, gr.sets.m.prev, gr.sets.m_past.prev], [1, 0, [50], [100]]);
 assert.ok(!gr.sets.m.waiting && gr.sets.m.seen[2] && !gr.sets.m.seen[1]);
 assert.deepStrictEqual(gr.sets.m.partners, ['m_past']);
+// 새 뱃지
+{
+  const mk = (y, m, d, n, opt) => Array.from({ length: n }, (_, i) => Object.assign({ created_at: new Date(y, m, d, 10, 0, i).toISOString(), subject_key: 'law', question_id: i + 1, correct: true, source: 'free', session_id: 's' + d + m }, opt || {}));
+  const rows = [].concat(mk(2026, 9, 31, 12), mk(2026, 10, 1, 5), mk(2026, 10, 2, 5), mk(2026, 10, 3, 5), mk(2026, 10, 4, 5));
+  const now2 = new Date(2026, 10, 5, 12), s2 = R.summarize(rows, now2);
+  const bb = R.badges({ sum: s2, cleared: 0, rows, now: now2, extra: { duels_played: 2, duel_wins: 1, cheers_got: 10, reports_sent: 1 } });
+  const g2 = id => bb.find(x => x.id === id);
+  assert.ok(g2('x_start').got && g2('x_w1').got && !g2('x_w2').got);
+  assert.ok(g2('run10').got && g2('perfect').got && g2('win1').got && g2('cheer10').got && g2('report').got);
+  assert.ok(BADGE_IDS_UNIQUE(bb));
+  const after = R.badges({ sum: s2, cleared: 0, rows, now: new Date(2026, 10, 29) });
+  assert.ok(after.filter(x => x.cat === 'exam').every(x => x.got));   // 시험 후 못 받은 시험 뱃지 숨김
+}
+function BADGE_IDS_UNIQUE(list) { return new Set(list.map(x => x.id)).size === list.length; }
 console.log('records tests passed');
 // ---- 캐릭터 (잠금 없음)
 assert.strictEqual(R.avatarList().length, 72);
