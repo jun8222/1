@@ -7,7 +7,7 @@
   <title>치과기공사 국가시험 퀴즈</title>
   
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="./css/proto.css?v=202610310106">
+  <link rel="stylesheet" href="./css/proto.css?v=202610310109">
   
   <style>
 
@@ -476,8 +476,14 @@
     .cfx1 .rec-col.full .rec-cell:not(.lv5):not(.lv6):not(.lv7) > i::before { content: ''; position: absolute; inset: 0; opacity: 0; transition: opacity .5s; animation: colRise .9s steps(1) infinite; animation-delay: calc((6 - var(--r)) * -.13s); }
     .cfx1.cfx-play .rec-col.full .rec-cell:not(.lv5):not(.lv6):not(.lv7) > i::before { opacity: 1; }
     @keyframes colRise { 0% { background: #ff4d6d; } 16% { background: #ff9f1c; } 33% { background: #ffe14d; } 50% { background: #3ddc84; } 66% { background: #3fa9f5; } 83% { background: #a66cff; } }
-    .fx-pick { flex-wrap: wrap; }
-    .fx-pick { margin-top: 10px; font-size: .76rem; color: var(--text-sub); display: flex; align-items: center; gap: 6px; }
+    .fx-pick { margin-top: 10px; font-size: .78rem; color: var(--text-sub); }
+    .fx-pick summary { cursor: pointer; list-style: none; display: inline-block; padding: 3px 10px; border: 1px solid var(--border-color); border-radius: 12px; user-select: none; }
+    .fx-pick summary::-webkit-details-marker { display: none; }
+    .fx-pick summary::after { content: ' ▾'; font-size: .7em; }
+    .fx-pick[open] summary::after { content: ' ▴'; }
+    .fx-grid { display: grid; grid-template-columns: auto minmax(0, 160px) auto; align-items: center; gap: 8px 10px; margin-top: 10px; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 10px; width: max-content; max-width: 100%; }
+    .fx-grid select { width: 100%; }
+    .fx-lbl { white-space: nowrap; }
     .fx-pick select { background: var(--card-bg); color: var(--text-main); border: 1px solid var(--border-color); border-radius: 6px; padding: 3px 6px; font-size: .76rem; }
     .rec-cell.exam { opacity: 1 !important; background: #e5484d !important; box-shadow: none; font-size: 10px; line-height: 15px; text-align: center; overflow: hidden; }
     .rec-dday { color: #e5484d; font-weight: 700; }
@@ -1075,37 +1081,37 @@
   <script src="./js/config.js"></script>
 
   <!-- 11개 기본 과목 + 11개 기출 과목 스크립트 연결 -->
-  <script src="./data/anatomy.js?v=202610310106"></script>
-  <script src="./data/anatomy_past.js?v=202610310106"></script>
-  <script src="./data/morphology.js?v=202610310106"></script>
-  <script src="./data/morphology_past.js?v=202610310106"></script>
-  <script src="./data/hygiene.js?v=202610310106"></script>
-  <script src="./data/hygiene_past.js?v=202610310106"></script>
-  <script src="./data/materials.js?v=202610310106"></script>
-  <script src="./data/materials_past.js?v=202610310106"></script>
-  <script src="./data/law.js?v=202610310106"></script>
-  <script src="./data/law_past.js?v=202610310106"></script>
+  <script src="./data/anatomy.js?v=202610310109"></script>
+  <script src="./data/anatomy_past.js?v=202610310109"></script>
+  <script src="./data/morphology.js?v=202610310109"></script>
+  <script src="./data/morphology_past.js?v=202610310109"></script>
+  <script src="./data/hygiene.js?v=202610310109"></script>
+  <script src="./data/hygiene_past.js?v=202610310109"></script>
+  <script src="./data/materials.js?v=202610310109"></script>
+  <script src="./data/materials_past.js?v=202610310109"></script>
+  <script src="./data/law.js?v=202610310109"></script>
+  <script src="./data/law_past.js?v=202610310109"></script>
 
-  <script src="./data/crown_bridge.js?v=202610310106"></script>
-  <script src="./data/crown_bridge_past.js?v=202610310106"></script>
-  <script src="./data/porcelain.js?v=202610310106"></script>
-  <script src="./data/porcelain_past.js?v=202610310106"></script>
-  <script src="./data/complete_denture.js?v=202610310106"></script>
-  <script src="./data/complete_denture_past.js?v=202610310106"></script>
-  <script src="./data/partial_denture.js?v=202610310106"></script>
-  <script src="./data/partial_denture_past.js?v=202610310106"></script>
-  <script src="./data/restorative.js?v=202610310106"></script>
-  <script src="./data/restorative_past.js?v=202610310106"></script>
-  <script src="./data/orthodontics.js?v=202610310106"></script>
-  <script src="./data/orthodontics_past.js?v=202610310106"></script>
-  <script src="./data/review.js?v=202610310106"></script>
+  <script src="./data/crown_bridge.js?v=202610310109"></script>
+  <script src="./data/crown_bridge_past.js?v=202610310109"></script>
+  <script src="./data/porcelain.js?v=202610310109"></script>
+  <script src="./data/porcelain_past.js?v=202610310109"></script>
+  <script src="./data/complete_denture.js?v=202610310109"></script>
+  <script src="./data/complete_denture_past.js?v=202610310109"></script>
+  <script src="./data/partial_denture.js?v=202610310109"></script>
+  <script src="./data/partial_denture_past.js?v=202610310109"></script>
+  <script src="./data/restorative.js?v=202610310109"></script>
+  <script src="./data/restorative_past.js?v=202610310109"></script>
+  <script src="./data/orthodontics.js?v=202610310109"></script>
+  <script src="./data/orthodontics_past.js?v=202610310109"></script>
+  <script src="./data/review.js?v=202610310109"></script>
 
   <!-- 앱 로직 (클라우드 연동 / 오늘의 문제 / 화면) -->
-  <script src="./js/source.js?v=202610310106"></script>
-  <script src="./js/records-core.js?v=202610310106"></script>
-  <script src="./js/daily.js?v=202610310106"></script>
-  <script src="./js/cloud.js?v=202610310106"></script>
-  <script src="./js/app.js?v=202610310106"></script>
-  <script src="./js/records.js?v=202610310106"></script>
+  <script src="./js/source.js?v=202610310109"></script>
+  <script src="./js/records-core.js?v=202610310109"></script>
+  <script src="./js/daily.js?v=202610310109"></script>
+  <script src="./js/cloud.js?v=202610310109"></script>
+  <script src="./js/app.js?v=202610310109"></script>
+  <script src="./js/records.js?v=202610310109"></script>
 </body>
 </html>
