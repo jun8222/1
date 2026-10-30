@@ -132,7 +132,7 @@
         var dt = addDays(start, w * 7 + d), k = dayKey(dt);
         var n = sum.days[k] ? sum.days[k].n : 0;
         col.push({ day: k, n: n, future: k > today, today: k === today, exam: !!ex && k === ex,
-                   lv: n === 0 ? 0 : n < 10 ? 1 : n < 30 ? 2 : n < 60 ? 3 : 4 });
+                   lv: n === 0 ? 0 : n < 10 ? 1 : n < 30 ? 2 : n < 60 ? 3 : n < 100 ? 4 : n < 150 ? 5 : 6 });
       }
       cols.push(col);
     }
