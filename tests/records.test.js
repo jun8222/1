@@ -35,6 +35,9 @@ assert.strictEqual(rd.find(x => x.key === 'law').acc, 0.5);
 const cal = R.calendar(s, now, 17);
 assert.strictEqual(cal.length, 17); assert.strictEqual(cal[16].length, 7);
 const flat = [].concat(...cal);
+assert.strictEqual(flat.length, 119);
+assert.strictEqual(flat[118].day, R.dayKey(now));   // 맨 오른쪽 아래 = 오늘
+assert.ok(flat.every(c => !c.future));
 assert.strictEqual(flat.find(c => c.day === '2026-10-28').n, 6);
 assert.strictEqual(flat.find(c => c.day === '2026-10-28').lv, 1);
 console.log('records tests passed');
