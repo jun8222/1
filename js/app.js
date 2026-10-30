@@ -1340,7 +1340,7 @@ function selectAnswer(userPick) {
   // 풀 때마다 즉시 기록 (중간에 나가도 남음)
   const correct = userPick === q.answer;
   const picked = userPick > 0 ? (q._orig ? q._orig[userPick - 1] : userPick) : -1;
-  if (historyRows) { historyRows.push({ created_at: new Date().toISOString(), subject_key: q._s || currentSubjectKey, question_id: q.id, correct: correct }); recomputeRounds(); }
+  if (historyRows) { historyRows.push({ created_at: new Date().toISOString(), subject_key: q._s || currentSubjectKey, question_id: q.id, correct: correct, source: currentMode === 'duel' ? 'free' : currentMode }); recomputeRounds(); }
   Cloud.logAttempt({
     subjectKey: q._s || currentSubjectKey,
     questionId: q.id,

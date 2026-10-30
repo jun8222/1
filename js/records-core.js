@@ -118,6 +118,7 @@
       out[k] = { total: idsBy[k].length, valid: valid, done: 0, seen: {}, solved: 0, tries: 0, rights: 0, prev: [] };
     });
     rows.forEach(function (r) {
+      if (r.source === 'retry') return;   // 오답 다시 풀기(오답노트 등)는 회차에 넣지 않음
       var o = out[r.subject_key]; if (!o || !o.total || !o.valid[r.question_id]) return;
       o.tries++; if (r.correct) o.rights++;
       if (!o.seen[r.question_id]) { o.seen[r.question_id] = true; o.solved++; }
