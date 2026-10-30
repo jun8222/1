@@ -305,16 +305,24 @@ async function refreshStats() {
 }
 function recomputeRounds() {
   if (!historyRows || !window.RecordsCore) { roundCache = {}; return; }
+  roundCache = window.RecordsCore.groupRounds(historyRows, subjectIdsBy());
+}
+function subjectIdsBy() {
   const idsBy = {}, db = window.quizDatabase || {};
   subjectMeta.forEach(function (m) { const d = db[m.key]; if (d && d.questions) idsBy[m.key] = d.questions.map(function (q) { return q.id; }); });
-  roundCache = window.RecordsCore.rounds(historyRows, idsBy);
+  return idsBy;
+}
+window.subjectIdsBy = subjectIdsBy;
+function isWeak(keys) {
+  let n = 0, r = 0;
+  keys.forEach(function (k) { const rc = recentCache[k]; if (rc) { n += rc.n; r += rc.rights; } });
+  return n >= 20 && r / n < 0.7;
 }
 function subjectProgress(key, total) {
-  const rd = roundCache[key];
+  const rd = roundCache.sets && roundCache.sets[key];
   if (rd && rd.total === total) {
-    const rc0 = recentCache[key];
     return { solved: rd.solved, pct: rd.pct, acc: rd.acc, round: rd.round, done: rd.done, prev: rd.prev, seen: rd.seen,
-             weak: !!(rc0 && rc0.n >= 20 && rc0.rights / rc0.n < 0.7) };
+             waiting: rd.waiting, partners: rd.partners, weak: isWeak([key]) };
   }
   let solved = 0, tries = 0, rights = 0;
   const prefix = key + ':';
@@ -474,6 +482,7 @@ function onSubjectStart(key) {
   if (!sub || !sub.questions) { toast('문항 데이터를 불러올 수 없습니다.'); return; }
   const total = sub.questions.length;
   const pr0 = subjectProgress(key, sub.questions.length);
+  if (pr0.waiting && pr0.partners && pr0.partners.length) { showWaitingModal(key, pr0); return; }
   const remaining = pr0.seen
     ? sub.questions.filter(function (q) { return !pr0.seen[q.id]; })
     : sub.questions.filter(function (q) { return !statsCache[key + ':' + q.id]; });
@@ -483,6 +492,18 @@ function onSubjectStart(key) {
   $('resume-continue-btn').textContent = '이어서 풀기 (남은 ' + remaining.length + '문제)';
   $('resume-continue-btn').onclick = function () { closeModal('resume-modal'); startQuiz(key, remaining.map(function (q) { return cloneQuestion(q, key); }), 'free'); };
   $('resume-restart-btn').textContent = '처음부터 풀기 (전체 ' + total + '문제)';
+  $('resume-restart-btn').onclick = function () { closeModal('resume-modal'); startQuiz(key); };
+  $('resume-modal').style.display = 'flex';
+}
+
+function showWaitingModal(key, pr) {
+  const mate = pr.partners[0], mateSet = roundCache.sets[mate];
+  const left = mateSet ? mateSet.total - mateSet.solved : 0;
+  $('resume-title').textContent = subjectName(key) + ' · ' + pr.round + '회차 완료';
+  $('resume-info').textContent = '같은 과목의 ' + subjectName(mate) + '도 ' + pr.round + '회독해야 함께 ' + (pr.round + 1) + '회차로 넘어가요. (남은 ' + left + '문제)';
+  $('resume-continue-btn').textContent = '짝꿍 모음 풀러 가기 (남은 ' + left + '문제)';
+  $('resume-continue-btn').onclick = function () { closeModal('resume-modal'); onSubjectStart(mate); };
+  $('resume-restart-btn').textContent = pr.round + '회차 다시 보기 (회차에는 안 들어가요)';
   $('resume-restart-btn').onclick = function () { closeModal('resume-modal'); startQuiz(key); };
   $('resume-modal').style.display = 'flex';
 }
@@ -1128,59 +1149,60 @@ function renderHistoryItem(rec) {
   '</div>';
 }
 
+function groupNameOf(meta) { return meta.name.replace(/\s*\(.*$/, '').replace(/\s*국시기출.*$/, '').trim(); }
+function setLabelOf(meta, gname) {
+  const rest = meta.name.slice(gname.length).trim();
+  return rest.replace(/[()]/g, '').replace(/\s+/g, ' ').trim() || meta.name;
+}
+function accColor(acc) { return acc === null ? '#64748b' : acc >= 80 ? '#22c55e' : acc >= 70 ? '#f59e0b' : '#ef4444'; }
+
 function renderSubjectList() {
   const grid = $('subjectGrid');
   const periodVal = $('period-filter').value;
   const searchVal = $('subject-search').value.trim().toLowerCase();
   const db = window.quizDatabase || {};
 
-  const built = [];
-  if (!window.__cardEls) window.__cardEls = {};
-
+  // 과목(그룹)별로 묶기
+  const groups = [], byKey = {};
   subjectMeta.concat(extraSubjects).forEach(function (meta) {
     if (periodVal !== 'all' && meta.period !== parseInt(periodVal, 10)) return;
-    if (searchVal && !meta.name.toLowerCase().includes(searchVal)) return;
-
-    const subData = db[meta.key];
-    const count = subData && subData.questions ? subData.questions.length : 0;
-    const pr = subjectProgress(meta.key, count);
-    const noAcc = pr.acc === null;
-    const acc = noAcc ? 0 : pr.acc;
-    const bg = noAcc ? 'rgba(148, 163, 184, 0.12)' : acc >= 80 ? 'rgba(34, 197, 94, 0.1)' : acc >= 70 ? 'rgba(245, 158, 11, 0.1)' : 'rgba(239, 68, 68, 0.1)';
-    const bar = noAcc ? '#64748b' : acc >= 80 ? '#22c55e' : acc >= 70 ? '#f59e0b' : '#ef4444';
-
-    let card = window.__cardEls[meta.key];
-    if (!card) {
-      card = document.createElement('div');
-      card.className = 'subject-card';
-      card.onclick = function () { onSubjectStart(meta.key); };
-      window.__cardEls[meta.key] = card;
-    }
-    const html =
-      '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">' +
-        '<div class="subject-name" style="margin: 0; font-size: 1rem;">' + esc(meta.name) + (pr.done ? ' <span class="round-badge r' + Math.min(pr.done, 3) + '">🏅 ' + pr.done + '회독</span>' : '') + '</div>' +
-        (pr.weak ? '<span style="background-color: #ef4444; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600;">취약</span>' : '') +
-      '</div>' +
-      '<div style="font-size: 0.82rem; color: var(--text-sub); margin-bottom: 6px; font-weight: 500;">기출: ' + count + ' | ' + (pr.round > 1 ? pr.round + '회차 ' : '') + '진도: ' + pr.pct + '%</div>' +
-      '<div style="margin-bottom: 6px;">' +
-        '<div style="font-size: 0.7rem; color: var(--text-sub); margin-bottom: 3px; font-weight: 600;">학습 진도</div>' +
-        '<div style="height: 6px; background-color: rgba(79, 172, 254, 0.2); border-radius: 3px; overflow: hidden;"><div style="height: 100%; width: ' + pr.pct + '%; background-color: #4facfe;"></div></div>' +
-      '</div>' +
-      '<div>' +
-        '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px;">' +
-          '<div style="font-size: 0.7rem; color: var(--text-sub); font-weight: 600;">' + (pr.round > 1 ? '이번 회차 정답률' : '정답률') + '</div>' +
-          '<div style="font-size: 0.85rem; font-weight: 700;">' + (noAcc ? '-' : acc + '%') + '</div>' +
-        '</div>' +
-        '<div style="height: 8px; background-color: ' + bg + '; border: 1px solid ' + bar + '; border-radius: 3px; overflow: hidden;"><div style="height: 100%; width: ' + acc + '%; background-color: ' + bar + ';"></div></div>' +
-        (pr.prev && pr.prev.length ? '<div class="round-prev">' + pr.prev.map(function (a, i) { return (i + 1) + '회차 ' + a + '%'; }).join(' → ') + '</div>' : '') +
-      '</div>';
-
-    // 카드 요소는 그대로 두고 내용이 바뀐 것만 갱신 (클릭 도중 카드가 교체되는 것 방지)
-    if (card._html !== html) { card.innerHTML = html; card._html = html; }
-    built.push(card);
+    const gkey = window.RecordsCore ? window.RecordsCore.groupOf(meta.key) : meta.key;
+    let g = byKey[gkey];
+    if (!g) { g = byKey[gkey] = { key: gkey, name: groupNameOf(meta), sets: [] }; groups.push(g); }
+    g.sets.push(meta);
   });
-  built.forEach(function (c, i) { if (grid.children[i] !== c) grid.insertBefore(c, grid.children[i] || null); });
-  while (grid.children.length > built.length) grid.removeChild(grid.lastChild);
+
+  let html = '';
+  groups.forEach(function (g) {
+    const names = g.name + ' ' + g.sets.map(function (m) { return m.name; }).join(' ');
+    if (searchVal && !names.toLowerCase().includes(searchVal)) return;
+    const G = roundCache.groups && roundCache.groups[g.key];
+    const keys = g.sets.map(function (m) { return m.key; });
+    const tiles = g.sets.map(function (meta) {
+      const count = db[meta.key] && db[meta.key].questions ? db[meta.key].questions.length : 0;
+      const pr = subjectProgress(meta.key, count);
+      const mateWaiting = pr.partners && pr.partners.some(function (k) { return roundCache.sets[k] && roundCache.sets[k].waiting; });
+      const label = g.sets.length > 1 ? setLabelOf(meta, g.name) : meta.name;
+      const tag = pr.waiting ? '⏳ ' + (pr.partners && pr.partners[0] ? setLabelOf(subjectMeta.filter(function (m) { return m.key === pr.partners[0]; })[0] || meta, g.name) : '') + ' 기다리는 중'
+                : mateWaiting ? '남은 ' + (count - pr.solved) + '문제' : '';
+      return '<div class="subject-card set-tile' + (pr.waiting ? ' wait' : '') + '" data-key="' + meta.key + '" title="' + esc(meta.name) + '" onclick="onSubjectStart(\'' + meta.key + '\')">' +
+        '<div class="st-name">' + esc(label) + '</div><div class="st-meta">' + count + '문제</div>' +
+        '<div class="st-bar"><div style="width:' + pr.pct + '%"></div></div>' +
+        '<div class="st-foot"><span>' + (pr.waiting ? '✓ 완료' : pr.solved + '/' + count) + '</span><b style="color:' + accColor(pr.acc) + '">' + (pr.acc === null ? '-' : pr.acc + '%') + '</b></div>' +
+        (tag ? '<div class="st-tag">' + esc(tag) + '</div>' : '') + '</div>';
+    }).join('');
+    const round = G ? G.round : 1, done = G ? G.done : 0;
+    const gacc = G ? G.acc : null, gpct = G ? G.pct : 0;
+    const right = g.sets.length > 1 || G ? (round + '회차 · ' + (gacc === null ? (G && G.tries ? '-' : '시작 전') : gacc + '%')) : '';
+    html += '<div class="subject-group' + (g.sets.length === 1 ? ' single' : '') + '">' +
+      '<div class="sg-head"><span class="sg-name">' + esc(g.name) + '</span>' +
+        (done ? '<span class="round-badge r' + Math.min(done, 3) + '">🏅 ' + done + '회독</span>' : '') +
+        (isWeak(keys) ? '<span class="sg-weak">취약</span>' : '') +
+        (right && G ? '<span class="sg-right">' + right + '</span>' : '') + '</div>' +
+      (G ? '<div class="sg-bar"><div style="width:' + gpct + '%"></div></div>' : '') +
+      '<div class="sg-sets">' + tiles + '</div></div>';
+  });
+  if (grid._html !== html) { grid.innerHTML = html; grid._html = html; }
 }
 
 function filterSubjects() { renderSubjectList(); }

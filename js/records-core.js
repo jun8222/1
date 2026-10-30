@@ -109,31 +109,52 @@
     });
   }
 
-  // ---- 회독: 과목 문제를 전부 한 번씩 풀면 1회독 완료 → 다음 회차는 진도·정답률을 새로 셈
-  /** rows: 시간순 [{subject_key, question_id, correct}], idsBy: {과목키: [문항id...]} */
-  function rounds(rows, idsBy) {
-    var out = {};
+  // ---- 회독: 같은 과목의 문제 모음(교재·국시기출)을 모두 한 번씩 풀어야 함께 다음 회차로 넘어감.
+  //      먼저 끝낸 모음은 짝꿍이 끝날 때까지 "기다리는 중" — 그동안 푼 기록은 회차에 넣지 않음. 오답 다시 풀기(retry)는 제외.
+  /** rows: 시간순 [{subject_key, question_id, correct, source}], idsBy: {모음키: [문항id...]}
+   *  → { sets: {모음키: {...}}, groups: {과목키: {...}} } */
+  function groupRounds(rows, idsBy) {
+    var sets = {}, groups = {};
     Object.keys(idsBy).forEach(function (k) {
       var valid = {}; idsBy[k].forEach(function (id) { valid[id] = true; });
-      out[k] = { total: idsBy[k].length, valid: valid, done: 0, seen: {}, solved: 0, tries: 0, rights: 0, prev: [] };
+      var g = groupOf(k);
+      sets[k] = { key: k, group: g, total: idsBy[k].length, valid: valid, seen: {}, solved: 0, tries: 0, rights: 0, waiting: false, prev: [] };
+      var G = groups[g] || (groups[g] = { key: g, sets: [], done: 0, prev: [] });
+      if (idsBy[k].length) G.sets.push(k);
     });
+    function finish(G) {
+      var t = 0, r = 0;
+      G.sets.forEach(function (k) { var o = sets[k]; t += o.tries; r += o.rights; o.prev.push(o.tries ? Math.round(o.rights / o.tries * 100) : null); });
+      G.prev.push(t ? Math.round(r / t * 100) : null); G.done++;
+      G.sets.forEach(function (k) { var o = sets[k]; o.seen = {}; o.solved = 0; o.tries = 0; o.rights = 0; o.waiting = false; });
+    }
     rows.forEach(function (r) {
-      if (r.source === 'retry') return;   // 오답 다시 풀기(오답노트 등)는 회차에 넣지 않음
-      var o = out[r.subject_key]; if (!o || !o.total || !o.valid[r.question_id]) return;
+      if (r.source === 'retry') return;
+      var o = sets[r.subject_key]; if (!o || !o.total || !o.valid[r.question_id] || o.waiting) return;
       o.tries++; if (r.correct) o.rights++;
       if (!o.seen[r.question_id]) { o.seen[r.question_id] = true; o.solved++; }
       if (o.solved >= o.total) {
-        o.prev.push(Math.round(o.rights / o.tries * 100));
-        o.done++; o.seen = {}; o.solved = 0; o.tries = 0; o.rights = 0;
+        o.waiting = true;
+        var G = groups[o.group];
+        if (G.sets.every(function (k) { return sets[k].waiting; })) finish(G);
       }
     });
-    Object.keys(out).forEach(function (k) {
-      var o = out[k]; delete o.valid;
-      o.round = o.done + 1;
+    Object.keys(sets).forEach(function (k) {
+      var o = sets[k], G = groups[o.group]; delete o.valid;
+      o.round = G.done + 1; o.done = G.done;
       o.pct = o.total ? Math.round(o.solved / o.total * 100) : 0;
       o.acc = o.tries ? Math.round(o.rights / o.tries * 100) : null;
+      o.partners = G.sets.filter(function (x) { return x !== k; });
     });
-    return out;
+    Object.keys(groups).forEach(function (g) {
+      var G = groups[g], t = 0, r = 0, tot = 0, sol = 0;
+      G.sets.forEach(function (k) { var o = sets[k]; t += o.tries; r += o.rights; tot += o.total; sol += o.solved; });
+      G.round = G.done + 1; G.tries = t; G.total = tot; G.solved = sol;
+      G.pct = tot ? Math.round(sol / tot * 100) : 0;
+      G.acc = t ? Math.round(r / t * 100) : null;
+      G.last = G.prev.length ? G.prev[G.prev.length - 1] : null;
+    });
+    return { sets: sets, groups: groups };
   }
 
   // ---- 시험일 (전체 사용자 공통)
@@ -187,5 +208,5 @@
     return a ? './assets/avatars/' + a.file + '?v=2' : null;
   }
 
-  return { avatarList: avatarList, avatarInfo: avatarInfo, avatarUrl: avatarUrl, GROUPS: GROUPS, LEVELS: LEVELS, groupOf: groupOf, dayKey: dayKey, summarize: summarize, levelInfo: levelInfo, badges: badges, radar: radar, calendar: calendar, daysToExam: daysToExam, EXAM_DATE: EXAM_DATE, rounds: rounds };
+  return { avatarList: avatarList, avatarInfo: avatarInfo, avatarUrl: avatarUrl, GROUPS: GROUPS, LEVELS: LEVELS, groupOf: groupOf, dayKey: dayKey, summarize: summarize, levelInfo: levelInfo, badges: badges, radar: radar, calendar: calendar, daysToExam: daysToExam, EXAM_DATE: EXAM_DATE, groupRounds: groupRounds };
 });
