@@ -86,7 +86,9 @@
       }).join('') + '</div></div>';
 
     // 5) 랭킹 · 피드 · 대결 (서버 기능: 자리 먼저 만들고 비동기로 채움)
-    html += '<div class="rec-card"><div class="rec-title">🏆 이번 주 랭킹 <span class="rec-sub">푼 문제 수 기준 · 월~일</span></div>' +
+    html += '<div class="rec-card"><div class="rec-title">🏆 랭킹 <span class="rec-sub">푼 문제 수 기준</span></div>' +
+      '<div class="rank-seg">' + RANK_TABS.map(function (t) { return '<button data-p="' + t.k + '" class="' + (t.k === rankPeriod ? 'on' : '') + '" onclick="setRankPeriod(\'' + t.k + '\')">' + t.label + '</button>'; }).join('') + '</div>' +
+      '<div id="rank-desc" class="rec-sub rank-desc">' + rankTab().desc + '</div>' +
       '<label class="rec-toggle"><input type="checkbox" id="rank-public-cb" onchange="toggleRankPublic(this.checked)"' + (currentUser && currentUser.rank_public ? ' checked' : '') + '> 내 이름을 랭킹·활동에 공개</label>' +
       '<div id="rank-box" class="rec-sub">불러오는 중…</div></div>';
     html += '<div class="rec-card"><div class="rec-title">👀 오늘의 활동 <span class="rec-sub">최근 24시간</span></div><div id="feed-box" class="rec-sub">불러오는 중…</div></div>';
@@ -159,18 +161,38 @@
     ];
   }
 
+  var RANK_TABS = [
+    { k: 'day', label: '오늘', desc: '오늘 0시부터 · 매일 자정 초기화', empty: '오늘 기록이 아직 없어요.' },
+    { k: 'two', label: '이틀', desc: '어제 + 오늘 · 이틀 연속으로 푼 사람만', empty: '어제와 오늘 이틀 연속으로 푼 사람이 아직 없어요.' },
+    { k: 'week', label: '이번 주', desc: '월요일부터 · 매주 월요일 초기화', empty: '이번 주 기록이 아직 없어요.' }
+  ];
+  var rankPeriod = 'week';
+  try { var savedP = localStorage.getItem('rankPeriod'); if (savedP === 'day' || savedP === 'two' || savedP === 'week') rankPeriod = savedP; } catch (e) { /* 무시 */ }
+  function rankTab() { return RANK_TABS.filter(function (t) { return t.k === rankPeriod; })[0]; }
+  window.setRankPeriod = function (p) {
+    rankPeriod = p;
+    try { localStorage.setItem('rankPeriod', p); } catch (e) { /* 무시 */ }
+    document.querySelectorAll('.rank-seg button').forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-p') === p); });
+    var d = $('rank-desc'); if (d) d.textContent = rankTab().desc;
+    var el = $('rank-box'); if (el) el.textContent = '불러오는 중…';
+    loadRanking();
+  };
+
+  var rankSeq = 0;
   async function loadRanking() {
     var el = $('rank-box'); if (!el) return;
+    var seq = ++rankSeq, period = rankPeriod;
     try {
-      var rows = await Cloud.getRanking();
-      if (!rows.length) { el.textContent = '이번 주 기록이 아직 없어요.'; return; }
+      var rows = await Cloud.getRanking(period);
+      if (seq !== rankSeq) return;   // 탭을 빨리 바꾼 경우 이전 응답 무시
+      if (!rows.length) { el.textContent = rankTab().empty; return; }
       var medal = ['🥇', '🥈', '🥉'];
       var maxN = Math.max.apply(null, rows.map(function (r) { return Number(r.attempts); })) || 1;
-      var awards = awardsOf(rows);
+      var awards = period === 'week' ? awardsOf(rows) : [];
       var winnerOf = {};
       awards.forEach(function (a) { if (a.who) (winnerOf[a.who.user_id] = winnerOf[a.who.user_id] || []).push(a); });
 
-      var html = '<div class="rec-awards">' + awards.map(function (a) {
+      var html = !awards.length ? '' : '<div class="rec-awards">' + awards.map(function (a) {
         return '<div class="rec-award' + (a.who ? ' on' : '') + '"><div class="ai">' + a.icon + '</div><div class="an">' + a.name + '</div>' +
           (a.who ? '<div class="aw">' + esc(a.who.display_name || '-') + '</div><div class="av">' + esc(a.val) + '</div>' : '<div class="av">' + esc(a.hint) + '</div>') + '</div>';
       }).join('') + '</div>';

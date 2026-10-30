@@ -253,7 +253,11 @@ window.Cloud = (function () {
     }
     return rows;
   }
-  async function getRanking() { return check(await client.rpc('weekly_ranking'), '랭킹 불러오기'); }
+  async function getRanking(period) {
+    var res = await client.rpc('ranking', { period: period || 'week' });
+    if (res.error && (!period || period === 'week')) res = await client.rpc('weekly_ranking');   // 서버 미갱신 대비
+    return check(res, '랭킹 불러오기');
+  }
   async function toggleCheer(target) { return check(await client.rpc('toggle_cheer', { target: target }), '응원'); }
   async function getActivity() { return check(await client.rpc('recent_activity'), '활동 불러오기'); }
   async function createDuel(items) {
