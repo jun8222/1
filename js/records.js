@@ -63,11 +63,11 @@
         '<div class="rec-sub" style="opacity:.8">풀이 1점 + 정답 1점</div></div></div>';
 
     // 2) 달력
-    var cal = RC.calendar(sum, new Date(), 17);
-    html += '<div class="rec-card"><div class="rec-title">📅 학습 달력 <span class="rec-sub">최근 17주 · ' + sum.activeDays + '일 학습</span></div><div class="rec-cal">' +
+    var cal = RC.calendar(sum, new Date(), 17), dd = RC.daysToExam(new Date());
+    html += '<div class="rec-card"><div class="rec-title">📅 학습 달력 <span class="rec-sub">' + (dd > 0 ? '<b class="rec-dday">🎯 시험까지 D-' + dd + '</b> · ' : dd === 0 ? '<b class="rec-dday">🎯 D-DAY 화이팅!</b> · ' : '최근 17주 · ') + sum.activeDays + '일 학습</span></div><div class="rec-cal">' +
       cal.map(function (col) {
         return '<div class="rec-col">' + col.map(function (c) {
-          return '<span class="rec-cell lv' + c.lv + (c.future ? ' future' : '') + '" title="' + c.day + ' · ' + c.n + '문제"></span>';
+          return '<span class="rec-cell lv' + c.lv + (c.future ? ' future' : '') + (c.today ? ' today' : '') + (c.exam ? ' exam' : '') + '" title="' + c.day + (c.exam ? ' · 시험일 🎯' : c.future ? ' · 남은 날' : ' · ' + c.n + '문제') + '">' + (c.exam ? '🎯' : '') + '</span>';
         }).join('') + '</div>';
       }).join('') + '</div>' +
       (sum.firstDay ? '<div class="rec-sub" style="margin-top:8px">📌 첫 학습일 ' + sum.firstDay.replace(/-/g, '.') + ' · 시작한 지 ' + (Math.round((new Date(RC.dayKey(new Date()) + 'T00:00:00') - new Date(sum.firstDay + 'T00:00:00')) / 86400000) + 1) + '일째</div>' : '') +
