@@ -82,9 +82,12 @@
       '<div class="rec-legend">적음 <span class="rec-cell lv0"></span><span class="rec-cell lv1"></span><span class="rec-cell lv2"></span><span class="rec-cell lv3"></span><span class="rec-cell lv4"></span> 많음 <span class="rec-cell lv5" title="100문제 이상"><i></i></span><span class="rec-cell lv6" title="150문제 이상"><i></i></span><span class="rec-cell lv7" title="200문제 이상"><i></i></span></div>' +
       '<div class="rec-reset"><div id="reset-mine-warn" class="rec-reset-warn">풀이 기록·오답노트·달력·레벨이 모두 사라지고 되돌릴 수 없어요.</div><button id="reset-mine-btn" class="rec-reset-btn" onclick="resetMine()">🧹 기록 초기화</button></div></div>';
 
-    html = html.replace('<div class="rec-reset">', '<div class="fx-pick">🔥 연속 효과 <select onchange="setStreakFx(this.value)">' +
-      FX_NAMES.map(function (n, i) { return '<option value="' + i + '"' + (String(i) === String(streakFx) ? ' selected' : '') + '>' + n + '</option>'; }).join('') + '</select> · 🌈 세로줄 완주 <select onchange="setColFx(this.value)">' +
-      COL_FX_NAMES.map(function (n, i) { return '<option value="' + i + '"' + (String(i) === String(colFx) ? ' selected' : '') + '>' + n + '</option>'; }).join('') + '</select> <button type="button" class="fx-replay" onclick="replayColFx()">▶ 다시 보기</button></div><div class="rec-reset">');
+    var fxOpen = false; try { fxOpen = localStorage.getItem('fxOpen') === '1'; } catch (e) { /* 무시 */ }
+    html = html.replace('<div class="rec-reset">', '<details class="fx-pick"' + (fxOpen ? ' open' : '') + ' ontoggle="try{localStorage.setItem(\'fxOpen\',this.open?\'1\':\'0\')}catch(e){}"><summary>✨ 달력 효과 설정</summary>' +
+      '<div class="fx-grid"><span class="fx-lbl">🔥 연속 효과</span><select onchange="setStreakFx(this.value)">' +
+      FX_NAMES.map(function (n, i) { return '<option value="' + i + '"' + (String(i) === String(streakFx) ? ' selected' : '') + '>' + n + '</option>'; }).join('') + '</select><span></span>' +
+      '<span class="fx-lbl">🌈 세로줄 완주</span><select onchange="setColFx(this.value)">' +
+      COL_FX_NAMES.map(function (n, i) { return '<option value="' + i + '"' + (String(i) === String(colFx) ? ' selected' : '') + '>' + n + '</option>'; }).join('') + '</select><button type="button" class="fx-replay" onclick="replayColFx()">▶ 다시 보기</button></div></details><div class="rec-reset">');
 
     // 3) 레이더
     var rItems = roundItems();
