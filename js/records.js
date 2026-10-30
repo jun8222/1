@@ -67,7 +67,15 @@
       '<div class="rec-level"><div class="rec-lv-name">' + lv.icon + ' Lv.' + lv.level + ' ' + esc(lv.name) + '</div>' +
         '<div class="rec-bar"><div style="width:' + lv.pct + '%"></div></div>' +
         '<div class="rec-sub">' + lv.xp + ' XP' + (lv.next ? ' · ' + esc(lv.next) + '까지 ' + lv.toNext + ' XP' : ' · 최고 레벨!') + '</div>' +
-        '<div class="rec-sub" style="opacity:.8">풀이 1점 + 정답 1점</div></div></div>';
+        '<details class="lv-guide"><summary>레벨표 · XP 받는 법</summary>' +
+          '<div class="lv-rule">문제를 풀 때마다 <b>1 XP</b>, 맞히면 <b>1 XP</b> 더 (맞히면 2, 틀리면 1). 오답노트·오늘의 문제·친구 대결도 모두 포함돼요.</div>' +
+          '<table class="lv-table"><thead><tr><th>레벨</th><th>직업</th><th>필요 XP</th></tr></thead><tbody>' +
+          RC.LEVELS.map(function (l, i) {
+            var here = lv.level === i + 1;
+            return '<tr class="' + (here ? 'here' : (lv.level > i + 1 ? 'past' : '')) + '"><td>Lv.' + (i + 1) + '</td><td>' + l.icon + ' ' + esc(l.name) + (here ? ' <b>← 지금</b>' : '') + '</td><td>' + l.min.toLocaleString() + '</td></tr>';
+          }).join('') + '</tbody></table>' +
+          '<div class="lv-rule">시험(11/28)까지 하루 150문제면 기공소장, 200문제면 명장까지 갈 수 있어요.</div>' +
+        '</details></div></div>';
 
     // 2) 달력
     var cal = RC.calendar(sum, new Date(), 17), dd = RC.daysToExam(new Date());
@@ -241,7 +249,7 @@
   };
 
   // ---------------------------------------------------------------- 랭킹 · 피드
-  var CHARS = ['🌱', '🔧', '🦷', '⚙️', '🏅', '👑'];
+  var CHARS = RC.LEVELS.map(function (l) { return l.icon; });
   function charHtml(avatar, level) {
     var emoji = CHARS[level - 1], url = RC.avatarUrl(avatar);
     if (!url) return '<span class="lane-ch">' + emoji + '</span>';

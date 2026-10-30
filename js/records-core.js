@@ -15,13 +15,18 @@
   ];
   function groupOf(key) { return String(key || '').replace(/_past$/, ''); }
 
+  // 시험(11/28)까지 하루 150~200문제 기준: 150문제면 시험 즈음 Lv.9, 200문제면 Lv.10
   var LEVELS = [
     { min: 0, name: '견습생', icon: '🌱' },
-    { min: 100, name: '수습 기공사', icon: '🔧' },
-    { min: 300, name: '기공사', icon: '🦷' },
-    { min: 700, name: '숙련 기공사', icon: '⚙️' },
-    { min: 1500, name: '수석 기공사', icon: '🏅' },
-    { min: 3000, name: '명장', icon: '👑' }
+    { min: 300, name: '수습 기공사', icon: '🔧' },
+    { min: 800, name: '기공사', icon: '🦷' },
+    { min: 1500, name: '숙련 기공사', icon: '⚙️' },
+    { min: 2500, name: '선임 기공사', icon: '🛠️' },
+    { min: 3500, name: '책임 기공사', icon: '📋' },
+    { min: 4700, name: '수석 기공사', icon: '🏅' },
+    { min: 6000, name: '기공실장', icon: '🏢' },
+    { min: 7500, name: '기공소장', icon: '🎖️' },
+    { min: 9000, name: '명장', icon: '👑' }
   ];
 
   function pad(n) { return n < 10 ? '0' + n : '' + n; }
