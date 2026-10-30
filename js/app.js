@@ -1037,11 +1037,11 @@ async function openAdminModal() {
   try {
     const members = await Cloud.adminListMembers();
     let html = '<div class="admin-table-wrap"><table class="admin-table"><thead><tr>' +
-      '<th>회원</th><th>상태</th><th>풀이</th><th>마지막 활동</th><th>관리</th></tr></thead><tbody>';
+      '<th>회원</th><th>상태</th><th>오늘 풀이</th><th>마지막 활동</th><th>관리</th></tr></thead><tbody>';
 
     members.forEach(function (m) {
       const me = m.id === currentUser.id;
-      const rate = Number(m.total_attempts) ? Math.round(Number(m.correct_attempts) / Number(m.total_attempts) * 100) + '%' : '-';
+      const tN = Number(m.today_attempts || 0), rate = tN ? Math.round(Number(m.today_correct || 0) / tN * 100) + '%' : '-';
       const btns = [];
       if (!me) {
         if (m.status !== 'approved') btns.push('<button class="btn-action-sm btn-review-expl" onclick="adminAction(\'' + m.id + '\',\'' + m.role + '\',\'approved\')">승인</button>');
@@ -1054,7 +1054,7 @@ async function openAdminModal() {
         '<td><strong>' + esc(m.display_name || '-') + '</strong>' + (m.role === 'admin' ? ' <span class="status-pill ok">관리자</span>' : '') +
           '<br><span style="color:var(--text-sub); font-size:0.75rem;">' + esc(m.email || '') + '</span></td>' +
         '<td><span class="status-pill ' + (m.status === 'approved' ? 'ok' : (m.status === 'blocked' ? 'bad' : 'open')) + '">' + STATUS_LABEL[m.status] + '</span></td>' +
-        '<td>' + Number(m.total_attempts) + '문제<br><span style="color:var(--text-sub); font-size:0.75rem;">정답률 ' + rate + '</span></td>' +
+        '<td>오늘 ' + tN + '문제<br><span style="color:var(--text-sub); font-size:0.75rem;">정답률 ' + rate + '</span></td>' +
         '<td>' + (m.last_active ? esc(fmtDate(m.last_active)) : '-') + '</td>' +
         '<td><div class="admin-btn-col">' + (me ? '<span style="color:var(--text-sub); font-size:0.75rem;">나</span>' : btns.join('')) + '</div></td>' +
         '</tr>';
@@ -1066,7 +1066,7 @@ async function openAdminModal() {
     const sorted = members.slice().sort(function (a, b) { return (rank[a.status] !== undefined ? rank[a.status] : 1) - (rank[b.status] !== undefined ? rank[b.status] : 1); });
     html += '<div class="admin-cards">' + sorted.map(function (m) {
       const me = m.id === currentUser.id;
-      const rate = Number(m.total_attempts) ? Math.round(Number(m.correct_attempts) / Number(m.total_attempts) * 100) + '%' : '-';
+      const tN = Number(m.today_attempts || 0), rate = tN ? Math.round(Number(m.today_correct || 0) / tN * 100) + '%' : '-';
       const btns = [];
       if (!me) {
         if (m.status !== 'approved') btns.push('<button class="btn-action-sm btn-review-expl" onclick="adminAction(\'' + m.id + '\',\'' + m.role + '\',\'approved\')">승인</button>');
@@ -1081,7 +1081,7 @@ async function openAdminModal() {
         '<div class="ac-top"><div class="ac-name"><strong>' + esc(m.display_name || '-') + '</strong>' + (m.role === 'admin' ? ' <span class="status-pill ok">관리자</span>' : '') + (me ? ' <span class="ac-me">(나)</span>' : '') + '</div>' +
           '<span class="status-pill ' + (m.status === 'approved' ? 'ok' : (m.status === 'blocked' ? 'bad' : 'open')) + '">' + STATUS_LABEL[m.status] + '</span></div>' +
         '<div class="ac-email">' + esc(m.email || '') + '</div>' +
-        '<div class="ac-stat">' + Number(m.total_attempts) + '문제 · 정답률 ' + rate + ' · 마지막 활동 ' + last + '</div>' +
+        '<div class="ac-stat">오늘 ' + tN + '문제 · 정답률 ' + rate + ' · 마지막 활동 ' + last + '</div>' +
         (btns.length ? '<div class="ac-btns">' + btns.join('') + '</div>' : '') +
       '</div>';
     }).join('') + '</div>';
