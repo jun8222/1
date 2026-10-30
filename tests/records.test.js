@@ -40,6 +40,8 @@ assert.strictEqual(flat[118].day, R.dayKey(now));   // 맨 오른쪽 아래 = �
 assert.ok(flat.every(c => !c.future));
 assert.strictEqual(flat.find(c => c.day === '2026-10-28').n, 6);
 assert.strictEqual(flat.find(c => c.day === '2026-10-28').lv, 1);
+assert.strictEqual(s.firstDay, Object.keys(s.days).sort()[0]);
+assert.strictEqual(R.summarize([], now).firstDay, null);
 console.log('records tests passed');
 // ---- 캐릭터 (잠금 없음)
 assert.strictEqual(R.avatarList().length, 72);
