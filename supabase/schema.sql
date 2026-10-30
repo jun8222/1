@@ -289,39 +289,31 @@ grant select on public.question_stats to authenticated;
 -- ---------------------------------------------------------------------
 -- 8. 관리자 전용 함수 (회원 목록 / 승인·차단·권한 / 기록 초기화)
 -- ---------------------------------------------------------------------
-create or replace function public.admin_list_members()
+drop function if exists public.admin_list_members();
+create function public.admin_list_members()
 returns table (
-  id uuid,
-  email text,
-  display_name text,
-  role text,
-  status text,
-  daily_goal int,
-  created_at timestamptz,
-  total_attempts bigint,
-  correct_attempts bigint,
-  last_active timestamptz
+  id uuid, email text, display_name text, role text, status text, daily_goal int, created_at timestamptz,
+  total_attempts bigint, correct_attempts bigint, last_active timestamptz,
+  today_attempts bigint, today_correct bigint          -- 오늘(한국시간 0시부터) 풀이
 )
-language plpgsql
-stable
-security definer
-set search_path = public
+language plpgsql stable security definer set search_path = public
 as $$
 begin
   if not public.is_admin() then
     raise exception 'forbidden' using errcode = '42501';
   end if;
-
   return query
-  select
-    p.id, p.email, p.display_name, p.role, p.status, p.daily_goal, p.created_at,
-    coalesce(a.total, 0), coalesce(a.rights, 0), a.last_at
+  select p.id, p.email, p.display_name, p.role, p.status, p.daily_goal, p.created_at,
+         coalesce(a.total, 0), coalesce(a.rights, 0), a.last_at,
+         coalesce(a.today_n, 0), coalesce(a.today_ok, 0)
   from public.profiles p
   left join (
     select t.user_id,
-           count(*)                          as total,
+           count(*) as total,
            count(*) filter (where t.correct) as rights,
-           max(t.created_at)                 as last_at
+           max(t.created_at) as last_at,
+           count(*) filter (where t.created_at >= date_trunc('day', now() at time zone 'Asia/Seoul') at time zone 'Asia/Seoul') as today_n,
+           count(*) filter (where t.correct and t.created_at >= date_trunc('day', now() at time zone 'Asia/Seoul') at time zone 'Asia/Seoul') as today_ok
     from public.attempts t
     group by t.user_id
   ) a on a.user_id = p.id
