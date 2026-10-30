@@ -75,7 +75,10 @@
       '<div class="rec-reset"><div id="reset-mine-warn" class="rec-reset-warn">풀이 기록·오답노트·달력·레벨이 모두 사라지고 되돌릴 수 없어요.</div><button id="reset-mine-btn" class="rec-reset-btn" onclick="resetMine()">🧹 기록 초기화</button></div></div>';
 
     // 3) 레이더
-    html += '<div class="rec-card"><div class="rec-title">🕸 과목별 정답률</div>' + radarSvg(RC.radar(sum)) + weakList(RC.radar(sum)) + '</div>';
+    var rItems = roundItems();
+    html += '<div class="rec-card"><div class="rec-title">🕸 과목별 정답률 <span class="rec-sub">교재 + 국시기출 · 회차 기준</span></div>' +
+      (rItems.some(function (i) { return i.prev !== null; }) ? '<div class="radar-legend"><span><i class="cur"></i>이번 회차</span><span><i class="prv"></i>지난 회차</span></div>' : '') +
+      radarSvg(rItems) + roundCompare(rItems) + weakList(rItems) + '</div>';
 
     // 4) 뱃지
     var gotN = bs.filter(function (b) { return b.got; }).length;
@@ -101,28 +104,56 @@
     loadRanking(); loadFeed(); loadDuelList();
   };
 
+  // 과목(교재+국시기출)별 회차 정답률. 오답 다시 풀기 제외
+  function roundItems() {
+    var gr = RC.groupRounds(histCache || [], window.subjectIdsBy ? window.subjectIdsBy() : {});
+    return RC.GROUPS.map(function (g) {
+      var G = gr.groups[g.key];
+      var cur = G && G.tries ? G.acc : null, last = G ? G.last : null;
+      return { key: g.key, name: g.name, round: G ? G.round : 1, done: G ? G.done : 0, tries: G ? G.tries : 0,
+               cur: cur, last: last, show: cur !== null ? cur : last, prev: (G && G.done && cur !== null) ? last : null, history: G ? G.prev : [] };
+    });
+  }
   function radarSvg(items) {
-    var S = 300, c = S / 2, R = 92, n = items.length, i;
+    var S = 300, c = S / 2, R = 92, n = items.length;
     function pt(idx, r) { var a = -Math.PI / 2 + idx * 2 * Math.PI / n; return [c + r * Math.cos(a), c + r * Math.sin(a)]; }
+    function v(x) { return Math.max((x || 0) / 100, 0.02); }
     var svg = '<svg viewBox="0 0 ' + S + ' ' + S + '" class="rec-radar" role="img" aria-label="과목별 정답률 레이더 차트">';
     [0.5, 0.8, 1].forEach(function (lvl) {
       svg += '<polygon points="' + items.map(function (_, k) { return pt(k, R * lvl).join(','); }).join(' ') + '" fill="none" stroke="var(--border-color)" stroke-width="1"' + (lvl === 0.8 ? ' stroke-dasharray="3 3"' : '') + '/>';
     });
     items.forEach(function (_, k) { var p = pt(k, R); svg += '<line x1="' + c + '" y1="' + c + '" x2="' + p[0] + '" y2="' + p[1] + '" stroke="var(--border-color)"/>'; });
-    svg += '<polygon points="' + items.map(function (it, k) { return pt(k, R * Math.max(it.acc, 0.02)).join(','); }).join(' ') + '" fill="rgba(79,172,254,.28)" stroke="#4facfe" stroke-width="2"/>';
+    if (items.some(function (it) { return it.prev !== null; })) {
+      svg += '<polygon points="' + items.map(function (it, k) { return pt(k, R * v(it.prev !== null ? it.prev : it.show)).join(','); }).join(' ') + '" fill="none" stroke="#9aa3c0" stroke-width="1.6" stroke-dasharray="4 3"/>';
+    }
+    svg += '<polygon points="' + items.map(function (it, k) { return pt(k, R * v(it.show)).join(','); }).join(' ') + '" fill="rgba(79,172,254,.28)" stroke="#4facfe" stroke-width="2"/>';
     items.forEach(function (it, k) {
-      var p = pt(k, R * Math.max(it.acc, 0.02)); var l = pt(k, R + 22);
-      svg += '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="3" fill="#4facfe"/>' +
-        '<text x="' + l[0] + '" y="' + l[1] + '" text-anchor="middle" dominant-baseline="middle" font-size="10" fill="var(--text-sub)">' + esc(it.name) + '</text>';
+      var p = pt(k, R * v(it.show)), l = pt(k, R + 22);
+      if (it.show !== null) svg += '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="3" fill="#4facfe"/>';
+      svg += '<text x="' + l[0] + '" y="' + l[1] + '" text-anchor="middle" dominant-baseline="middle" font-size="10" fill="var(--text-sub)"' + (it.show === null ? ' opacity=".5"' : '') + '>' + esc(it.name) + '</text>';
     });
     return svg + '</svg>';
   }
 
+  function roundCompare(items) {
+    var w = items.filter(function (i) { return i.done > 0; });
+    if (!w.length) return '';
+    return '<div class="rec-rounds"><b>회차 비교</b>' + w.map(function (i) {
+      var hist = i.history.map(function (a, k) { return (k + 1) + '회차 ' + (a === null ? '-' : a + '%'); });
+      var line = hist.join(' → ') + ' → ' + i.round + '회차 ' + (i.cur === null ? '시작 전' : i.cur + '%');
+      var d = i.cur !== null && i.last !== null ? i.cur - i.last : null;
+      return '<div class="rr"><span class="rr-n">' + esc(i.name) + '</span><span class="rr-v">' + esc(line) +
+        (d !== null ? ' <em class="' + (d >= 0 ? 'up' : 'dn') + '">' + (d >= 0 ? '▲' : '▼') + Math.abs(d) + '%p</em>' : '') + '</span></div>';
+    }).join('') + '</div>';
+  }
+
   function weakList(items) {
-    var w = items.filter(function (i) { return i.n >= 5; }).sort(function (a, b) { return a.acc - b.acc; }).slice(0, 3);
+    var w = items.filter(function (i) { return i.show !== null && (i.cur === null || i.tries >= 5); })
+      .sort(function (a, b) { return a.show - b.show; }).slice(0, 3);
     if (!w.length) return '<div class="rec-sub" style="text-align:center">과목별로 5문제 이상 풀면 약한 과목을 알려 드려요.</div>';
     return '<div class="rec-weak"><b>보강이 필요한 과목</b>' + w.map(function (i) {
-      return '<span>' + esc(i.name) + ' <b>' + Math.round(i.acc * 100) + '%</b> <small>(' + i.n + '문제)</small></span>';
+      var r = i.cur !== null ? i.round : i.round - 1;
+      return '<span>' + esc(i.name) + ' <b>' + i.show + '%</b> <small>(' + r + '회차' + (i.cur !== null ? ' · ' + i.tries + '회 풀이' : ' 완료') + ')</small></span>';
     }).join('') + '</div>';
   }
 
