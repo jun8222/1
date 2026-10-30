@@ -259,6 +259,8 @@ function toggleTheme() {
 let statsCache = {};
 // 오답노트/복습완료에서 지운 문항 { 'subject:id': 지운시각(ms) } — 이후에 다시 풀면 다시 나타남
 let noteClears = {};
+let historyRows = null;          // 시간순 풀이 기록 (회독 계산용)
+let roundCache = {};
 let recentCache = {};   // 과목별 최근 30회 { n, rights }
 function noteClearKey() { return 'noteClears:' + (currentUser && currentUser.id); }
 function loadLocalClears() {
@@ -289,9 +291,11 @@ async function refreshStats() {
     const got = await Promise.all([
       Cloud.loadQuestionStats(),
       Cloud.loadRecentBySubject(30).catch(function () { return recentCache; }),
-      Cloud.loadNoteClears().catch(function () { return null; })
+      Cloud.loadNoteClears().catch(function () { return null; }),
+      Cloud.loadAttemptHistory().catch(function () { return historyRows; })
     ]);
     statsCache = got[0]; recentCache = got[1];
+    if (got[3]) { historyRows = got[3]; recomputeRounds(); }
     const remote = got[2];
     if (remote) Object.keys(remote).forEach(function (k) { noteClears[k] = Math.max(noteClears[k] || 0, remote[k]); });
   } catch (e) { return; }
@@ -299,7 +303,19 @@ async function refreshStats() {
   cnt.textContent = wc; cnt.style.display = wc ? 'inline-block' : 'none';
   if ($('subject-view').style.display === 'block') renderSubjectList();
 }
+function recomputeRounds() {
+  if (!historyRows || !window.RecordsCore) { roundCache = {}; return; }
+  const idsBy = {}, db = window.quizDatabase || {};
+  subjectMeta.forEach(function (m) { const d = db[m.key]; if (d && d.questions) idsBy[m.key] = d.questions.map(function (q) { return q.id; }); });
+  roundCache = window.RecordsCore.rounds(historyRows, idsBy);
+}
 function subjectProgress(key, total) {
+  const rd = roundCache[key];
+  if (rd && rd.total === total) {
+    const rc0 = recentCache[key];
+    return { solved: rd.solved, pct: rd.pct, acc: rd.acc, round: rd.round, done: rd.done, prev: rd.prev, seen: rd.seen,
+             weak: !!(rc0 && rc0.n >= 20 && rc0.rights / rc0.n < 0.7) };
+  }
   let solved = 0, tries = 0, rights = 0;
   const prefix = key + ':';
   Object.keys(statsCache).forEach(function (k) {
@@ -457,10 +473,13 @@ function onSubjectStart(key) {
   const sub = (window.quizDatabase || {})[key];
   if (!sub || !sub.questions) { toast('문항 데이터를 불러올 수 없습니다.'); return; }
   const total = sub.questions.length;
-  const remaining = sub.questions.filter(function (q) { return !statsCache[key + ':' + q.id]; });
+  const pr0 = subjectProgress(key, sub.questions.length);
+  const remaining = pr0.seen
+    ? sub.questions.filter(function (q) { return !pr0.seen[q.id]; })
+    : sub.questions.filter(function (q) { return !statsCache[key + ':' + q.id]; });
   if (remaining.length === 0 || remaining.length === total) { startQuiz(key); return; }
   $('resume-title').textContent = subjectName(key);
-  $('resume-info').textContent = '전체 ' + total + '문제 중 ' + (total - remaining.length) + '문제를 풀었어요. (남은 ' + remaining.length + '문제)';
+  $('resume-info').textContent = (pr0.round > 1 ? pr0.round + '회차 · ' : '') + '전체 ' + total + '문제 중 ' + (total - remaining.length) + '문제를 풀었어요. (남은 ' + remaining.length + '문제)';
   $('resume-continue-btn').textContent = '이어서 풀기 (남은 ' + remaining.length + '문제)';
   $('resume-continue-btn').onclick = function () { closeModal('resume-modal'); startQuiz(key, remaining.map(function (q) { return cloneQuestion(q, key); }), 'free'); };
   $('resume-restart-btn').textContent = '처음부터 풀기 (전체 ' + total + '문제)';
@@ -1139,20 +1158,21 @@ function renderSubjectList() {
     }
     const html =
       '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">' +
-        '<div class="subject-name" style="margin: 0; font-size: 1rem;">' + esc(meta.name) + '</div>' +
+        '<div class="subject-name" style="margin: 0; font-size: 1rem;">' + esc(meta.name) + (pr.done ? ' <span class="round-badge r' + Math.min(pr.done, 3) + '">🏅 ' + pr.done + '회독</span>' : '') + '</div>' +
         (pr.weak ? '<span style="background-color: #ef4444; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600;">취약</span>' : '') +
       '</div>' +
-      '<div style="font-size: 0.82rem; color: var(--text-sub); margin-bottom: 6px; font-weight: 500;">기출: ' + count + ' | 진도: ' + pr.pct + '%</div>' +
+      '<div style="font-size: 0.82rem; color: var(--text-sub); margin-bottom: 6px; font-weight: 500;">기출: ' + count + ' | ' + (pr.round > 1 ? pr.round + '회차 ' : '') + '진도: ' + pr.pct + '%</div>' +
       '<div style="margin-bottom: 6px;">' +
         '<div style="font-size: 0.7rem; color: var(--text-sub); margin-bottom: 3px; font-weight: 600;">학습 진도</div>' +
         '<div style="height: 6px; background-color: rgba(79, 172, 254, 0.2); border-radius: 3px; overflow: hidden;"><div style="height: 100%; width: ' + pr.pct + '%; background-color: #4facfe;"></div></div>' +
       '</div>' +
       '<div>' +
         '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px;">' +
-          '<div style="font-size: 0.7rem; color: var(--text-sub); font-weight: 600;">정답률</div>' +
+          '<div style="font-size: 0.7rem; color: var(--text-sub); font-weight: 600;">' + (pr.round > 1 ? '이번 회차 정답률' : '정답률') + '</div>' +
           '<div style="font-size: 0.85rem; font-weight: 700;">' + (noAcc ? '-' : acc + '%') + '</div>' +
         '</div>' +
         '<div style="height: 8px; background-color: ' + bg + '; border: 1px solid ' + bar + '; border-radius: 3px; overflow: hidden;"><div style="height: 100%; width: ' + acc + '%; background-color: ' + bar + ';"></div></div>' +
+        (pr.prev && pr.prev.length ? '<div class="round-prev">' + pr.prev.map(function (a, i) { return (i + 1) + '회차 ' + a + '%'; }).join(' → ') + '</div>' : '') +
       '</div>';
 
     // 카드 요소는 그대로 두고 내용이 바뀐 것만 갱신 (클릭 도중 카드가 교체되는 것 방지)
@@ -1320,6 +1340,7 @@ function selectAnswer(userPick) {
   // 풀 때마다 즉시 기록 (중간에 나가도 남음)
   const correct = userPick === q.answer;
   const picked = userPick > 0 ? (q._orig ? q._orig[userPick - 1] : userPick) : -1;
+  if (historyRows) { historyRows.push({ created_at: new Date().toISOString(), subject_key: q._s || currentSubjectKey, question_id: q.id, correct: correct }); recomputeRounds(); }
   Cloud.logAttempt({
     subjectKey: q._s || currentSubjectKey,
     questionId: q.id,
