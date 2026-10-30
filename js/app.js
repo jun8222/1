@@ -1210,17 +1210,14 @@ function renderSubjectList() {
       '<div class="sg-sets">' + tiles + '</div></div>';
     const pk = g.period === 1 || g.period === 2 ? g.period : 0;
     secHtml[pk] += html; secSum[pk][0]++;
-    if (G) { secSum[pk][1] += G.solved; secSum[pk][2] += G.total; }
   });
   let out = '';
   [[1, '1교시', 'p1'], [2, '2교시', 'p2'], [0, '기타', 'p0']].forEach(function (sec) {
     const body = secHtml[sec[0]]; if (!body) return;
     const sm = secSum[sec[0]], folded = !!foldedPeriods[sec[0]];
-    const pct = sm[2] ? Math.round(sm[1] / sm[2] * 100) : 0;
     out += '<section class="period-sec ' + sec[2] + (folded ? ' folded' : '') + '">' +
       '<div class="ps-head"><span class="ps-pill">' + sec[1] + '</span>' +
-        '<span class="ps-info">' + sm[0] + '과목' + (sec[0] ? ' · 진도 ' + pct + '%' : '') + '</span>' +
-        (sec[0] ? '<span class="ps-mini"><span style="width:' + pct + '%"></span></span>' : '') +
+        '<span class="ps-info">' + sm[0] + '과목</span>' +
         '<button type="button" class="ps-fold" onclick="togglePeriodFold(' + sec[0] + ')">' + (folded ? '펼치기 ▾' : '접기 ▴') + '</button></div>' +
       '<div class="ps-body">' + (folded ? '' : body) + '</div></section>';
   });
