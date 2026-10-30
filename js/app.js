@@ -343,7 +343,7 @@ function switchTab(name) {
     $(t + '-tab').classList.toggle('active', t === name);
     $('tabbtn-' + t).classList.toggle('active', t === name);
   });
-  if (name === 'records') { refreshStats().then(function () { if (currentTab === 'records') renderRecords(); }); renderRecords(); }
+  if (name === 'records') { window.__recEnterAt = Date.now(); refreshStats().then(function () { if (currentTab === 'records') renderRecords(); }); renderRecords(); }
   else if (name !== 'study') { renderNotes(); refreshStats().then(function () { if (currentTab !== 'study' && currentTab !== 'records') renderNotes(); }); }
 }
 function openNotesTab() {

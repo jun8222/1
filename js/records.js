@@ -71,7 +71,7 @@
 
     // 2) 달력
     var cal = RC.calendar(sum, new Date(), 17), dd = RC.daysToExam(new Date());
-    html += '<div class="rec-card"><div class="rec-title">📅 학습 달력 <span class="rec-sub">' + (dd > 0 ? '<b class="rec-dday">🎯 시험까지 D-' + dd + '</b> · ' : dd === 0 ? '<b class="rec-dday">🎯 D-DAY 화이팅!</b> · ' : '최근 17주 · ') + sum.activeDays + '일 학습</span></div><div class="rec-cal fx' + streakFx + ' cfx' + colFx + '" id="rec-cal" style="--gc:' + stkColor(cal) + '">' +
+    html += '<div class="rec-card"><div class="rec-title">📅 학습 달력 <span class="rec-sub">' + (dd > 0 ? '<b class="rec-dday">🎯 시험까지 D-' + dd + '</b> · ' : dd === 0 ? '<b class="rec-dday">🎯 D-DAY 화이팅!</b> · ' : '최근 17주 · ') + sum.activeDays + '일 학습</span></div><div class="rec-cal fx' + streakFx + ' cfx' + colFx + (Date.now() - (window.__recEnterAt || 0) < 4000 ? ' cfx-play' : '') + '" id="rec-cal" style="--gc:' + stkColor(cal) + '">' +
       cal.map(function (col) {
         var full = col.every(function (c) { return c.n > 0 && !c.future; });   // 세로줄(7일) 모두 공부
         return '<div class="rec-col' + (full ? ' full' : '') + '">' + col.map(function (c, ri) {
@@ -84,7 +84,7 @@
 
     html = html.replace('<div class="rec-reset">', '<div class="fx-pick">🔥 연속 효과 <select onchange="setStreakFx(this.value)">' +
       FX_NAMES.map(function (n, i) { return '<option value="' + i + '"' + (String(i) === String(streakFx) ? ' selected' : '') + '>' + n + '</option>'; }).join('') + '</select> · 🌈 세로줄 완주 <select onchange="setColFx(this.value)">' +
-      COL_FX_NAMES.map(function (n, i) { return '<option value="' + i + '"' + (String(i) === String(colFx) ? ' selected' : '') + '>' + n + '</option>'; }).join('') + '</select></div><div class="rec-reset">');
+      COL_FX_NAMES.map(function (n, i) { return '<option value="' + i + '"' + (String(i) === String(colFx) ? ' selected' : '') + '>' + n + '</option>'; }).join('') + '</select> <button type="button" class="fx-replay" onclick="replayColFx()">▶ 다시 보기</button></div><div class="rec-reset">');
 
     // 3) 레이더
     var rItems = roundItems();
@@ -109,6 +109,7 @@
       '<div id="duel-new"></div><div id="duel-list" class="rec-sub" style="margin-top:12px">불러오는 중…</div></div>';
 
     box.innerHTML = html;
+    if ($('rec-cal') && $('rec-cal').classList.contains('cfx-play')) scheduleColStop();
     loadRanking(); loadFeed(); loadDuelList();
   };
 
@@ -181,11 +182,22 @@
   try { var savedCol = localStorage.getItem('colFx'); if (savedCol !== null && COL_FX_NAMES[+savedCol]) colFx = savedCol; } catch (e) { /* 무시 */ }
   window.setColFx = function (v) {
     colFx = v; try { localStorage.setItem('colFx', v); } catch (e) { /* 무시 */ }
-    var el = $('rec-cal'); if (el) el.className = 'rec-cal fx' + streakFx + ' cfx' + v;
+    var el = $('rec-cal'); if (el) { el.className = 'rec-cal fx' + streakFx + ' cfx' + v; if (v !== '0') window.replayColFx(); }
+  };
+  var colTimer = null;
+  function scheduleColStop() {
+    clearTimeout(colTimer);
+    colTimer = setTimeout(function () { var el = $('rec-cal'); if (el) el.classList.remove('cfx-play'); }, 3000);
+  }
+  window.replayColFx = function () {
+    var el = $('rec-cal'); if (!el) return;
+    if (colFx === '0') { toast('세로줄 완주 효과를 먼저 골라 주세요.'); return; }
+    if (!el.querySelector('.rec-col.full')) { toast('아직 7일을 다 채운 세로줄이 없어요.'); return; }
+    el.classList.remove('cfx-play'); void el.offsetWidth; el.classList.add('cfx-play'); scheduleColStop();
   };
   window.setStreakFx = function (v) {
     streakFx = v; try { localStorage.setItem('streakFx', v); } catch (e) { /* 무시 */ }
-    var el = $('rec-cal'); if (el) el.className = 'rec-cal fx' + v + ' cfx' + colFx;
+    var el = $('rec-cal'); if (el) { var playing = el.classList.contains('cfx-play'); el.className = 'rec-cal fx' + v + ' cfx' + colFx + (playing ? ' cfx-play' : ''); }
   };
 
   // ---------------------------------------------------------------- 뱃지
@@ -205,9 +217,21 @@
       }).join('') + '</div>' +
       '<div class="rec-badges">' + list.map(function (b) {
         return '<div class="rec-badge t' + b.tier + (b.got ? ' got' : '') + '" title="' + esc(b.desc) + '"><div class="bi">' + (b.got ? b.icon : '🔒') + '</div><div class="bn">' + esc(b.name) + '</div>' +
-          (!b.got && b.prog ? '<div class="bp">' + esc(String(b.prog)) + '</div>' : '') + '<div class="bd">' + esc(b.desc) + '</div></div>';
+          (!b.got && b.prog ? '<div class="bp">' + esc(String(b.prog)) + '</div>' : '') + '<div class="bd">' + esc(b.desc) + (!b.got && b.prog ? '<br><b>지금 ' + esc(String(b.prog)) + '</b>' : '') + '</div></div>';
       }).join('') + '</div>';
   }
+  // 말풍선이 화면 밖으로 나가지 않게 좌우 보정
+  function fitTip(e) {
+    var b = e.target && e.target.closest && e.target.closest('.rec-badge'); if (!b) return;
+    var t = b.querySelector('.bd'); if (!t) return;
+    t.style.marginLeft = '0px';
+    requestAnimationFrame(function () {
+      var r = t.getBoundingClientRect(), vw = document.documentElement.clientWidth, d = 0;
+      if (r.right > vw - 8) d = vw - 8 - r.right; else if (r.left < 8) d = 8 - r.left;
+      t.style.marginLeft = d + 'px';
+    });
+  }
+  document.addEventListener('mouseover', fitTip); document.addEventListener('focusin', fitTip);
   window.setBadgeCat = function (c) {
     badgeCat = c; try { localStorage.setItem('badgeCat', c); } catch (e) { /* 무시 */ }
     var el = $('badge-card'); if (el) el.innerHTML = badgeCardInner();
