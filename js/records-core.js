@@ -61,7 +61,8 @@
       total: total, rights: rights, days: days, groups: groups,
       streak: cur, bestStreak: best, activeDays: keys.length, bestDay: bestDay,
       todayCount: days[today] ? days[today].n : 0, todayDone: !!days[today],
-      xp: total + rights
+      xp: total + rights,
+      firstDay: keys.length ? keys[0] : null
     };
   }
 

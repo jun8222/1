@@ -70,6 +70,7 @@
           return '<span class="rec-cell lv' + c.lv + (c.future ? ' future' : '') + '" title="' + c.day + ' · ' + c.n + '문제"></span>';
         }).join('') + '</div>';
       }).join('') + '</div>' +
+      (sum.firstDay ? '<div class="rec-sub" style="margin-top:8px">📌 첫 학습일 ' + sum.firstDay.replace(/-/g, '.') + ' · 시작한 지 ' + (Math.round((new Date(RC.dayKey(new Date()) + 'T00:00:00') - new Date(sum.firstDay + 'T00:00:00')) / 86400000) + 1) + '일째</div>' : '') +
       '<div class="rec-legend">적음 <span class="rec-cell lv0"></span><span class="rec-cell lv1"></span><span class="rec-cell lv2"></span><span class="rec-cell lv3"></span><span class="rec-cell lv4"></span> 많음</div></div>';
 
     // 3) 레이더
