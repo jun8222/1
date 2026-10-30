@@ -1193,13 +1193,14 @@ function renderSubjectList() {
     }).join('');
     const round = G ? G.round : 1, done = G ? G.done : 0;
     const gacc = G ? G.acc : null, gpct = G ? G.pct : 0;
-    const right = g.sets.length > 1 || G ? (round + '회차 · ' + (gacc === null ? (G && G.tries ? '-' : '시작 전') : gacc + '%')) : '';
+    const right = G ? (round + '회차' + (G.tries ? '' : ' · 시작 전')) : '';
     html += '<div class="subject-group' + (g.sets.length === 1 ? ' single' : '') + '">' +
       '<div class="sg-head"><span class="sg-name">' + esc(g.name) + '</span>' +
         (done ? '<span class="round-badge r' + Math.min(done, 3) + '">🏅 ' + done + '회독</span>' : '') +
         (isWeak(keys) ? '<span class="sg-weak">취약</span>' : '') +
         (right && G ? '<span class="sg-right">' + right + '</span>' : '') + '</div>' +
-      (G ? '<div class="sg-bar"><div style="width:' + gpct + '%"></div></div>' : '') +
+      (G ? '<div class="sg-row"><span>진도</span><div class="sg-bar"><div style="width:' + gpct + '%"></div></div><b>' + gpct + '%</b></div>' +
+           '<div class="sg-row"><span>정답률</span><div class="sg-bar acc" style="--c:' + accColor(gacc) + '"><div style="width:' + (gacc || 0) + '%"></div></div><b style="color:' + accColor(gacc) + '">' + (gacc === null ? '-' : gacc + '%') + '</b></div>' : '') +
       '<div class="sg-sets">' + tiles + '</div></div>';
   });
   if (grid._html !== html) { grid.innerHTML = html; grid._html = html; }
