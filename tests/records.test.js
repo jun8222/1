@@ -63,6 +63,8 @@ assert.deepStrictEqual([rr.round, rr.done, rr.solved, rr.acc, rr.prev], [2, 1, 1
 assert.ok(rr.seen[1] && !rr.seen[2]);
 rr = R.rounds([A(1, 0), A(2, 0), A(1, 1), A(2, 1)], { x: [1, 2] }).x;
 assert.deepStrictEqual([rr.round, rr.done, rr.acc, rr.prev], [3, 2, null, [0, 100]]);
+rr = R.rounds([A(1, 1), Object.assign(A(2, 1), { source: 'retry' })], { x: [1, 2] }).x;
+assert.deepStrictEqual([rr.round, rr.solved, rr.tries], [1, 1, 1]);   // retry 제외
 console.log('records tests passed');
 // ---- 캐릭터 (잠금 없음)
 assert.strictEqual(R.avatarList().length, 72);
