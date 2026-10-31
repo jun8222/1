@@ -591,6 +591,7 @@ async function routeBySession() {
   if (profile.status === 'approved') {
     await showMainView();
     Cloud.flush();
+    if (window.Race) Race.start();
   } else if (profile.status === 'blocked') {
     showAuthView('blocked');
   } else {
@@ -644,6 +645,7 @@ async function logout() {
   try { await Cloud.signOut(); } catch (e) { /* 이미 만료된 세션이면 무시 */ }
   activeUserId = null;
   currentUser = null;
+  if (window.Race) Race.stop();
   sessionsCache = [];
   localSessions = [];
   dailyState = null;
@@ -1403,6 +1405,7 @@ function selectAnswer(userPick) {
     source: currentMode === 'duel' ? 'free' : currentMode,
     sessionId: currentSessionId
   });
+  if (window.Race) Race.bump();
   if (currentMode === 'daily') {
     if (localDailyDay !== todayStr()) { localDailySolved = {}; localDailyDay = todayStr(); }
     localDailySolved[(q._s || currentSubjectKey) + ':' + q.id] = true;

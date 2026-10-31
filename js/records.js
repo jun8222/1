@@ -113,6 +113,7 @@
       '<div class="rank-seg">' + RANK_TABS.map(function (t) { return '<button data-p="' + t.k + '" class="' + (t.k === rankPeriod ? 'on' : '') + '" onclick="setRankPeriod(\'' + t.k + '\')">' + t.label + '</button>'; }).join('') + '</div>' +
       '<div id="rank-desc" class="rec-sub rank-desc">' + rankTab().desc + '</div>' +
       '<label class="rec-toggle"><input type="checkbox" id="rank-public-cb" onchange="toggleRankPublic(this.checked)"' + (currentUser && currentUser.rank_public ? ' checked' : '') + '> 내 이름을 랭킹·활동에 공개</label>' +
+      '<label class="rec-toggle"><input type="checkbox" id="race-join-cb" onchange="toggleRaceJoin(this.checked)"' + (!currentUser || currentUser.race_join !== false ? ' checked' : '') + '> 🏁 헤더 레이스 참여</label>' +
       '<div id="rank-box" class="rec-sub">불러오는 중…</div></div>';
     html += '<div class="rec-card"><div class="rec-title">👀 오늘의 활동 <span class="rec-sub">최근 24시간</span></div><div id="feed-box" class="rec-sub">불러오는 중…</div></div>';
     html += '<div class="rec-card"><div class="rec-title">⚔️ 친구 대결</div>' +
@@ -464,7 +465,7 @@
   }
 
   window.pickAvatar = async function (id) {
-    try { currentUser = await Cloud.updateProfile({ avatar: id }); toast(id ? '캐릭터를 바꿨어요!' : '기본 캐릭터로 돌아왔어요.'); renderRecords(); }
+    try { currentUser = await Cloud.updateProfile({ avatar: id }); toast(id ? '캐릭터를 바꿨어요!' : '기본 캐릭터로 돌아왔어요.'); renderRecords(); if (window.Race) Race.refresh(); }
     catch (e) { toast('저장하지 못했어요. 서버 설정(records.sql)을 다시 실행해 주세요.', 4000); }
   };
 
@@ -491,10 +492,15 @@
     } catch (e) { b.disabled = false; disarmReset(); toast('초기화하지 못했어요. 서버 설정(records.sql)을 다시 실행해 주세요.', 4000); }
   };
 
+  window.toggleRaceJoin = async function (on) {
+    try { currentUser = await Cloud.updateProfile({ race_join: !!on }); toast(on ? '레이스에 참여해요.' : '레이스에서 빠졌어요.'); }
+    catch (e) { toast('저장하지 못했어요. 잠시 후 다시 시도해 주세요.', 4000); var cb = $('race-join-cb'); if (cb) cb.checked = !on; }
+    if (window.Race) Race.refresh();
+  };
   window.toggleRankPublic = async function (on) {
     try { currentUser = await Cloud.updateProfile({ rank_public: !!on }); toast(on ? '랭킹·활동에 공개해요.' : '비공개로 바꿨어요.'); }
     catch (e) { toast('저장하지 못했어요. 서버 설정(records.sql)을 확인해 주세요.', 4000); var cb = $('rank-public-cb'); if (cb) cb.checked = !on; return; }
-    loadRanking(); loadFeed();
+    loadRanking(); loadFeed(); if (window.Race) Race.refresh();
   };
 
   // ---------------------------------------------------------------- 친구 대결
