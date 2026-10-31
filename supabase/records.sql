@@ -252,3 +252,27 @@ language sql stable security definer set search_path = public as $$
 $$;
 revoke all on function public.race_today() from public, anon;
 grant execute on function public.race_today() to authenticated;
+
+-- 9. 헤더 레이스 솔로 모드: 모드·목표·어제의 나·페이스메이커 설정 + '어제의 나' 수
+alter table public.profiles add column if not exists race_mode text not null default 'compete';
+alter table public.profiles add column if not exists race_goal integer not null default 80;
+alter table public.profiles add column if not exists race_ghost boolean not null default true;
+alter table public.profiles add column if not exists race_pace boolean not null default true;
+do $$ begin
+  alter table public.profiles add constraint profiles_race_mode_chk check (race_mode in ('compete','solo'));
+exception when duplicate_object then null; end $$;
+do $$ begin
+  alter table public.profiles add constraint profiles_race_goal_chk check (race_goal between 10 and 500);
+exception when duplicate_object then null; end $$;
+grant update (race_mode, race_goal, race_ghost, race_pace) on public.profiles to authenticated;
+
+create or replace function public.race_ghost()
+returns bigint
+language sql stable security definer set search_path = public as $$
+  select count(*) from public.attempts a
+  where a.user_id = auth.uid()
+    and a.created_at >= (date_trunc('day', now() at time zone 'Asia/Seoul') - interval '1 day') at time zone 'Asia/Seoul'
+    and a.created_at < now() - interval '1 day';
+$$;
+revoke all on function public.race_ghost() from public, anon;
+grant execute on function public.race_ghost() to authenticated;

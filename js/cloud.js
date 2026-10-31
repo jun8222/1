@@ -263,6 +263,7 @@ window.Cloud = (function () {
     if (res.error && (!period || period === 'week')) res = await client.rpc('weekly_ranking');   // 서버 미갱신 대비
     return check(res, '랭킹 불러오기');
   }
+  async function getRaceGhost() { var r = await client.rpc('race_ghost'); return r.error ? null : Number(r.data) || 0; }
   async function getRace() { return check(await client.rpc('race_today'), '레이스 불러오기'); }
   async function toggleCheer(target) { return check(await client.rpc('toggle_cheer', { target: target }), '응원'); }
   async function getActivity() { return check(await client.rpc('recent_activity'), '활동 불러오기'); }
@@ -375,7 +376,7 @@ window.Cloud = (function () {
     signInWithGoogle: signInWithGoogle, signOut: signOut,
     getProfile: getProfile, updateProfile: updateProfile,
     logAttempt: logAttempt, saveSession: saveSession, flush: flush, pendingCount: pendingCount,
-    listSessions: listSessions, loadQuestionStats: loadQuestionStats, loadAttemptHistory: loadAttemptHistory, getRanking: getRanking, getRace: getRace, myBadgeStats: myBadgeStats, toggleCheer: toggleCheer, getActivity: getActivity, createDuel: createDuel, getDuel: getDuel, saveDuelResult: saveDuelResult, myDuelResult: myDuelResult, duelBoard: duelBoard, deleteDuel: deleteDuel, myDuels: myDuels, loadRecentBySubject: loadRecentBySubject, loadNoteClears: loadNoteClears, saveNoteClears: saveNoteClears, loadAttemptsSince: loadAttemptsSince,
+    listSessions: listSessions, loadQuestionStats: loadQuestionStats, loadAttemptHistory: loadAttemptHistory, getRanking: getRanking, getRace: getRace, getRaceGhost: getRaceGhost, myBadgeStats: myBadgeStats, toggleCheer: toggleCheer, getActivity: getActivity, createDuel: createDuel, getDuel: getDuel, saveDuelResult: saveDuelResult, myDuelResult: myDuelResult, duelBoard: duelBoard, deleteDuel: deleteDuel, myDuels: myDuels, loadRecentBySubject: loadRecentBySubject, loadNoteClears: loadNoteClears, saveNoteClears: saveNoteClears, loadAttemptsSince: loadAttemptsSince,
     getDailySet: getDailySet, saveDailySet: saveDailySet,
     createReport: createReport, listReports: listReports, setReportStatus: setReportStatus, deleteReport: deleteReport,
     adminListMembers: adminListMembers, adminSetMember: adminSetMember, adminResetMember: adminResetMember, resetMyRecords: resetMyRecords,
