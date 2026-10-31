@@ -227,3 +227,28 @@ language sql stable security definer set search_path = public as $$
 $$;
 revoke all on function public.my_badge_stats() from public, anon;
 grant execute on function public.my_badge_stats() to authenticated;
+
+-- 8. 헤더 레이스: 참여 여부 + 오늘 푼 문제 수 (공개 안 한 사람은 이름·캐릭터 없이 익명)
+alter table public.profiles add column if not exists race_join boolean not null default true;
+grant update (race_join) on public.profiles to authenticated;
+
+create or replace function public.race_today()
+returns table (k text, name text, avatar text, n bigint, is_me boolean)
+language sql stable security definer set search_path = public as $$
+  select md5(p.id::text || (now() at time zone 'Asia/Seoul')::date::text),
+         case when p.rank_public or p.id = auth.uid() then p.display_name end,
+         case when p.rank_public or p.id = auth.uid() then p.avatar end,
+         count(*),
+         (p.id = auth.uid())
+  from public.profiles p
+  join public.attempts a on a.user_id = p.id
+  where public.is_approved()
+    and p.status = 'approved'
+    and p.race_join
+    and a.created_at >= date_trunc('day', now() at time zone 'Asia/Seoul') at time zone 'Asia/Seoul'
+  group by p.id, p.display_name, p.avatar, p.rank_public
+  order by 4 desc
+  limit 30;
+$$;
+revoke all on function public.race_today() from public, anon;
+grant execute on function public.race_today() to authenticated;

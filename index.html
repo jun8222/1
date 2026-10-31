@@ -7,7 +7,7 @@
   <title>치과기공사 국가시험 퀴즈</title>
   
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="./css/proto.css?v=202611010055">
+  <link rel="stylesheet" href="./css/proto.css?v=202611010107">
   
   <style>
 
@@ -470,6 +470,30 @@
     .fx6 .rec-cell.stk { box-shadow: 0 0 5px 1px rgba(255, 154, 60, .6); }
     .fx6 .rec-cell.stk::after { content: ''; position: absolute; left: 50%; bottom: 60%; width: 3px; height: 3px; border-radius: 50%; background: #ffcf6b; box-shadow: 0 0 4px 1px #ff9a3c; opacity: 0; animation: stkEmber 2.4s ease-out infinite; animation-delay: calc(var(--k) * .4s); }
     @keyframes stkEmber { 0% { transform: translate(-50%, 0); opacity: 0; } 15% { opacity: 1; } 100% { transform: translate(calc(-50% + 4px), -16px); opacity: 0; } }
+    /* 헤더 레이스 */
+    .race-bar { position: sticky; top: 60px; z-index: 99; display: flex; align-items: center; gap: 6px; height: 38px; padding: 0 8px 0 12px; background: var(--card-bg); border-bottom: 1px solid var(--border-color); }
+    .rc-track { position: relative; flex: 1; height: 100%; margin-right: 18px; }
+    .rc-track::before { content: ''; position: absolute; left: 0; right: -14px; bottom: 5px; border-bottom: 2px dashed var(--border-color); }
+    .rc-fin { position: absolute; right: -18px; bottom: 3px; font-size: .85rem; line-height: 1; }
+    .rc-r { position: absolute; width: 22px; height: 22px; display: flex; align-items: flex-end; justify-content: center; transition: left .6s cubic-bezier(.3,1.4,.5,1); }
+    .rc-img { width: 22px; height: 22px; image-rendering: pixelated; display: block; }
+    .rc-anon { font-size: .95rem; line-height: 22px; opacity: .8; }
+    .rc-r.me { z-index: 2; }
+    .rc-r.me .rc-tag { z-index: 3; }
+    .rc-r.me .rc-img, .rc-r.me .rc-anon { filter: drop-shadow(0 0 3px #ffd84d); }
+    .rc-r.run .rc-img, .rc-r.run .rc-anon { animation: rcHop .35s ease-in-out 2; }
+    @keyframes rcHop { 50% { transform: translateY(-4px); } }
+    .rc-tag { position: absolute; left: 50%; transform: translateX(-50%); top: -9px; font-style: normal; font-size: .6rem; font-weight: 800; background: #4f6bff; color: #fff; border-radius: 6px; padding: 0 4px; white-space: nowrap; line-height: 1.35; }
+    .rc-dust { position: absolute; left: -12px; bottom: 0; font-style: normal; font-size: .6rem; animation: rcDust .7s ease-out forwards; }
+    @keyframes rcDust { from { opacity: .9; transform: translateX(0); } to { opacity: 0; transform: translateX(-8px); } }
+    .rc-crown { position: absolute; top: -9px; font-style: normal; font-size: .6rem; }
+    .rc-rank { font-size: .72rem; font-weight: 700; color: var(--text-sub); white-space: nowrap; }
+    .rc-fold { background: transparent; border: 1px solid var(--border-color); color: var(--text-sub); border-radius: 8px; width: 24px; height: 22px; font-size: .7rem; cursor: pointer; padding: 0; }
+    .race-chip { display: inline-flex; align-items: center; gap: 3px; background: transparent; border: 1px solid #e0b030; color: #e0a800; border-radius: 14px; padding: 2px 8px 2px 3px; font-size: .74rem; cursor: pointer; margin-right: 2px; }
+    .race-chip .rc-chip-img { width: 18px; height: 18px; image-rendering: pixelated; }
+    .race-chip .rc-anon { font-size: .8rem; line-height: 18px; }
+    .race-toast { position: fixed; left: 50%; top: 110px; transform: translate(-50%, -8px); z-index: 300; background: #1f5c3d; border: 1px solid #3ddc84; color: #e6fff0; font-size: .8rem; font-weight: 700; padding: 7px 14px; border-radius: 16px; opacity: 0; pointer-events: none; transition: opacity .25s, transform .25s; white-space: nowrap; box-shadow: 0 6px 16px rgba(0,0,0,.3); }
+    .race-toast.show { opacity: 1; transform: translate(-50%, 0); }
     /* 특수색 붙이기(.mg): 배경은 <i>가 그리고 같은 색 쪽으로 늘려 틈을 메움, 빛은 뒤쪽 .gl 이 담당 */
     .rec-cal { isolation: isolate; }
     .rec-cell.mg { background: none !important; animation: none !important; box-shadow: none !important; }
@@ -863,6 +887,7 @@
     </div>
     <div class="header-right">
       <span class="sync-chip" id="sync-chip" style="display:none;"></span>
+      <button type="button" class="race-chip" id="race-chip" style="display:none;" onclick="Race.fold(false)"></button>
       <button class="header-btn" onclick="toggleTheme()" title="테마 전환"><span id="themeIcon">🌙</span></button>
       <span id="header-user-controls">
         <button class="header-btn" id="wrongNoteBtn" onclick="openNotesTab()" title="오답노트">🔖</button>
@@ -878,6 +903,8 @@
       </span>
     </div>
   </div>
+  <div class="race-bar" id="race-bar" style="display:none;"></div>
+  <div class="race-toast" id="race-toast"></div>
 
   <!-- 메인 컨테이너 -->
   <div class="main-container">
@@ -1128,37 +1155,38 @@
   <script src="./js/config.js"></script>
 
   <!-- 11개 기본 과목 + 11개 기출 과목 스크립트 연결 -->
-  <script src="./data/anatomy.js?v=202611010055"></script>
-  <script src="./data/anatomy_past.js?v=202611010055"></script>
-  <script src="./data/morphology.js?v=202611010055"></script>
-  <script src="./data/morphology_past.js?v=202611010055"></script>
-  <script src="./data/hygiene.js?v=202611010055"></script>
-  <script src="./data/hygiene_past.js?v=202611010055"></script>
-  <script src="./data/materials.js?v=202611010055"></script>
-  <script src="./data/materials_past.js?v=202611010055"></script>
-  <script src="./data/law.js?v=202611010055"></script>
-  <script src="./data/law_past.js?v=202611010055"></script>
+  <script src="./data/anatomy.js?v=202611010107"></script>
+  <script src="./data/anatomy_past.js?v=202611010107"></script>
+  <script src="./data/morphology.js?v=202611010107"></script>
+  <script src="./data/morphology_past.js?v=202611010107"></script>
+  <script src="./data/hygiene.js?v=202611010107"></script>
+  <script src="./data/hygiene_past.js?v=202611010107"></script>
+  <script src="./data/materials.js?v=202611010107"></script>
+  <script src="./data/materials_past.js?v=202611010107"></script>
+  <script src="./data/law.js?v=202611010107"></script>
+  <script src="./data/law_past.js?v=202611010107"></script>
 
-  <script src="./data/crown_bridge.js?v=202611010055"></script>
-  <script src="./data/crown_bridge_past.js?v=202611010055"></script>
-  <script src="./data/porcelain.js?v=202611010055"></script>
-  <script src="./data/porcelain_past.js?v=202611010055"></script>
-  <script src="./data/complete_denture.js?v=202611010055"></script>
-  <script src="./data/complete_denture_past.js?v=202611010055"></script>
-  <script src="./data/partial_denture.js?v=202611010055"></script>
-  <script src="./data/partial_denture_past.js?v=202611010055"></script>
-  <script src="./data/restorative.js?v=202611010055"></script>
-  <script src="./data/restorative_past.js?v=202611010055"></script>
-  <script src="./data/orthodontics.js?v=202611010055"></script>
-  <script src="./data/orthodontics_past.js?v=202611010055"></script>
-  <script src="./data/review.js?v=202611010055"></script>
+  <script src="./data/crown_bridge.js?v=202611010107"></script>
+  <script src="./data/crown_bridge_past.js?v=202611010107"></script>
+  <script src="./data/porcelain.js?v=202611010107"></script>
+  <script src="./data/porcelain_past.js?v=202611010107"></script>
+  <script src="./data/complete_denture.js?v=202611010107"></script>
+  <script src="./data/complete_denture_past.js?v=202611010107"></script>
+  <script src="./data/partial_denture.js?v=202611010107"></script>
+  <script src="./data/partial_denture_past.js?v=202611010107"></script>
+  <script src="./data/restorative.js?v=202611010107"></script>
+  <script src="./data/restorative_past.js?v=202611010107"></script>
+  <script src="./data/orthodontics.js?v=202611010107"></script>
+  <script src="./data/orthodontics_past.js?v=202611010107"></script>
+  <script src="./data/review.js?v=202611010107"></script>
 
   <!-- 앱 로직 (클라우드 연동 / 오늘의 문제 / 화면) -->
-  <script src="./js/source.js?v=202611010055"></script>
-  <script src="./js/records-core.js?v=202611010055"></script>
-  <script src="./js/daily.js?v=202611010055"></script>
-  <script src="./js/cloud.js?v=202611010055"></script>
-  <script src="./js/app.js?v=202611010055"></script>
-  <script src="./js/records.js?v=202611010055"></script>
+  <script src="./js/source.js?v=202611010107"></script>
+  <script src="./js/records-core.js?v=202611010107"></script>
+  <script src="./js/daily.js?v=202611010107"></script>
+  <script src="./js/cloud.js?v=202611010107"></script>
+  <script src="./js/app.js?v=202611010107"></script>
+  <script src="./js/race.js?v=202611010107"></script>
+  <script src="./js/records.js?v=202611010107"></script>
 </body>
 </html>
