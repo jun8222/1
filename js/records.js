@@ -132,8 +132,15 @@
       var G = gr.groups[g.key];
       var cur = G && G.tries ? G.acc : null, last = G ? G.last : null;
       return { key: g.key, name: g.name, round: G ? G.round : 1, done: G ? G.done : 0, tries: G ? G.tries : 0,
-               cur: cur, last: last, show: cur !== null ? cur : last, prev: (G && G.done && cur !== null) ? last : null, history: G ? G.prev : [] };
+               cur: cur, last: last, show: cur !== null ? cur : last, prev: prevOf(G, cur, last), history: G ? G.prev : [] };
     });
+  }
+  // 점선(비교 대상): 이번 회차를 풀고 있으면 직전 회차, 아직 시작 전이면 그 전 회차
+  function prevOf(G, cur, last) {
+    if (!G || !G.done) return null;
+    if (cur !== null) return last;
+    var h = (G.prev || []).filter(function (a) { return a !== null; });
+    return h.length >= 2 ? h[h.length - 2] : null;
   }
   function radarSvg(items) {
     var S = 300, c = S / 2, R = 88, n = items.length;
