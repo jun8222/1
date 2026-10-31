@@ -221,15 +221,22 @@
     var list = bs.filter(function (b) { return badgeCat === 'all' || b.cat === badgeCat; })
       .map(function (b, i) { return { b: b, i: i }; })
       .sort(function (x, y) { return (y.b.got - x.b.got) || (x.i - y.i); }).map(function (x) { return x.b; });
-    var head = '<div class="rec-title">🎖 뱃지 <span class="rec-sub">' + gotN + ' / ' + bs.length + '</span>' +
-      '<button type="button" class="badge-fold" onclick="toggleBadgeOpen()" aria-expanded="' + (badgeOpen ? 'true' : 'false') + '">' + (badgeOpen ? '접기 ▲' : '펼치기 ▼') + '</button></div>';
+    var head = '<div class="rec-title bf-head"><span>🎖 뱃지 <span class="rec-sub">' + gotN + ' / ' + bs.length + '</span></span>' +
+      '<button type="button" class="badge-fold" onclick="toggleBadgeOpen()" aria-expanded="' + (badgeOpen ? 'true' : 'false') + '">' + (badgeOpen ? '접기 ▴' : '전체 보기 ▾') + '</button></div>';
     if (!badgeOpen) {
       var gots = bs.filter(function (b) { return b.got; }).sort(function (x, y) { return y.tier - x.tier; });
-      var next = bs.filter(function (b) { return !b.got && b.prog; }).slice(0, 2);
+      var next = bs.filter(function (b) { return !b.got && b.prog; }).map(function (b) {
+        var m = String(b.prog).match(/(\d+)\s*\/\s*(\d+)/), r = m && +m[2] ? Math.min(1, +m[1] / +m[2]) : 0;
+        return { b: b, r: r };
+      }).sort(function (x, y) { return y.r - x.r; }).slice(0, 2);
+      var MAX = 6;
       return head + '<div class="badge-sum" onclick="toggleBadgeOpen()">' +
-        '<div class="bs-icons">' + (gots.length ? gots.slice(0, 8).map(function (b) { return '<span class="bs-i t' + b.tier + '" title="' + esc(b.name) + '">' + b.icon + '</span>'; }).join('') +
-          (gots.length > 8 ? '<span class="bs-more">+' + (gots.length - 8) + '</span>' : '') : '<span class="bs-none">아직 획득한 뱃지가 없어요</span>') + '</div>' +
-        (next.length ? '<div class="bs-next">다음 목표 · ' + next.map(function (b) { return esc(b.name) + ' <b>' + esc(String(b.prog)) + '</b>'; }).join(' · ') + '</div>' : '') +
+        '<div class="bs-icons">' + (gots.length ? gots.slice(0, MAX).map(function (b) { return '<span class="bs-i t' + b.tier + '" title="' + esc(b.name) + '">' + b.icon + '</span>'; }).join('') +
+          (gots.length > MAX ? '<span class="bs-i bs-more">+' + (gots.length - MAX) + '</span>' : '') : '<span class="bs-none">아직 획득한 뱃지가 없어요</span>') + '</div>' +
+        (next.length ? '<div class="bs-next"><div class="bs-nt">다음 목표</div>' + next.map(function (x) {
+          return '<div class="bs-row"><span class="bs-ic">' + x.b.icon + '</span><span class="bs-nm">' + esc(x.b.name) + '</span>' +
+            '<span class="bs-bar"><i style="width:' + Math.round(x.r * 100) + '%"></i></span><b>' + esc(String(x.b.prog)) + '</b></div>';
+        }).join('') + '</div>' : '') +
         '</div>';
     }
     return head +
