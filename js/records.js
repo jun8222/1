@@ -152,15 +152,22 @@
     });
     items.forEach(function (_, k) { var p = pt(k, R); svg += '<line x1="' + c + '" y1="' + c + '" x2="' + p[0] + '" y2="' + p[1] + '" stroke="var(--border-color)"/>'; });
     if (items.some(function (it) { return it.prev !== null; })) {
-      svg += '<polygon points="' + items.map(function (it, k) { return pt(k, R * v(it.prev !== null ? it.prev : it.show)).join(','); }).join(' ') + '" fill="none" stroke="#9aa3c0" stroke-width="1.6" stroke-dasharray="4 3"/>';
+      svg += '<polygon points="' + items.map(function (it, k) { return pt(k, R * v(it.prev !== null ? it.prev : it.show)).join(','); }).join(' ') + '" fill="rgba(255,159,67,.12)" stroke="#ff9f43" stroke-width="2" stroke-dasharray="5 3"/>';
+      items.forEach(function (it, k) { if (it.prev === null) return; var q = pt(k, R * v(it.prev)); svg += '<circle cx="' + q[0] + '" cy="' + q[1] + '" r="3" fill="var(--card-bg, #161b3d)" stroke="#ff9f43" stroke-width="1.6"/>'; });
     }
     svg += '<polygon points="' + items.map(function (it, k) { return pt(k, R * v(it.show)).join(','); }).join(' ') + '" fill="rgba(79,172,254,.28)" stroke="#4facfe" stroke-width="2"/>';
     items.forEach(function (it, k) {
       var p = pt(k, R * v(it.show)), l = pt(k, R + 22);
       if (it.show !== null) svg += '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="3" fill="#4facfe"/>';
-      var lift = it.show !== null ? 6 : 0;
+      var cmp = it.show !== null && it.prev !== null, lift = cmp ? 11 : it.show !== null ? 6 : 0;
       svg += '<text x="' + l[0] + '" y="' + (l[1] - lift) + '" text-anchor="middle" dominant-baseline="middle" font-size="10" fill="var(--text-sub)"' + (it.show === null ? ' opacity=".5"' : '') + '>' + esc(it.name) + '</text>';
-      if (it.show !== null) svg += '<text x="' + l[0] + '" y="' + (l[1] + 7) + '" text-anchor="middle" dominant-baseline="middle" font-size="9" font-weight="700" fill="' + (it.round > 1 ? '#e0a800' : '#8fa2ff') + '">' + it.round + '회차</text>';
+      if (it.show !== null) svg += '<text x="' + l[0] + '" y="' + (l[1] + 7 - (cmp ? 5 : 0)) + '" text-anchor="middle" dominant-baseline="middle" font-size="9" font-weight="700" fill="' + (it.round > 1 ? '#e0a800' : '#8fa2ff') + '">' + it.round + '회차' + (it.cur === null && it.done ? ' 시작 전' : '') + '</text>';
+      if (cmp) {
+        var d = it.show - it.prev;
+        svg += '<text x="' + l[0] + '" y="' + (l[1] + 13) + '" text-anchor="middle" dominant-baseline="middle" font-size="9" font-weight="700">' +
+          '<tspan fill="#ff9f43">' + it.prev + '</tspan><tspan fill="var(--text-sub)"> → </tspan><tspan fill="#4facfe">' + it.show + '</tspan>' +
+          (d ? '<tspan fill="' + (d > 0 ? '#3ddc84' : '#ff5f6d') + '"> ' + (d > 0 ? '▲' : '▼') + '</tspan>' : '') + '</text>';
+      }
     });
     return svg + '</svg>';
   }
