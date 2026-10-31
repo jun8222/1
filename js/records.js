@@ -80,12 +80,13 @@
     // 2) 달력
     var cal = RC.calendar(sum, new Date(), 17), dd = RC.daysToExam(new Date());
     html += '<div class="rec-card"><div class="rec-title">📅 학습 달력 <span class="rec-sub">' + (dd > 0 ? '<b class="rec-dday">🎯 시험까지 D-' + dd + '</b> · ' : dd === 0 ? '<b class="rec-dday">🎯 D-DAY 화이팅!</b> · ' : '최근 17주 · ') + sum.activeDays + '일 학습</span></div><div class="rec-cal fx' + streakFx + ' cfx' + colFx + (Date.now() - (window.__recEnterAt || 0) < 4000 ? ' cfx-play' : '') + '" id="rec-cal" style="--gc:' + stkColor(cal) + '">' +
-      cal.map(function (col) {
+      (function () { var MG = mergeInfo(cal); return cal.map(function (col, ci) {
         var full = col.every(function (c) { return c.n > 0 && !c.future; });   // 세로줄(7일) 모두 공부
         return '<div class="rec-col' + (full ? ' full' : '') + '">' + col.map(function (c, ri) {
-          return '<span class="rec-cell lv' + c.lv + (c.future ? ' future' : '') + (c.today ? ' today' : '') + (c.exam ? ' exam' : '') + (c.stk ? ' stk' : '') + '" style="--r:' + ri + (c.stk ? ';--k:' + (c.stk - 1) : '') + '" title="' + c.day + (c.exam ? ' · 시험일 🎯' : c.future ? ' · 남은 날' : ' · ' + c.n + '문제') + '">' + (c.exam ? '🎯' : '<i></i>') + '</span>';
+          var m = MG[ci][ri];
+          return '<span class="rec-cell lv' + c.lv + (m ? ' mg' : '') + (c.future ? ' future' : '') + (c.today ? ' today' : '') + (c.exam ? ' exam' : '') + (c.stk ? ' stk' : '') + '" style="--r:' + ri + (c.stk ? ';--k:' + (c.stk - 1) : '') + (m ? ';' + m.vars : '') + '" title="' + c.day + (c.exam ? ' · 시험일 🎯' : c.future ? ' · 남은 날' : ' · ' + c.n + '문제') + '">' + (c.exam ? '🎯' : m ? m.inner + (c.today ? '<em class="td"></em>' : '') : '<i></i>') + '</span>';
         }).join('') + '</div>';
-      }).join('') + '</div>' +
+      }).join(''); })() + '</div>' +
       (sum.firstDay ? '<div class="rec-sub" style="margin-top:8px">📌 첫 학습일 ' + sum.firstDay.replace(/-/g, '.') + ' · 시작한 지 ' + (Math.round((new Date(RC.dayKey(new Date()) + 'T00:00:00') - new Date(sum.firstDay + 'T00:00:00')) / 86400000) + 1) + '일째</div>' : '') +
       '<div class="rec-legend">적음 <span class="rec-cell lv0"></span><span class="rec-cell lv1"></span><span class="rec-cell lv2"></span><span class="rec-cell lv3"></span><span class="rec-cell lv4"></span> 많음 <span class="rec-cell lv5" title="100문제 이상"><i></i></span><span class="rec-cell lv6" title="150문제 이상"><i></i></span><span class="rec-cell lv7" title="200문제 이상"><i></i></span></div>' +
       '<div class="rec-reset"><div id="reset-mine-warn" class="rec-reset-warn">풀이 기록·오답노트·달력·레벨이 모두 사라지고 되돌릴 수 없어요.</div><button id="reset-mine-btn" class="rec-reset-btn" onclick="resetMine()">🧹 기록 초기화</button></div></div>';
@@ -180,6 +181,43 @@
     }).join('') + '</div>';
   }
 
+  // 특수색(금빛·무지개·은하) 칸이 상하좌우로 이어지면 한 덩어리로 붙여 그림
+  function mergeInfo(cal) {
+    var nC = cal.length, out = cal.map(function (col) { return col.map(function () { return null; }); });
+    function L(c, r) { var x = cal[c] && cal[c][r]; return x && !x.future && !x.exam && x.lv >= 5 ? x.lv : 0; }
+    var gid = cal.map(function (col) { return col.map(function () { return -1; }); }), bb = [];
+    for (var c = 0; c < nC; c++) for (var r = 0; r < cal[c].length; r++) {
+      if (gid[c][r] >= 0 || !L(c, r)) continue;
+      var lv = L(c, r), st = [[c, r]], b = { c0: c, c1: c, r0: r, r1: r }, k = bb.length; gid[c][r] = k;
+      while (st.length) {
+        var q = st.pop();
+        b.c0 = Math.min(b.c0, q[0]); b.c1 = Math.max(b.c1, q[0]); b.r0 = Math.min(b.r0, q[1]); b.r1 = Math.max(b.r1, q[1]);
+        [[1, 0], [-1, 0], [0, 1], [0, -1]].forEach(function (d) {
+          var X = q[0] + d[0], Y = q[1] + d[1];
+          if (X < 0 || X >= nC || Y < 0 || !cal[X][Y] || gid[X][Y] >= 0 || L(X, Y) !== lv) return;
+          gid[X][Y] = k; st.push([X, Y]);
+        });
+      }
+      bb.push(b);
+    }
+    for (c = 0; c < nC; c++) for (r = 0; r < cal[c].length; r++) {
+      var v = L(c, r); if (!v) continue;
+      var R = L(c + 1, r) === v, Lf = L(c - 1, r) === v, D = L(c, r + 1) === v, U = L(c, r - 1) === v;
+      if (!R && !Lf && !D && !U) continue;
+      var DR = R && D && L(c + 1, r + 1) === v, g = bb[gid[c][r]];
+      var rad = [(U || Lf) ? 0 : 3, (U || R) ? 0 : 3, (D || R) ? 0 : 3, (D || Lf) ? 0 : 3].map(function (x) { return x + 'px'; }).join(' ');
+      var ex = 'right:' + (R ? -5 : 0) + 'px;bottom:' + (D ? -5 : 0) + 'px;';
+      var cp = (R && D && !DR) ? 'clip-path:polygon(0 0,100% 0,100% 15px,15px 15px,15px 100%,0 100%);' : '';
+      var gl = (R && D && !DR)
+        ? '<s class="gl" style="right:-5px;bottom:0;border-radius:' + rad + '"></s><s class="gl" style="right:0;bottom:-5px;border-radius:' + rad + '"></s>'
+        : '<s class="gl" style="' + ex + 'border-radius:' + rad + '"></s>';
+      out[c][r] = {
+        vars: '--bw:' + ((g.c1 - g.c0 + 1) * 18 - 3) + 'px;--bh:' + ((g.r1 - g.r0 + 1) * 18 - 3) + 'px;--bx:' + (-(c - g.c0) * 18) + 'px;--by:' + (-(r - g.r0) * 18) + 'px',
+        inner: '<i style="' + ex + cp + 'border-radius:' + rad + '"></i>' + gl
+      };
+    }
+    return out;
+  }
   // ---------------------------------------------------------------- 연속 효과 (학습 달력)
   var FX_NAMES = ['없음', '숨쉬는 빛', '흐르는 물결', '길이별 색', '네온 테두리', '오로라', '불티'];
   var streakFx = '1';

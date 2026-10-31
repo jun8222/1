@@ -7,7 +7,7 @@
   <title>치과기공사 국가시험 퀴즈</title>
   
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="./css/proto.css?v=20261031231537">
+  <link rel="stylesheet" href="./css/proto.css?v=202611010001">
   
   <style>
 
@@ -470,6 +470,21 @@
     .fx6 .rec-cell.stk { box-shadow: 0 0 5px 1px rgba(255, 154, 60, .6); }
     .fx6 .rec-cell.stk::after { content: ''; position: absolute; left: 50%; bottom: 60%; width: 3px; height: 3px; border-radius: 50%; background: #ffcf6b; box-shadow: 0 0 4px 1px #ff9a3c; opacity: 0; animation: stkEmber 2.4s ease-out infinite; animation-delay: calc(var(--k) * .4s); }
     @keyframes stkEmber { 0% { transform: translate(-50%, 0); opacity: 0; } 15% { opacity: 1; } 100% { transform: translate(calc(-50% + 4px), -16px); opacity: 0; } }
+    /* 특수색 붙이기(.mg): 배경은 <i>가 그리고 같은 색 쪽으로 늘려 틈을 메움, 빛은 뒤쪽 .gl 이 담당 */
+    .rec-cal { isolation: isolate; }
+    .rec-cell.mg { background: none !important; animation: none !important; box-shadow: none !important; }
+    .rec-cell.mg > i { z-index: 1; }
+    .rec-cell.mg.lv5 > i { background: linear-gradient(135deg, #fff3b0, #f5c542 45%, #c8961e) no-repeat; background-size: var(--bw) var(--bh); background-position: var(--bx) var(--by); }
+    .rec-cell.mg.lv7 > i { background: radial-gradient(circle at 30% 30%, #7b5cff, #2a0f5c 60%, #0a0420) no-repeat; background-size: var(--bw) var(--bh); background-position: var(--bx) var(--by); }
+    .rec-cell.mg > .gl { position: absolute; left: 0; top: 0; z-index: -1; display: block; text-decoration: none; }
+    .fx1 .rec-cell.mg.stk > .gl { animation: stkBreath 2.2s ease-in-out infinite; }
+    .fx2 .rec-cell.mg.stk > .gl { animation: stkWave 1.8s ease-in-out infinite; animation-delay: calc(var(--k) * .15s); }
+    .fx3 .rec-cell.mg.stk > .gl { box-shadow: 0 0 7px 2px var(--gc); }
+    .fx4 .rec-cell.mg.stk > .gl { box-shadow: 0 0 0 1.5px #ffd27a, 0 0 8px 2px rgba(255, 170, 60, .55); }
+    .fx5 .rec-cell.mg.stk > .gl { animation: stkAurora 3s ease-in-out infinite; }
+    .fx6 .rec-cell.mg.stk > .gl { box-shadow: 0 0 5px 1px rgba(255, 154, 60, .6); }
+    .rec-cell.mg.today { outline: none; }
+    .rec-cell > .td { position: absolute; inset: -2px; border: 2px solid #4f6bff; border-radius: 4px; z-index: 3; pointer-events: none; }
     /* 세로줄(7일) 완주: 솟는 무지개 — 황금·무지개·우주 칸은 원래 효과 유지 */
     .rec-col { border-radius: 4px; transition: box-shadow .5s; }
     .cfx1 .rec-col.full { box-shadow: 0 0 0 1.5px rgba(245, 197, 66, .75); }
@@ -1112,37 +1127,37 @@
   <script src="./js/config.js"></script>
 
   <!-- 11개 기본 과목 + 11개 기출 과목 스크립트 연결 -->
-  <script src="./data/anatomy.js?v=20261031231537"></script>
-  <script src="./data/anatomy_past.js?v=20261031231537"></script>
-  <script src="./data/morphology.js?v=20261031231537"></script>
-  <script src="./data/morphology_past.js?v=20261031231537"></script>
-  <script src="./data/hygiene.js?v=20261031231537"></script>
-  <script src="./data/hygiene_past.js?v=20261031231537"></script>
-  <script src="./data/materials.js?v=20261031231537"></script>
-  <script src="./data/materials_past.js?v=20261031231537"></script>
-  <script src="./data/law.js?v=20261031231537"></script>
-  <script src="./data/law_past.js?v=20261031231537"></script>
+  <script src="./data/anatomy.js?v=202611010001"></script>
+  <script src="./data/anatomy_past.js?v=202611010001"></script>
+  <script src="./data/morphology.js?v=202611010001"></script>
+  <script src="./data/morphology_past.js?v=202611010001"></script>
+  <script src="./data/hygiene.js?v=202611010001"></script>
+  <script src="./data/hygiene_past.js?v=202611010001"></script>
+  <script src="./data/materials.js?v=202611010001"></script>
+  <script src="./data/materials_past.js?v=202611010001"></script>
+  <script src="./data/law.js?v=202611010001"></script>
+  <script src="./data/law_past.js?v=202611010001"></script>
 
-  <script src="./data/crown_bridge.js?v=20261031231537"></script>
-  <script src="./data/crown_bridge_past.js?v=20261031231537"></script>
-  <script src="./data/porcelain.js?v=20261031231537"></script>
-  <script src="./data/porcelain_past.js?v=20261031231537"></script>
-  <script src="./data/complete_denture.js?v=20261031231537"></script>
-  <script src="./data/complete_denture_past.js?v=20261031231537"></script>
-  <script src="./data/partial_denture.js?v=20261031231537"></script>
-  <script src="./data/partial_denture_past.js?v=20261031231537"></script>
-  <script src="./data/restorative.js?v=20261031231537"></script>
-  <script src="./data/restorative_past.js?v=20261031231537"></script>
-  <script src="./data/orthodontics.js?v=20261031231537"></script>
-  <script src="./data/orthodontics_past.js?v=20261031231537"></script>
-  <script src="./data/review.js?v=20261031231537"></script>
+  <script src="./data/crown_bridge.js?v=202611010001"></script>
+  <script src="./data/crown_bridge_past.js?v=202611010001"></script>
+  <script src="./data/porcelain.js?v=202611010001"></script>
+  <script src="./data/porcelain_past.js?v=202611010001"></script>
+  <script src="./data/complete_denture.js?v=202611010001"></script>
+  <script src="./data/complete_denture_past.js?v=202611010001"></script>
+  <script src="./data/partial_denture.js?v=202611010001"></script>
+  <script src="./data/partial_denture_past.js?v=202611010001"></script>
+  <script src="./data/restorative.js?v=202611010001"></script>
+  <script src="./data/restorative_past.js?v=202611010001"></script>
+  <script src="./data/orthodontics.js?v=202611010001"></script>
+  <script src="./data/orthodontics_past.js?v=202611010001"></script>
+  <script src="./data/review.js?v=202611010001"></script>
 
   <!-- 앱 로직 (클라우드 연동 / 오늘의 문제 / 화면) -->
-  <script src="./js/source.js?v=20261031231537"></script>
-  <script src="./js/records-core.js?v=20261031231537"></script>
-  <script src="./js/daily.js?v=20261031231537"></script>
-  <script src="./js/cloud.js?v=20261031231537"></script>
-  <script src="./js/app.js?v=20261031231537"></script>
-  <script src="./js/records.js?v=20261031231537"></script>
+  <script src="./js/source.js?v=202611010001"></script>
+  <script src="./js/records-core.js?v=202611010001"></script>
+  <script src="./js/daily.js?v=202611010001"></script>
+  <script src="./js/cloud.js?v=202611010001"></script>
+  <script src="./js/app.js?v=202611010001"></script>
+  <script src="./js/records.js?v=202611010001"></script>
 </body>
 </html>
