@@ -113,7 +113,7 @@
       '<div class="rank-seg">' + RANK_TABS.map(function (t) { return '<button data-p="' + t.k + '" class="' + (t.k === rankPeriod ? 'on' : '') + '" onclick="setRankPeriod(\'' + t.k + '\')">' + t.label + '</button>'; }).join('') + '</div>' +
       '<div id="rank-desc" class="rec-sub rank-desc">' + rankTab().desc + '</div>' +
       '<label class="rec-toggle"><input type="checkbox" id="rank-public-cb" onchange="toggleRankPublic(this.checked)"' + (currentUser && currentUser.rank_public ? ' checked' : '') + '> 내 이름을 랭킹·활동에 공개</label>' +
-      '<label class="rec-toggle"><input type="checkbox" id="race-join-cb" onchange="toggleRaceJoin(this.checked)"' + (!currentUser || currentUser.race_join !== false ? ' checked' : '') + '> 🏁 헤더 레이스 참여</label>' +
+      '<label class="rec-toggle"><input type="checkbox" id="race-join-cb" onchange="toggleRaceJoin(this.checked)"' + (currentUser && currentUser.race_join === true ? ' checked' : '') + '> 🏁 헤더 경쟁 레이스 참여</label>' +
       '<div id="rank-box" class="rec-sub">불러오는 중…</div></div>';
     html += '<div class="rec-card"><div class="rec-title">👀 오늘의 활동 <span class="rec-sub">최근 24시간</span></div><div id="feed-box" class="rec-sub">불러오는 중…</div></div>';
     html += '<div class="rec-card"><div class="rec-title">⚔️ 친구 대결</div>' +
@@ -493,7 +493,7 @@
   };
 
   window.toggleRaceJoin = async function (on) {
-    try { currentUser = await Cloud.updateProfile({ race_join: !!on }); toast(on ? '레이스에 참여해요.' : '레이스에서 빠졌어요.'); }
+    try { currentUser = await Cloud.updateProfile({ race_join: !!on }); toast(on ? '경쟁 레이스에 참여해요.' : '경쟁 레이스에서 빠졌어요. 헤더에는 솔로로 보여요.'); }
     catch (e) { toast('저장하지 못했어요. 잠시 후 다시 시도해 주세요.', 4000); var cb = $('race-join-cb'); if (cb) cb.checked = !on; }
     if (window.Race) Race.refresh();
   };
