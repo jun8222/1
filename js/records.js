@@ -212,7 +212,7 @@
   };
 
   // ---------------------------------------------------------------- 뱃지
-  var badgeExtra = null, badgeExtraAt = 0, lastBadges = [], badgeCat = 'all';
+  var badgeExtra = null, badgeExtraAt = 0, lastBadges = [], badgeCat = 'all', badgeOpen = false;
   try { badgeCat = localStorage.getItem('badgeCat') || 'all'; } catch (e) { /* 무시 */ }
   function badgeCardInner() {
     var bs = lastBadges, gotN = bs.filter(function (b) { return b.got; }).length;
@@ -221,7 +221,18 @@
     var list = bs.filter(function (b) { return badgeCat === 'all' || b.cat === badgeCat; })
       .map(function (b, i) { return { b: b, i: i }; })
       .sort(function (x, y) { return (y.b.got - x.b.got) || (x.i - y.i); }).map(function (x) { return x.b; });
-    return '<div class="rec-title">🎖 뱃지 <span class="rec-sub">' + gotN + ' / ' + bs.length + '</span></div>' +
+    var head = '<div class="rec-title">🎖 뱃지 <span class="rec-sub">' + gotN + ' / ' + bs.length + '</span>' +
+      '<button type="button" class="badge-fold" onclick="toggleBadgeOpen()" aria-expanded="' + (badgeOpen ? 'true' : 'false') + '">' + (badgeOpen ? '접기 ▲' : '펼치기 ▼') + '</button></div>';
+    if (!badgeOpen) {
+      var gots = bs.filter(function (b) { return b.got; }).sort(function (x, y) { return y.tier - x.tier; });
+      var next = bs.filter(function (b) { return !b.got && b.prog; }).slice(0, 2);
+      return head + '<div class="badge-sum" onclick="toggleBadgeOpen()">' +
+        '<div class="bs-icons">' + (gots.length ? gots.slice(0, 8).map(function (b) { return '<span class="bs-i t' + b.tier + '" title="' + esc(b.name) + '">' + b.icon + '</span>'; }).join('') +
+          (gots.length > 8 ? '<span class="bs-more">+' + (gots.length - 8) + '</span>' : '') : '<span class="bs-none">아직 획득한 뱃지가 없어요</span>') + '</div>' +
+        (next.length ? '<div class="bs-next">다음 목표 · ' + next.map(function (b) { return esc(b.name) + ' <b>' + esc(String(b.prog)) + '</b>'; }).join(' · ') + '</div>' : '') +
+        '</div>';
+    }
+    return head +
       '<div class="badge-tabs">' + cats.map(function (c) {
         var n = bs.filter(function (b) { return (c[0] === 'all' || b.cat === c[0]) && b.got; }).length;
         return '<button type="button" class="' + (c[0] === badgeCat ? 'on' : '') + '" onclick="setBadgeCat(\'' + c[0] + '\')">' + c[1] + (n ? ' <small>' + n + '</small>' : '') + '</button>';
@@ -243,6 +254,10 @@
     });
   }
   document.addEventListener('mouseover', fitTip); document.addEventListener('focusin', fitTip);
+  window.toggleBadgeOpen = function () {
+    badgeOpen = !badgeOpen;
+    var el = $('badge-card'); if (el) el.innerHTML = badgeCardInner();
+  };
   window.setBadgeCat = function (c) {
     badgeCat = c; try { localStorage.setItem('badgeCat', c); } catch (e) { /* 무시 */ }
     var el = $('badge-card'); if (el) el.innerHTML = badgeCardInner();
