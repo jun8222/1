@@ -228,8 +228,9 @@ $$;
 revoke all on function public.my_badge_stats() from public, anon;
 grant execute on function public.my_badge_stats() to authenticated;
 
--- 8. 헤더 레이스: 참여 여부 + 오늘 푼 문제 수 (공개 안 한 사람은 이름·캐릭터 없이 익명)
-alter table public.profiles add column if not exists race_join boolean not null default true;
+-- 8. 헤더 레이스: 경쟁 참여 여부(기본 꺼짐) + 오늘 푼 문제 수 (공개 안 한 사람은 이름·캐릭터 없이 익명)
+alter table public.profiles add column if not exists race_join boolean not null default false;
+alter table public.profiles alter column race_join set default false;
 grant update (race_join) on public.profiles to authenticated;
 
 create or replace function public.race_today()
@@ -244,7 +245,8 @@ language sql stable security definer set search_path = public as $$
   join public.attempts a on a.user_id = p.id
   where public.is_approved()
     and p.status = 'approved'
-    and p.race_join
+    and (p.id = auth.uid()   -- 나는 항상(솔로용), 남은 내가 경쟁 참여 중일 때 참여자만
+         or (p.race_join and exists (select 1 from public.profiles m where m.id = auth.uid() and m.race_join)))
     and a.created_at >= date_trunc('day', now() at time zone 'Asia/Seoul') at time zone 'Asia/Seoul'
   group by p.id, p.display_name, p.avatar, p.rank_public
   order by 4 desc

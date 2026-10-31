@@ -9,7 +9,7 @@
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
   function ls(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } }
   function cu() { return typeof currentUser !== 'undefined' ? currentUser : null; }
-  function joined() { var u = cu(); return !(u && u.race_join === false); }
+  function joined() { var u = cu(); return !!(u && u.race_join === true); }   // 경쟁 레이스 참여 (기본 꺼짐)
   function folded() { return ls('raceFold') === '1'; }
   function cfg() {
     var u = cu() || {};
@@ -30,7 +30,7 @@
     return m;
   }
   function others() { return rows.filter(function (r) { return !r.is_me; }); }
-  function solo() { return cfg().mode === 'solo' || !others().length; }
+  function solo() { return !joined() || cfg().mode === 'solo' || !others().length; }
   function sorted() { return rows.slice().sort(function (a, b) { return (b.n - a.n) || (a.is_me ? 1 : b.is_me ? -1 : 0); }); }
   function myRank() { var s = sorted(); for (var i = 0; i < s.length; i++) if (s[i].is_me) return i + 1; return s.length; }
   function paceNow(goal) {
@@ -44,7 +44,7 @@
   function badge() {
     var m = me(), c = cfg();
     if (!solo()) return { cls: 'cmp', txt: '⚔️ ' + myRank() + '위', tip: '경쟁 모드 · 눌러서 모드 바꾸기' };
-    var auto = c.mode !== 'solo' ? ' (오늘 참가자가 나뿐이라 솔로로 보여요)' : '';
+    var auto = c.mode === 'solo' ? '' : !joined() ? ' (경쟁 레이스에 참여하지 않아 솔로로 보여요)' : ' (오늘 참가자가 나뿐이라 솔로로 보여요)';
     if (c.pace && m.n < c.goal) {
       var d = m.n - paceNow(c.goal);
       if (d < 0) return { cls: 'solo behind', txt: '🏃 ' + d, tip: '페이스메이커보다 ' + (-d) + '문제 뒤' + auto };
@@ -55,7 +55,7 @@
   function render() {
     var bar = $('race-bar'), chip = $('race-chip');
     if (!bar || !chip) return;
-    if (!started || !joined()) { bar.style.display = 'none'; chip.style.display = 'none'; closePanel(); return; }
+    if (!started) { bar.style.display = 'none'; chip.style.display = 'none'; closePanel(); return; }
     var m = me(), b = badge();
     chip.innerHTML = sprite(m, 'rc-chip-img') + '<b>' + b.txt.replace(/^\S+ /, '') + '</b>';
     chip.className = 'race-chip ' + b.cls; chip.title = '레이스 펼치기';
@@ -121,7 +121,7 @@
   }
 
   async function refresh() {
-    if (!started || !joined() || document.hidden) return;
+    if (!started || document.hidden) return;
     try {
       var data = await Cloud.getRace();
       var mine = rows.filter(function (r) { return r.is_me; })[0];
@@ -148,10 +148,11 @@
   function panelHtml() {
     var c = cfg(), goals = [50, 80, 100, 150, 200], custom = goals.indexOf(c.goal) < 0;
     return '<div class="rp-t">🏁 레이스 모드<button type="button" class="rp-fold" onclick="Race.fold(true)">▴ 레이스 접기</button></div>' +
-      '<div class="rp-seg"><button type="button" class="' + (c.mode === 'compete' ? 'on' : '') + '" onclick="Race.set({race_mode:\'compete\'})">⚔️ 경쟁</button>' +
-      '<button type="button" class="' + (c.mode === 'solo' ? 'on' : '') + '" onclick="Race.set({race_mode:\'solo\'})">🏃 솔로</button></div>' +
-      (c.mode === 'solo' ? '<div class="rp-d">내 목표까지 혼자 달려요.</div>' : '') +
-      (c.mode !== 'solo' ? listHtml() :
+      '<div class="rp-seg"><button type="button" class="' + (c.mode === 'compete' && joined() ? 'on' : '') + '"' + (joined() ? ' onclick="Race.set({race_mode:\'compete\'})"' : ' disabled title="기록 탭에서 \'헤더 경쟁 레이스 참여\'를 켜면 쓸 수 있어요"') + '>⚔️ 경쟁</button>' +
+      '<button type="button" class="' + (c.mode === 'solo' || !joined() ? 'on' : '') + '" onclick="Race.set({race_mode:\'solo\'})">🏃 솔로</button></div>' +
+      (joined() ? '' : '<div class="rp-d">경쟁은 기록 탭에서 \'헤더 경쟁 레이스 참여\'를 켜면 쓸 수 있어요.</div>') +
+      (c.mode === 'solo' || !joined() ? '<div class="rp-d">내 목표까지 혼자 달려요.</div>' : '') +
+      (c.mode !== 'solo' && joined() ? listHtml() :
       '<div class="rp-t">솔로 목표 문제 수</div><div class="rp-goals">' +
       goals.map(function (g) { return '<button type="button" class="' + (g === c.goal ? 'on' : '') + '" onclick="Race.set({race_goal:' + g + '})">' + g + '</button>'; }).join('') +
       '<input type="number" min="10" max="500" inputmode="numeric" placeholder="직접" value="' + (custom ? c.goal : '') + '" class="' + (custom ? 'on' : '') + '" onchange="Race.set({race_goal:+this.value})"></div>' +
@@ -169,7 +170,7 @@
     },
     stop: function () { started = false; rows = []; ghost = null; lastOrder = null; prevMe = null; clearInterval(timer); render(); },
     bump: function () {
-      if (!started || !joined()) return;
+      if (!started) return;
       me().n += 1; runUntil = Date.now() + 700; checkEvents(); render();
       var pn = $('race-panel'); if (pn) pn.innerHTML = panelHtml();
       clearTimeout(Race._r); Race._r = setTimeout(render, 750);
