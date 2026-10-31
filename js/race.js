@@ -150,7 +150,7 @@
     return '<div class="rp-t">🏁 레이스 모드<button type="button" class="rp-fold" onclick="Race.fold(true)">▴ 레이스 접기</button></div>' +
       '<div class="rp-seg"><button type="button" class="' + (c.mode === 'compete' ? 'on' : '') + '" onclick="Race.set({race_mode:\'compete\'})">⚔️ 경쟁</button>' +
       '<button type="button" class="' + (c.mode === 'solo' ? 'on' : '') + '" onclick="Race.set({race_mode:\'solo\'})">🏃 솔로</button></div>' +
-      '<div class="rp-d">' + (c.mode === 'solo' ? '내 목표까지 혼자 달려요.' : '오늘 많이 푼 사람일수록 오른쪽, 1등이 결승선에 가장 가까이 있어요. 오늘 참가자가 나뿐이면 솔로로 보여요.') + '</div>' +
+      (c.mode === 'solo' ? '<div class="rp-d">내 목표까지 혼자 달려요.</div>' : '') +
       (c.mode !== 'solo' ? listHtml() :
       '<div class="rp-t">솔로 목표 문제 수</div><div class="rp-goals">' +
       goals.map(function (g) { return '<button type="button" class="' + (g === c.goal ? 'on' : '') + '" onclick="Race.set({race_goal:' + g + '})">' + g + '</button>'; }).join('') +
