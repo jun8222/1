@@ -1,7 +1,7 @@
 // 헤더 레이스
 //  - 경쟁 모드: 오늘 푼 문제 수로 참가자 모두 결승선 150을 향해 달림, 추월 알림
 //  - 솔로 모드: 결승선 = 내 목표, 어제의 나(고스트)·페이스메이커(🐢)와 달림
-//  - 경쟁 모드여도 오늘 참가자가 나뿐이면 솔로처럼 보여줌
+//  - 경쟁 레이스에 참여하지 않으면 솔로만 사용
 (function () {
   var POLL = 120000, PACE_FROM = 7, PACE_TO = 23;   // 페이스: 07시 출발 → 23시 목표 도착
   var rows = [], ghost = null, timer = null, started = false, lastOrder = null, runUntil = 0, prevMe = null;
@@ -30,7 +30,7 @@
     return m;
   }
   function others() { return rows.filter(function (r) { return !r.is_me; }); }
-  function solo() { return !joined() || cfg().mode === 'solo' || !others().length; }
+  function solo() { return !joined() || cfg().mode === 'solo'; }
   function sorted() { return rows.slice().sort(function (a, b) { return (b.n - a.n) || (a.is_me ? 1 : b.is_me ? -1 : 0); }); }
   function myRank() { var s = sorted(); for (var i = 0; i < s.length; i++) if (s[i].is_me) return i + 1; return s.length; }
   function paceNow(goal) {
@@ -44,7 +44,7 @@
   function badge() {
     var m = me(), c = cfg();
     if (!solo()) return { cls: 'cmp', txt: '⚔️ ' + myRank() + '위', tip: '경쟁 모드 · 눌러서 모드 바꾸기' };
-    var auto = c.mode === 'solo' ? '' : !joined() ? ' (경쟁 레이스에 참여하지 않아 솔로로 보여요)' : ' (오늘 참가자가 나뿐이라 솔로로 보여요)';
+    var auto = c.mode === 'solo' ? '' : ' (경쟁 레이스에 참여하지 않아 솔로로 보여요)';
     if (c.pace && m.n < c.goal) {
       var d = m.n - paceNow(c.goal);
       if (d < 0) return { cls: 'solo behind', txt: '🏃 ' + d, tip: '페이스메이커보다 ' + (-d) + '문제 뒤' + auto };
@@ -140,7 +140,8 @@
   function listHtml() {
     me();
     var s = sorted();
-    return '<div class="rp-t">오늘 참가자 ' + s.length + '명 · 푼 문제 수</div><ol class="rp-list">' + s.map(function (r, i) {
+    return '<div class="rp-t">오늘 참가자 ' + s.length + '명 · 푼 문제 수</div>' +
+      (s.length < 2 ? '<div class="rp-d">아직 오늘 경쟁에 참여해 문제를 푼 사람이 나뿐이에요.</div>' : '') + '<ol class="rp-list">' + s.map(function (r, i) {
       return '<li class="' + (r.is_me ? 'me' : '') + '"><span class="rk">' + (i < 3 ? ['🥇', '🥈', '🥉'][i] : (i + 1)) + '</span>' + sprite(r, 'rp-img') +
         '<span class="nm">' + esc(r.is_me ? (r.name || '나') + ' (나)' : (r.name || '익명')) + '</span><b>' + r.n + '</b></li>';
     }).join('') + '</ol>';
