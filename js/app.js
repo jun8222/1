@@ -1203,7 +1203,7 @@ function renderSubjectList() {
     const right = G ? (round + '회차' + (G.tries ? '' : ' · 시작 전')) : '';
     html += '<div class="subject-group' + (g.sets.length === 1 ? ' single' : '') + '">' +
       '<div class="sg-head"><span class="sg-name">' + esc(groupTitleOf(g)) + '</span>' +
-        (done ? '<span class="round-badge r' + Math.min(done, 3) + '">🏅 ' + done + '회독</span>' : '') +
+        (done ? '<span class="round-badge r' + Math.min(done, 3) + '"><span class="rb-i">🏅</span>' + done + '회독</span>' : '') +
         (isWeak(keys) ? '<span class="sg-weak">취약</span>' : '') +
         (right && G ? '<span class="sg-right">' + right + '</span>' : '') + '</div>' +
       (G ? '<div class="sg-row"><span>진도</span><div class="sg-bar"><div style="width:' + gpct + '%"></div></div><b>' + gpct + '%</b></div>' +
