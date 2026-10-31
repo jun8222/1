@@ -77,11 +77,9 @@
       if (c.pace && m.n < goal) { var p = paceNow(goal); html += '<span class="rc-pace" style="left:' + pos(p).toFixed(1) + 'px" title="페이스메이커 · 23시까지 목표를 끝내려면 지금 ' + p + '문제">🐢</span>'; }
       html += runner({ name: m.name, avatar: m.avatar, n: m.n, is_me: true, tag: '나 ' + m.n + '/' + goal, crown: m.n >= goal }, pos(m.n));
     } else {
-      goal = null;   // 경쟁: 문제 수 기준 결승선 없음. 1등이 결승선 바로 앞, 나머지는 1등 대비 비율
-      var s = sorted().reverse(), GAP = 20, top = Math.max(1, s.length ? s[s.length - 1].n : 1), END = tw - SZ - 6;
-      var xs = s.map(function (r) { return r.n / top * END; });
-      for (var i = 1; i < xs.length; i++) xs[i] = Math.max(xs[i], xs[i - 1] + GAP);
-      for (i = xs.length - 1; i >= 0; i--) xs[i] = Math.max(0, Math.min(xs[i], tw - SZ, i < xs.length - 1 ? xs[i + 1] - GAP : Infinity));
+      goal = null;   // 경쟁: 순위대로 같은 간격 배치 (1등이 결승선 쪽). 혼자면 가운데
+      var s = sorted().reverse(), k = s.length, END = tw - SZ;
+      var xs = s.map(function (_, i) { return (i + 1) / (k + 1) * END; });
       s.forEach(function (r, j) { html += runner({ name: r.name, avatar: r.avatar, n: r.n, is_me: r.is_me, tag: r.is_me ? '나 ' + r.n : '', crown: false }, xs[j]); });
     }
     bar.innerHTML = '<div class="rc-track">' + html + (goal ? '<span class="rc-fin" title="결승선 ' + goal + '문제">🏁<b>' + goal + '</b></span>' : '<span class="rc-fin" title="결승선 · 가장 많이 푼 사람이 가장 가까이">🏁</span>') + '</div>' +
