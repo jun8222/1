@@ -143,7 +143,7 @@
     return h.length >= 2 ? h[h.length - 2] : null;
   }
   function radarSvg(items) {
-    var S = 300, c = S / 2, R = 88, n = items.length;
+    var S = 330, c = S / 2, R = 80, n = items.length;
     function pt(idx, r) { var a = -Math.PI / 2 + idx * 2 * Math.PI / n; return [c + r * Math.cos(a), c + r * Math.sin(a)]; }
     function v(x) { return Math.max((x || 0) / 100, 0.02); }
     var svg = '<svg viewBox="0 0 ' + S + ' ' + S + '" class="rec-radar" role="img" aria-label="과목별 정답률 레이더 차트">';
@@ -159,15 +159,22 @@
     items.forEach(function (it, k) {
       var p = pt(k, R * v(it.show)), l = pt(k, R + 22);
       if (it.show !== null) svg += '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="3" fill="#4facfe"/>';
-      var cmp = it.show !== null && it.prev !== null, lift = cmp ? 11 : it.show !== null ? 6 : 0;
-      svg += '<text x="' + l[0] + '" y="' + (l[1] - lift) + '" text-anchor="middle" dominant-baseline="middle" font-size="10" fill="var(--text-sub)"' + (it.show === null ? ' opacity=".5"' : '') + '>' + esc(it.name) + '</text>';
-      if (it.show !== null) svg += '<text x="' + l[0] + '" y="' + (l[1] + 7 - (cmp ? 5 : 0)) + '" text-anchor="middle" dominant-baseline="middle" font-size="9" font-weight="700" fill="' + (it.round > 1 ? '#e0a800' : '#8fa2ff') + '">' + it.round + '회차' + (it.cur === null && it.done ? ' 시작 전' : '') + '</text>';
+      // 라벨: 오른쪽은 왼쪽 정렬, 왼쪽은 오른쪽 정렬, 위·아래는 위아래로 쌓음. 학습한 과목은 축 끝에서 짧은 선으로 연결
+      var ang = -Math.PI / 2 + k * 2 * Math.PI / n, cs = Math.cos(ang), sn = Math.sin(ang), has = it.show !== null, cmp = has && it.prev !== null;
+      var e = pt(k, R + 4), L = pt(k, R + (has ? 19 : 12)), anc = Math.abs(cs) < 0.25 ? 'middle' : cs > 0 ? 'start' : 'end';
+      var lines = [{ t: esc(it.name), fs: 10, fw: 400, fill: has ? 'var(--text-main, #c9cdf0)' : 'var(--text-sub)', op: has ? '' : ' opacity=".55"' }];
+      if (has) lines.push({ t: it.round + '회차' + (it.cur === null && it.done ? ' 시작 전' : ''), fs: 9, fw: 700, fill: it.round > 1 ? '#e0a800' : '#8fa2ff', op: '' });
       if (cmp) {
         var d = it.show - it.prev;
-        svg += '<text x="' + l[0] + '" y="' + (l[1] + 13) + '" text-anchor="middle" dominant-baseline="middle" font-size="9" font-weight="700">' +
-          '<tspan fill="#ff9f43">' + it.prev + '</tspan><tspan fill="var(--text-sub)"> → </tspan><tspan fill="#4facfe">' + it.show + '</tspan>' +
-          (d ? '<tspan fill="' + (d > 0 ? '#3ddc84' : '#ff5f6d') + '"> ' + (d > 0 ? '▲' : '▼') + '</tspan>' : '') + '</text>';
+        lines.push({ t: '<tspan fill="#ff9f43">' + it.prev + '</tspan><tspan fill="var(--text-sub)"> → </tspan><tspan fill="#4facfe">' + it.show + '</tspan>' +
+          (d ? '<tspan fill="' + (d > 0 ? '#3ddc84' : '#ff5f6d') + '"> ' + (d > 0 ? '▲' : '▼') + '</tspan>' : ''), fs: 9, fw: 700, fill: '', op: '' });
       }
+      var lh = 10.5, tot = lines.length * lh, y0 = L[1] + (sn < -0.5 ? -tot + lh * 0.7 : sn > 0.5 ? lh * 0.7 : -(tot / 2) + lh * 0.75);
+      var e2 = pt(k, R + 13);
+      if (has) svg += '<line x1="' + e[0] + '" y1="' + e[1] + '" x2="' + e2[0] + '" y2="' + e2[1] + '" stroke="var(--border-color)" stroke-width="1"/>';
+      lines.forEach(function (ln, j) {
+        svg += '<text x="' + L[0] + '" y="' + (y0 + j * lh) + '" text-anchor="' + anc + '" font-size="' + ln.fs + '" font-weight="' + ln.fw + '"' + (ln.fill ? ' fill="' + ln.fill + '"' : '') + ln.op + '>' + ln.t + '</text>';
+      });
     });
     return svg + '</svg>';
   }
