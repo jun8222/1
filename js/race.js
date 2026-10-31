@@ -3,7 +3,7 @@
 //  - 솔로 모드: 결승선 = 내 목표, 어제의 나(고스트)·페이스메이커(🐢)와 달림
 //  - 경쟁 모드여도 오늘 참가자가 나뿐이면 솔로처럼 보여줌
 (function () {
-  var COMPETE_GOAL = 150, POLL = 120000, PACE_FROM = 7, PACE_TO = 23;   // 페이스: 07시 출발 → 23시 목표 도착
+  var POLL = 120000, PACE_FROM = 7, PACE_TO = 23;   // 페이스: 07시 출발 → 23시 목표 도착
   var rows = [], ghost = null, timer = null, started = false, lastOrder = null, runUntil = 0, prevMe = null;
   function $(id) { return document.getElementById(id); }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
@@ -77,17 +77,16 @@
       if (c.pace && m.n < goal) { var p = paceNow(goal); html += '<span class="rc-pace" style="left:' + pos(p).toFixed(1) + 'px" title="페이스메이커 · 23시까지 목표를 끝내려면 지금 ' + p + '문제">🐢</span>'; }
       html += runner({ name: m.name, avatar: m.avatar, n: m.n, is_me: true, tag: '나 ' + m.n + '/' + goal, crown: m.n >= goal }, pos(m.n));
     } else {
-      goal = COMPETE_GOAL;
-      // 가까운 캐릭터끼리 겹치지 않게 최소 간격 확보
-      var s = sorted().reverse(), GAP = 20;
-      var xs = s.map(function (r) { return Math.min(r.n, goal) / goal * (tw - SZ); });
+      goal = null;   // 경쟁: 문제 수 기준 결승선 없음. 1등이 결승선 바로 앞, 나머지는 1등 대비 비율
+      var s = sorted().reverse(), GAP = 20, top = Math.max(1, s.length ? s[s.length - 1].n : 1), END = tw - SZ - 6;
+      var xs = s.map(function (r) { return r.n / top * END; });
       for (var i = 1; i < xs.length; i++) xs[i] = Math.max(xs[i], xs[i - 1] + GAP);
       for (i = xs.length - 1; i >= 0; i--) xs[i] = Math.max(0, Math.min(xs[i], tw - SZ, i < xs.length - 1 ? xs[i + 1] - GAP : Infinity));
-      s.forEach(function (r, j) { html += runner({ name: r.name, avatar: r.avatar, n: r.n, is_me: r.is_me, tag: r.is_me ? '나 ' + r.n : '', crown: r.n >= goal }, xs[j]); });
+      s.forEach(function (r, j) { html += runner({ name: r.name, avatar: r.avatar, n: r.n, is_me: r.is_me, tag: r.is_me ? '나 ' + r.n : '', crown: false }, xs[j]); });
     }
-    bar.innerHTML = '<div class="rc-track">' + html + '<span class="rc-fin" title="결승선 ' + goal + '문제">🏁<b>' + goal + '</b></span></div>' +
+    bar.innerHTML = '<div class="rc-track">' + html + (goal ? '<span class="rc-fin" title="결승선 ' + goal + '문제">🏁<b>' + goal + '</b></span>' : '<span class="rc-fin" title="결승선 · 가장 많이 푼 사람이 가장 가까이">🏁</span>') + '</div>' +
       '<button type="button" class="rc-mode ' + b.cls + '" onclick="Race.panel(event)" title="' + esc(b.tip) + '">' + b.txt + '</button>' +
-      '<button type="button" class="rc-fold" onclick="Race.fold(true)" title="레이스 접기">▴</button>';
+'';
   }
 
   // ---------------------------------------------------------------- 알림
@@ -139,15 +138,16 @@
   function outside(e) { var p = $('race-panel'); if (p && !p.contains(e.target) && !(e.target.closest && e.target.closest('.rc-mode'))) closePanel(); }
   function panelHtml() {
     var c = cfg(), goals = [50, 80, 100, 150, 200], custom = goals.indexOf(c.goal) < 0;
-    return '<div class="rp-t">🏁 레이스 모드</div>' +
+    return '<div class="rp-t">🏁 레이스 모드<button type="button" class="rp-fold" onclick="Race.fold(true)">▴ 레이스 접기</button></div>' +
       '<div class="rp-seg"><button type="button" class="' + (c.mode === 'compete' ? 'on' : '') + '" onclick="Race.set({race_mode:\'compete\'})">⚔️ 경쟁</button>' +
       '<button type="button" class="' + (c.mode === 'solo' ? 'on' : '') + '" onclick="Race.set({race_mode:\'solo\'})">🏃 솔로</button></div>' +
-      '<div class="rp-d">' + (c.mode === 'solo' ? '내 목표까지 혼자 달려요.' : '모두 ' + COMPETE_GOAL + '문제를 향해 달려요. 오늘 참가자가 나뿐이면 솔로로 보여요.') + '</div>' +
+      '<div class="rp-d">' + (c.mode === 'solo' ? '내 목표까지 혼자 달려요.' : '오늘 많이 푼 사람일수록 오른쪽, 1등이 결승선에 가장 가까이 있어요. 오늘 참가자가 나뿐이면 솔로로 보여요.') + '</div>' +
+      (c.mode !== 'solo' ? '' :
       '<div class="rp-t">솔로 목표 문제 수</div><div class="rp-goals">' +
       goals.map(function (g) { return '<button type="button" class="' + (g === c.goal ? 'on' : '') + '" onclick="Race.set({race_goal:' + g + '})">' + g + '</button>'; }).join('') +
       '<input type="number" min="10" max="500" inputmode="numeric" placeholder="직접" value="' + (custom ? c.goal : '') + '" class="' + (custom ? 'on' : '') + '" onchange="Race.set({race_goal:+this.value})"></div>' +
       '<label class="rp-cb"><input type="checkbox"' + (c.ghost ? ' checked' : '') + ' onchange="Race.set({race_ghost:this.checked})"> 👻 어제의 나 함께 달리기</label>' +
-      '<label class="rp-cb"><input type="checkbox"' + (c.pace ? ' checked' : '') + ' onchange="Race.set({race_pace:this.checked})"> 🐢 페이스메이커 (07~23시)</label>';
+      '<label class="rp-cb"><input type="checkbox"' + (c.pace ? ' checked' : '') + ' onchange="Race.set({race_pace:this.checked})"> 🐢 페이스메이커 (07~23시)</label>');
   }
 
   window.Race = {
