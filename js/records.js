@@ -150,9 +150,9 @@
     items.forEach(function (it, k) {
       var p = pt(k, R * v(it.show)), l = pt(k, R + 22);
       if (it.show !== null) svg += '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="3" fill="#4facfe"/>';
-      var lift = it.round > 1 ? 6 : 0;
+      var lift = it.show !== null ? 6 : 0;
       svg += '<text x="' + l[0] + '" y="' + (l[1] - lift) + '" text-anchor="middle" dominant-baseline="middle" font-size="10" fill="var(--text-sub)"' + (it.show === null ? ' opacity=".5"' : '') + '>' + esc(it.name) + '</text>';
-      if (it.round > 1) svg += '<text x="' + l[0] + '" y="' + (l[1] + 7) + '" text-anchor="middle" dominant-baseline="middle" font-size="9" font-weight="700" fill="#e0a800">' + it.round + '회차</text>';
+      if (it.show !== null) svg += '<text x="' + l[0] + '" y="' + (l[1] + 7) + '" text-anchor="middle" dominant-baseline="middle" font-size="9" font-weight="700" fill="' + (it.round > 1 ? '#e0a800' : '#8fa2ff') + '">' + it.round + '회차</text>';
     });
     return svg + '</svg>';
   }
