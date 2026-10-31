@@ -130,19 +130,28 @@
       if (cfg().ghost && Cloud.getRaceGhost) ghost = await Cloud.getRaceGhost();
       if (prevMe === null) prevMe = m.n;
       checkEvents(); render();
+      var pn = $('race-panel'); if (pn) pn.innerHTML = panelHtml();
     } catch (e) { /* 레이스는 실패해도 조용히 */ }
   }
 
   // ---------------------------------------------------------------- 모드 설정 창
   function closePanel() { var p = $('race-panel'); if (p) p.remove(); document.removeEventListener('click', outside, true); }
   function outside(e) { var p = $('race-panel'); if (p && !p.contains(e.target) && !(e.target.closest && e.target.closest('.rc-mode'))) closePanel(); }
+  function listHtml() {
+    me();
+    var s = sorted();
+    return '<div class="rp-t">오늘 참가자 ' + s.length + '명 · 푼 문제 수</div><ol class="rp-list">' + s.map(function (r, i) {
+      return '<li class="' + (r.is_me ? 'me' : '') + '"><span class="rk">' + (i < 3 ? ['🥇', '🥈', '🥉'][i] : (i + 1)) + '</span>' + sprite(r, 'rp-img') +
+        '<span class="nm">' + esc(r.is_me ? (r.name || '나') + ' (나)' : (r.name || '익명')) + '</span><b>' + r.n + '</b></li>';
+    }).join('') + '</ol>';
+  }
   function panelHtml() {
     var c = cfg(), goals = [50, 80, 100, 150, 200], custom = goals.indexOf(c.goal) < 0;
     return '<div class="rp-t">🏁 레이스 모드<button type="button" class="rp-fold" onclick="Race.fold(true)">▴ 레이스 접기</button></div>' +
       '<div class="rp-seg"><button type="button" class="' + (c.mode === 'compete' ? 'on' : '') + '" onclick="Race.set({race_mode:\'compete\'})">⚔️ 경쟁</button>' +
       '<button type="button" class="' + (c.mode === 'solo' ? 'on' : '') + '" onclick="Race.set({race_mode:\'solo\'})">🏃 솔로</button></div>' +
       '<div class="rp-d">' + (c.mode === 'solo' ? '내 목표까지 혼자 달려요.' : '오늘 많이 푼 사람일수록 오른쪽, 1등이 결승선에 가장 가까이 있어요. 오늘 참가자가 나뿐이면 솔로로 보여요.') + '</div>' +
-      (c.mode !== 'solo' ? '' :
+      (c.mode !== 'solo' ? listHtml() :
       '<div class="rp-t">솔로 목표 문제 수</div><div class="rp-goals">' +
       goals.map(function (g) { return '<button type="button" class="' + (g === c.goal ? 'on' : '') + '" onclick="Race.set({race_goal:' + g + '})">' + g + '</button>'; }).join('') +
       '<input type="number" min="10" max="500" inputmode="numeric" placeholder="직접" value="' + (custom ? c.goal : '') + '" class="' + (custom ? 'on' : '') + '" onchange="Race.set({race_goal:+this.value})"></div>' +
@@ -162,6 +171,7 @@
     bump: function () {
       if (!started || !joined()) return;
       me().n += 1; runUntil = Date.now() + 700; checkEvents(); render();
+      var pn = $('race-panel'); if (pn) pn.innerHTML = panelHtml();
       clearTimeout(Race._r); Race._r = setTimeout(render, 750);
     },
     fold: function (on) { ls('raceFold', on ? '1' : '0'); closePanel(); render(); },
